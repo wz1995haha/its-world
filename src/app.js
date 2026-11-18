@@ -181,26 +181,31 @@
   }
 
   /* 换头像的浮层：画的那 11/15 张任选，或者传一张自己的照片 */
-  function openAvatar() {
-    var pet = S.active();
-    if (!pet) return;
-    var breeds = PT.BREEDS[pet.species] || [];
+  function openAvatar(isDraft) {
+    var pet = isDraft ? null : S.active();
+    if (!isDraft && !pet) return;
+    var sp = isDraft ? ob.species : pet.species;
+    var curBreed = isDraft ? ob.breedId : pet.breedId;
+    var hasPhoto = !!(isDraft ? ob.photo : pet.photo);
+    var breeds = PT.BREEDS[sp] || [];
+
     var ov = document.createElement('div');
     ov.className = 'sheetwrap';
     ov.innerHTML =
       '<div class="sheetmask"></div>' +
       '<div class="avsheet">' +
-      '<div class="avs-h"><b>换它的头像</b><button class="avs-x" aria-label="关闭">×</button></div>' +
+      '<div class="avs-h"><b>' + (isDraft ? '给它挑个样子' : '换它的头像') + '</b>' +
+      '<button class="avs-x" aria-label="关闭">×</button></div>' +
       '<p class="avs-tip">照片会裁成正方形 320×320 存下来，跟着「导出备份」一起走。</p>' +
       '<div class="avs-btns">' +
       '<button class="mini accent" data-a="photo">上传一张照片</button>' +
-      (pet.photo ? '<button class="mini ghost" data-a="drawn">用回画的</button>' : '') +
+      (hasPhoto ? '<button class="mini ghost" data-a="drawn">用回画的</button>' : '') +
       '</div>' +
       '<div class="avs-sep"><span>或者，选一张画的</span></div>' +
       '<div class="breeds avs-grid">' +
       breeds.map(function (b) {
-        return '<button class="breed' + (b.id === pet.breedId ? ' on' : '') + '" data-b="' + b.id + '">' +
-          '<span class="bd-face">' + PT.ART.face(pet.species, 'calm', { tilt: 0, breed: b }) + '</span>' +
+        return '<button class="breed' + (b.id === curBreed ? ' on' : '') + '" data-b="' + b.id + '">' +
+          '<span class="bd-face">' + PT.ART.face(sp, 'calm', { tilt: 0, breed: b }) + '</span>' +
           '<span class="bd-name">' + esc(b.label) + '</span></button>';
       }).join('') +
       '</div>' +
@@ -208,22 +213,33 @@
       '</div>';
 
     var inp = ov.querySelector('#file-avatar');
+
+    function applyBreed(id) {
+      if (isDraft) { harvestOb(); ob.breedId = id; ob.photo = ''; close(); render({}); return; }
+      S.updatePet(pet.id, { breedId: id, breed: id, photo: '' });
+      close(); render({}); toast('换好了');
+    }
+
+    function applyPhoto(dataUrl) {
+      if (isDraft) { harvestOb(); ob.photo = dataUrl; close(); render({}); return; }
+      S.updatePet(pet.id, { photo: dataUrl });
+      close(); render({}); toast('换好了');
+    }
+
+    function clearPhoto() {
+      if (isDraft) { harvestOb(); ob.photo = ''; close(); render({}); return; }
+      S.updatePet(pet.id, { photo: '' });
+      close(); render({}); toast('用回画的了');
+    }
+
     ov.addEventListener('click', function (ev) {
       var t = ev.target;
       var bBtn = t.closest ? t.closest('[data-b]') : null;
-      if (bBtn) {
-        var id = bBtn.dataset.b;
-        S.updatePet(pet.id, { breedId: id, breed: id, photo: '' });
-        close(); render({});
-        toast('换好了');
-        return;
-      }
+      if (bBtn) { applyBreed(bBtn.dataset.b); return; }
       var aBtn = t.closest ? t.closest('[data-a]') : null;
       if (aBtn) {
         if (aBtn.dataset.a === 'photo') { inp.click(); return; }
-        S.updatePet(pet.id, { photo: '' });
-        close(); render({});
-        toast('用回画的了');
+        clearPhoto();
         return;
       }
       if (t === ov || t.classList.contains('sheetmask') || t.classList.contains('avs-x')) close();
@@ -233,11 +249,7 @@
       var f = inp.files && inp.files[0];
       if (!f) return;
       toast('正在处理照片…');
-      shrinkAvatar(f).then(function (dataUrl) {
-        S.updatePet(pet.id, { photo: dataUrl });
-        close(); render({});
-        toast('换好了');
-      }).catch(function (e) {
+      shrinkAvatar(f).then(applyPhoto).catch(function (e) {
         toast(e && e.message ? e.message : '这张图用不了');
       });
       inp.value = '';
@@ -246,7 +258,6 @@
     function close() { ov.remove(); }
     document.body.appendChild(ov);
   }
-
   function openMedia(mid) {    PT.MEDIA.get(mid).then(function (blob) {
       if (!blob) { toast('这个文件已经找不到了'); return; }
       var url = URL.createObjectURL(blob);
@@ -306,7 +317,7 @@
 
   /* ---------------- 引导 ---------------- */
 
-  var ob = { species: 'cat', breedId: 'orange', personality: 'tsundere', ptext: '', editing: false, mode: 'first', draft: null };
+  var ob = { species: 'cat', breedId: 'orange', personality: 'tsundere', ptext: '', editing: false, mode: 'first', draft: null, photo: '' };
 
   /* 表单重渲染前先收一遍已输入的内容，别让用户白打 */
   /* 档案节点表单：换表情时先把已输入的内容收起来 */
@@ -346,12 +357,15 @@
       ob.personality = prev.personality || 'tsundere';
       ob.ptext = prev.personalityText || '';
       if (prev.breedId) ob.breedId = prev.breedId;
+      ob.photo = prev.photo || '';
       ob.draft = null;
     }
     if (!prev) ob.seedFor = '';
     var breed = breedOfSpecies(ob.species, ob.breedId);
     ob.breedId = breed ? breed.id : '';
-    var hero = PT.ART.face(ob.species, 'calm', { tilt: -2, breed: breed });
+    var hero = ob.photo
+      ? '<img class="face-photo" src="' + ob.photo + '" alt="">'
+      : PT.ART.face(ob.species, 'calm', { tilt: -2, breed: breed });
     var dval = function (k, fallback) {
       if (ob.draft) return ob.draft[k] || '';
       return fallback || '';
@@ -377,7 +391,8 @@
         : '你只记事实，它来写日记。<br>日子久了，你就有它的一生。';
     return '' +
       '<div class="onboard">' +
-      '<div class="ob-art">' + hero + '</div>' +
+      '<button class="ob-art" data-act="avatar" aria-label="换头像">' + hero + '</button>' +
+      '<button class="ob-hint" data-act="avatar">换个品种，或者用它的照片</button>' +
       '<h1 class="ob-title">' + title + '</h1>' +
       '<p class="ob-sub">' + sub + '</p>' +
 
@@ -1375,7 +1390,8 @@
         bio: bio,
         birthday: cur ? (cur.birthday || '') : '',
         homeDate: home,
-        createdAt: cur && cur.createdAt ? cur.createdAt : new Date().toISOString()
+        createdAt: cur && cur.createdAt ? cur.createdAt : new Date().toISOString(),
+        photo: ob.photo || ''
       };
       ob.draft = null;
       if (ob.editing && cur) {
@@ -1518,7 +1534,7 @@
       return;
     }
 
-    if (act === 'avatar') { openAvatar(); return; }
+    if (act === 'avatar') { openAvatar(!S.pets().length || view.name === 'onboard'); return; }
 
     if (act === 'edit-profile') {
       var pp = S.active();

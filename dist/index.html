@@ -114,7 +114,23 @@ a { color: inherit; text-decoration: none; cursor: pointer; }
 /* ---------- 引导 ---------- */
 
 .onboard { padding-top: 14px; text-align: center; animation: fade .5s both; }
-.ob-art { width: 172px; height: 172px; margin: 0 auto 6px; }
+.ob-art {
+  display: block; width: 172px; height: 172px; margin: 0 auto 6px; padding: 0;
+  border: 0; background: none; cursor: pointer; position: relative;
+}
+.ob-art::after {
+  content: '✎'; position: absolute; right: 2px; bottom: 6px;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--paper-3); border: 1.5px solid rgba(var(--accent-rgb), .55); color: var(--accent);
+  font-size: 17px; line-height: 35px; text-align: center;
+  box-shadow: 0 4px 12px -4px rgba(var(--sh), .35);
+}
+.ob-art img { width: 100%; height: 100%; display: block; border-radius: 50%; object-fit: cover; }
+.ob-hint {
+  display: block; margin: 0 auto 18px; padding: 6px 12px; border: 0; border-radius: 999px;
+  background: transparent; color: var(--muted); font: inherit; font-size: 12.5px;
+  letter-spacing: .04em; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
 .ob-art svg { width: 100%; height: 100%; display: block; }
 .ob-title {
   font-family: var(--serif); font-size: 34px; margin: 4px 0 10px;
@@ -354,7 +370,7 @@ a { color: inherit; text-decoration: none; cursor: pointer; }
 
 .pet-hero { text-align: center; padding: 12px 0 22px; }
 .ph-face { width: 150px; height: 150px; margin: 0 auto; padding: 0; border: 0; background: none; cursor: pointer; position: relative; }
-.ph-face::after { content: '✎'; position: absolute; right: 4px; bottom: 4px; width: 30px; height: 30px; border-radius: 50%; background: var(--paper-3); border: 1px solid var(--line); color: var(--muted); font-size: 14px; line-height: 28px; text-align: center; }
+.ph-face::after { content: '✎'; position: absolute; right: 6px; bottom: 6px; width: 34px; height: 34px; border-radius: 50%; background: var(--paper-3); border: 1.5px solid rgba(var(--accent-rgb), .5); color: var(--accent); font-size: 15px; line-height: 31px; text-align: center; box-shadow: 0 4px 10px -4px rgba(var(--sh), .35); }
 .ph-face svg { width: 100%; height: 100%; }
 .ph-name { font-family: var(--serif); font-size: 28px; margin: 6px 0 4px; font-weight: 600; }
 .ph-sub { color: var(--muted); font-size: 12.5px; margin: 0; letter-spacing: .03em; }
@@ -678,7 +694,7 @@ body.no-tabs .tabs { display: none; }
 /* ---------------- 档案 ---------------- */
 .arc-head { display: flex; align-items: center; gap: 14px; margin: 4px 0 16px; }
 .arc-face { flex: 0 0 76px; width: 76px; padding: 0; border: 0; background: none; cursor: pointer; position: relative; }
-.arc-face::after { content: '✎'; position: absolute; right: -2px; bottom: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--paper-3); border: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 22px; text-align: center; }
+.arc-face::after { content: '✎'; position: absolute; right: -3px; bottom: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--paper-3); border: 1.5px solid rgba(var(--accent-rgb), .5); color: var(--accent); font-size: 13px; line-height: 23px; text-align: center; box-shadow: 0 3px 9px -4px rgba(var(--sh), .35); }
 .arc-face svg, .arc-face img { width: 100%; height: auto; display: block; }
 .arc-id h1 { font-family: var(--serif); font-size: 26px; margin: 0 0 3px; letter-spacing: .02em; }
 .arc-id p { margin: 0; font-size: 12.5px; color: var(--muted); }
@@ -2880,26 +2896,31 @@ body.no-tabs .tabs { display: none; }
   }
 
   /* 换头像的浮层：画的那 11/15 张任选，或者传一张自己的照片 */
-  function openAvatar() {
-    var pet = S.active();
-    if (!pet) return;
-    var breeds = PT.BREEDS[pet.species] || [];
+  function openAvatar(isDraft) {
+    var pet = isDraft ? null : S.active();
+    if (!isDraft && !pet) return;
+    var sp = isDraft ? ob.species : pet.species;
+    var curBreed = isDraft ? ob.breedId : pet.breedId;
+    var hasPhoto = !!(isDraft ? ob.photo : pet.photo);
+    var breeds = PT.BREEDS[sp] || [];
+
     var ov = document.createElement('div');
     ov.className = 'sheetwrap';
     ov.innerHTML =
       '<div class="sheetmask"></div>' +
       '<div class="avsheet">' +
-      '<div class="avs-h"><b>换它的头像</b><button class="avs-x" aria-label="关闭">×</button></div>' +
+      '<div class="avs-h"><b>' + (isDraft ? '给它挑个样子' : '换它的头像') + '</b>' +
+      '<button class="avs-x" aria-label="关闭">×</button></div>' +
       '<p class="avs-tip">照片会裁成正方形 320×320 存下来，跟着「导出备份」一起走。</p>' +
       '<div class="avs-btns">' +
       '<button class="mini accent" data-a="photo">上传一张照片</button>' +
-      (pet.photo ? '<button class="mini ghost" data-a="drawn">用回画的</button>' : '') +
+      (hasPhoto ? '<button class="mini ghost" data-a="drawn">用回画的</button>' : '') +
       '</div>' +
       '<div class="avs-sep"><span>或者，选一张画的</span></div>' +
       '<div class="breeds avs-grid">' +
       breeds.map(function (b) {
-        return '<button class="breed' + (b.id === pet.breedId ? ' on' : '') + '" data-b="' + b.id + '">' +
-          '<span class="bd-face">' + PT.ART.face(pet.species, 'calm', { tilt: 0, breed: b }) + '</span>' +
+        return '<button class="breed' + (b.id === curBreed ? ' on' : '') + '" data-b="' + b.id + '">' +
+          '<span class="bd-face">' + PT.ART.face(sp, 'calm', { tilt: 0, breed: b }) + '</span>' +
           '<span class="bd-name">' + esc(b.label) + '</span></button>';
       }).join('') +
       '</div>' +
@@ -2907,22 +2928,33 @@ body.no-tabs .tabs { display: none; }
       '</div>';
 
     var inp = ov.querySelector('#file-avatar');
+
+    function applyBreed(id) {
+      if (isDraft) { harvestOb(); ob.breedId = id; ob.photo = ''; close(); render({}); return; }
+      S.updatePet(pet.id, { breedId: id, breed: id, photo: '' });
+      close(); render({}); toast('换好了');
+    }
+
+    function applyPhoto(dataUrl) {
+      if (isDraft) { harvestOb(); ob.photo = dataUrl; close(); render({}); return; }
+      S.updatePet(pet.id, { photo: dataUrl });
+      close(); render({}); toast('换好了');
+    }
+
+    function clearPhoto() {
+      if (isDraft) { harvestOb(); ob.photo = ''; close(); render({}); return; }
+      S.updatePet(pet.id, { photo: '' });
+      close(); render({}); toast('用回画的了');
+    }
+
     ov.addEventListener('click', function (ev) {
       var t = ev.target;
       var bBtn = t.closest ? t.closest('[data-b]') : null;
-      if (bBtn) {
-        var id = bBtn.dataset.b;
-        S.updatePet(pet.id, { breedId: id, breed: id, photo: '' });
-        close(); render({});
-        toast('换好了');
-        return;
-      }
+      if (bBtn) { applyBreed(bBtn.dataset.b); return; }
       var aBtn = t.closest ? t.closest('[data-a]') : null;
       if (aBtn) {
         if (aBtn.dataset.a === 'photo') { inp.click(); return; }
-        S.updatePet(pet.id, { photo: '' });
-        close(); render({});
-        toast('用回画的了');
+        clearPhoto();
         return;
       }
       if (t === ov || t.classList.contains('sheetmask') || t.classList.contains('avs-x')) close();
@@ -2932,11 +2964,7 @@ body.no-tabs .tabs { display: none; }
       var f = inp.files && inp.files[0];
       if (!f) return;
       toast('正在处理照片…');
-      shrinkAvatar(f).then(function (dataUrl) {
-        S.updatePet(pet.id, { photo: dataUrl });
-        close(); render({});
-        toast('换好了');
-      }).catch(function (e) {
+      shrinkAvatar(f).then(applyPhoto).catch(function (e) {
         toast(e && e.message ? e.message : '这张图用不了');
       });
       inp.value = '';
@@ -2945,7 +2973,6 @@ body.no-tabs .tabs { display: none; }
     function close() { ov.remove(); }
     document.body.appendChild(ov);
   }
-
   function openMedia(mid) {    PT.MEDIA.get(mid).then(function (blob) {
       if (!blob) { toast('这个文件已经找不到了'); return; }
       var url = URL.createObjectURL(blob);
@@ -3005,7 +3032,7 @@ body.no-tabs .tabs { display: none; }
 
   /* ---------------- 引导 ---------------- */
 
-  var ob = { species: 'cat', breedId: 'orange', personality: 'tsundere', ptext: '', editing: false, mode: 'first', draft: null };
+  var ob = { species: 'cat', breedId: 'orange', personality: 'tsundere', ptext: '', editing: false, mode: 'first', draft: null, photo: '' };
 
   /* 表单重渲染前先收一遍已输入的内容，别让用户白打 */
   /* 档案节点表单：换表情时先把已输入的内容收起来 */
@@ -3045,12 +3072,15 @@ body.no-tabs .tabs { display: none; }
       ob.personality = prev.personality || 'tsundere';
       ob.ptext = prev.personalityText || '';
       if (prev.breedId) ob.breedId = prev.breedId;
+      ob.photo = prev.photo || '';
       ob.draft = null;
     }
     if (!prev) ob.seedFor = '';
     var breed = breedOfSpecies(ob.species, ob.breedId);
     ob.breedId = breed ? breed.id : '';
-    var hero = PT.ART.face(ob.species, 'calm', { tilt: -2, breed: breed });
+    var hero = ob.photo
+      ? '<img class="face-photo" src="' + ob.photo + '" alt="">'
+      : PT.ART.face(ob.species, 'calm', { tilt: -2, breed: breed });
     var dval = function (k, fallback) {
       if (ob.draft) return ob.draft[k] || '';
       return fallback || '';
@@ -3076,7 +3106,8 @@ body.no-tabs .tabs { display: none; }
         : '你只记事实，它来写日记。<br>日子久了，你就有它的一生。';
     return '' +
       '<div class="onboard">' +
-      '<div class="ob-art">' + hero + '</div>' +
+      '<button class="ob-art" data-act="avatar" aria-label="换头像">' + hero + '</button>' +
+      '<button class="ob-hint" data-act="avatar">换个品种，或者用它的照片</button>' +
       '<h1 class="ob-title">' + title + '</h1>' +
       '<p class="ob-sub">' + sub + '</p>' +
 
@@ -4074,7 +4105,8 @@ body.no-tabs .tabs { display: none; }
         bio: bio,
         birthday: cur ? (cur.birthday || '') : '',
         homeDate: home,
-        createdAt: cur && cur.createdAt ? cur.createdAt : new Date().toISOString()
+        createdAt: cur && cur.createdAt ? cur.createdAt : new Date().toISOString(),
+        photo: ob.photo || ''
       };
       ob.draft = null;
       if (ob.editing && cur) {
@@ -4217,7 +4249,7 @@ body.no-tabs .tabs { display: none; }
       return;
     }
 
-    if (act === 'avatar') { openAvatar(); return; }
+    if (act === 'avatar') { openAvatar(!S.pets().length || view.name === 'onboard'); return; }
 
     if (act === 'edit-profile') {
       var pp = S.active();
