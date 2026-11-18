@@ -1,0 +1,37 @@
+<!-- face.wxml — 有照片显示照片；没有就用画好的品种头像图；再没有才用 view 拼 -->
+<view class="face {{size}}">
+  <image wx:if="{{photo}}" class="face-img" src="{{photo}}" mode="aspectFill" />
+  <image wx:elif="{{pic}}" class="face-pic" src="{{pic}}" mode="aspectFit" />
+  <block wx:else>
+    <view class="face-body" style="--fur:{{s.fur}};--furd:{{s.furd}};--eyec:{{s.eye}}">
+      <!-- 耳朵 -->
+      <view class="ear l {{s.ear}}"></view>
+      <view class="ear r {{s.ear}}"></view>
+
+      <!-- 头 -->
+      <view class="head {{s.cloud ? 'cloud' : ''}}"></view>
+
+      <!-- 花纹 -->
+      <view wx:if="{{s.mask}}" class="mark mask"></view>
+      <view wx:if="{{s.blaze}}" class="mark blaze"></view>
+      <view wx:if="{{s.stripe}}" class="mark stripe"></view>
+      <view wx:if="{{s.patch}}" class="mark patch"></view>
+
+      <!-- 腮红 -->
+      <view wx:if="{{!s.dark}}" class="blush l"></view>
+      <view wx:if="{{!s.dark}}" class="blush r"></view>
+
+      <!-- 眼睛 -->
+      <view class="eye l {{s.eyes}}"></view>
+      <view class="eye r {{s.eyes}}"></view>
+
+      <!-- 鼻子 / 嘴 -->
+      <view class="nose"></view>
+      <view class="mouth {{s.ear === 'flop' || s.ear === 'long' ? 'wide' : ''}}"></view>
+
+      <!-- 装饰 -->
+      <view wx:if="{{s.bow}}" class="bow"></view>
+      <view wx:if="{{s.topknot}}" class="topknot"></view>
+    </view>
+  </block>
+</view>

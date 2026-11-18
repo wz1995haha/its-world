@@ -1,0 +1,4044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5EEE3">
+<meta name="description" content="它眼里的世界 — 你只记事实，它来写日记。">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="它的世界">
+<meta name="mobile-web-app-capable" content="yes">
+<title>它眼里的世界</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cellipse cx='20' cy='18' rx='6' ry='7.5' fill='%233A322C'/%3E%3Cellipse cx='32' cy='13' rx='5.6' ry='7' fill='%233A322C'/%3E%3Cellipse cx='44' cy='18' rx='6' ry='7.5' fill='%233A322C'/%3E%3Cellipse cx='52' cy='30' rx='5' ry='6' fill='%233A322C'/%3E%3Cpath d='M32 26c9 0 16 8 16 15 0 6-5 9-10 9-3 0-4-1-6-1s-3 1-6 1c-5 0-10-3-10-9 0-7 7-15 16-15z' fill='%23C2613F'/%3E%3C/svg%3E">
+<style>
+/* styles.css — 纸张、字、一点点手绘 */
+:root {
+  --sh: 58, 50, 44;
+  --accent-rgb: 194, 97, 63;
+  --bg: #E9DFCE;
+  --bg-glow: var(--paper-2);
+  --bg-2: #E2D5BF;
+  --paper: var(--paper);
+  --paper-2: var(--paper-2);
+  --paper-3: var(--paper-3);
+  --ink: var(--ink);
+  --ink-soft: var(--ink-soft);
+  --muted: var(--muted);
+  --line: rgba(var(--sh), .12);
+  --line-soft: rgba(var(--sh), .07);
+  --accent: var(--accent);
+  --sage: var(--sage);
+  --serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", Georgia, serif;
+  --kaiti: "Kaiti SC", "KaiTi", "STKaiti", "Songti SC", "SimSun", Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(1100px 520px at 50% -8%, var(--bg-glow) 0%, rgba(251, 246, 236, 0) 62%),
+    radial-gradient(760px 420px at 105% 104%, var(--bg-2) 0%, rgba(226, 213, 191, 0) 70%);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+#app {
+  max-width: 460px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 26px 20px 118px;
+  background: var(--paper);
+  box-shadow: 0 0 0 1px rgba(var(--sh), .06), 0 0 90px rgba(var(--sh), .10);
+  position: relative;
+}
+
+@media (max-width: 500px) {
+  #app { padding: 20px 16px 112px; box-shadow: none; }
+}
+
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+input, textarea, select { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; cursor: pointer; }
+
+/* ---------- 通用 ---------- */
+
+.card {
+  background: var(--paper-2);
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
+  box-shadow: 0 12px 34px -26px rgba(var(--sh), .8), inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+.card.pad { padding: 18px; }
+
+.head { margin: 6px 0 22px; }
+.kicker {
+  font-size: 11.5px; letter-spacing: .14em; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.page-title {
+  font-family: var(--serif);
+  font-size: 29px; line-height: 1.25; margin: 0; font-weight: 600;
+  letter-spacing: .01em;
+}
+.page-title em {
+  font-style: normal; color: var(--accent);
+  font-family: var(--sans); font-weight: 600; font-size: 30px;
+  margin: 0 2px;
+}
+.sub { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+.foot {
+  text-align: center; color: var(--muted); font-size: 11.5px;
+  letter-spacing: .04em; margin: 26px 0 0; line-height: 1.8;
+}
+.dim { color: var(--muted); }
+.small { font-size: 12px; }
+
+.sec-title {
+  font-size: 12px; letter-spacing: .1em; color: var(--muted);
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin: 0 2px 10px;
+}
+.block { margin-top: 24px; }
+
+/* ---------- 引导 ---------- */
+
+.onboard { padding-top: 14px; text-align: center; animation: fade .5s both; }
+.ob-art { width: 172px; height: 172px; margin: 0 auto 6px; }
+.ob-art svg { width: 100%; height: 100%; display: block; }
+.ob-title {
+  font-family: var(--serif); font-size: 34px; margin: 4px 0 10px;
+  letter-spacing: .04em; font-weight: 600;
+}
+.ob-sub { color: var(--muted); font-size: 13.5px; line-height: 1.9; margin: 0 0 26px; }
+.ob-field { text-align: left; margin-bottom: 20px; }
+.ob-field label {
+  display: block; font-size: 12px; letter-spacing: .08em; color: var(--muted);
+  margin-bottom: 9px;
+}
+.ob-field label em { font-style: normal; opacity: .7; letter-spacing: 0; }
+.input {
+  width: 100%; height: 52px; border-radius: 15px; padding: 0 16px;
+  background: var(--paper-2); border: 1px solid var(--line);
+  font-size: 16px; outline: none;
+  transition: border-color .2s, background .2s;
+}
+.input:focus { border-color: rgba(var(--accent-rgb), .55); background: var(--paper-3); }
+
+.species { display: flex; gap: 10px; }
+.sp {
+  flex: 1; height: 62px; border-radius: 16px; background: var(--paper-2);
+  border: 1px solid var(--line); display: flex; align-items: center; justify-content: center;
+  gap: 8px; font-size: 15px; transition: .2s;
+}
+.sp span { font-size: 22px; }
+.sp.on { border-color: var(--accent); background: var(--wash); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .08); }
+
+.pchips { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.pchip {
+  text-align: left; padding: 12px 13px; border-radius: 15px;
+  background: var(--paper-2); border: 1px solid var(--line); transition: .2s;
+}
+.pchip b { display: block; font-size: 14.5px; font-weight: 600; margin-bottom: 2px; }
+.pchip span { display: block; font-size: 11px; color: var(--muted); line-height: 1.5; }
+.pchip.on { border-color: var(--accent); background: var(--wash); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .08); }
+
+.primary {
+  width: 100%; height: 52px; border-radius: 16px;
+  background: var(--ink); color: var(--paper-2);
+  font-size: 15px; letter-spacing: .06em;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .15s, opacity .2s, box-shadow .2s;
+  box-shadow: 0 10px 26px -14px rgba(var(--sh), .7);
+}
+.primary.big { height: 56px; margin-top: 6px; }
+.primary:active { transform: scale(.985); }
+.primary.disabled, .primary[disabled] { opacity: .28; box-shadow: none; }
+.ghost.link {
+  width: 100%; margin-top: 12px; height: 46px; color: var(--muted);
+  font-size: 13px; text-decoration: underline; text-underline-offset: 4px;
+  text-decoration-color: var(--line);
+}
+.ob-foot { color: var(--muted); font-size: 11px; margin-top: 26px; opacity: .8; }
+
+/* ---------- 今天 ---------- */
+
+.hero {
+  display: flex; align-items: center; gap: 6px;
+  padding: 14px 16px 14px 8px; margin-bottom: 26px;
+}
+.hero-face { width: 106px; height: 106px; flex: 0 0 106px; }
+.hero-face svg { width: 100%; height: 100%; display: block; }
+.hero-say { flex: 1; min-width: 0; }
+.bubble {
+  position: relative; background: var(--paper-3);
+  border: 1px solid var(--line-soft); border-radius: 16px;
+  padding: 12px 15px; font-size: 15.5px; line-height: 1.5;
+  font-family: var(--serif); display: inline-block; max-width: 100%;
+}
+.bubble::after {
+  content: ''; position: absolute; left: -5px; top: 22px;
+  width: 9px; height: 9px; background: var(--paper-3);
+  border-left: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft);
+  transform: rotate(45deg);
+}
+.hero-meta { color: var(--muted); font-size: 11.5px; margin: 9px 0 0 4px; letter-spacing: .03em; }
+
+.chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.chip {
+  height: 60px; border-radius: 15px; background: var(--paper-2);
+  border: 1px solid var(--line-soft);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  font-size: 12px; color: var(--ink-soft);
+  transition: transform .12s, background .15s, border-color .15s;
+}
+.chip .ci { font-size: 17px; line-height: 1; }
+.chip:active { transform: scale(.94); background: var(--wash); border-color: rgba(var(--accent-rgb), .35); }
+
+.evs { background: var(--paper-2); border: 1px solid var(--line-soft); border-radius: 18px; overflow: hidden; }
+.ev {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; min-height: 46px;
+  border-bottom: 1px dashed rgba(var(--sh), .1);
+  animation: fade .3s both;
+}
+.ev:last-child { border-bottom: 0; }
+.ev-ic { font-size: 15px; width: 20px; text-align: center; }
+.ev-name { font-size: 14px; flex: 1; }
+.ev-x {
+  width: 28px; height: 28px; border-radius: 9px; color: var(--muted);
+  font-size: 17px; line-height: 1; display: flex; align-items: center; justify-content: center;
+}
+.ev-x:active { background: rgba(var(--sh), .06); }
+.numwrap {
+  display: flex; align-items: center; gap: 3px;
+  background: var(--paper-3); border: 1px solid var(--line-soft);
+  border-radius: 9px; padding: 0 8px; height: 30px;
+}
+.num {
+  width: 52px; border: 0; background: transparent; text-align: right;
+  font-size: 14px; outline: none; -moz-appearance: textfield;
+}
+.num::-webkit-outer-spin-button, .num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.numwrap i { font-style: normal; font-size: 11px; color: var(--muted); }
+.opt {
+  border: 1px solid var(--line-soft); background: var(--paper-3);
+  border-radius: 9px; height: 30px; padding: 0 6px; font-size: 13px; outline: none;
+}
+.ev-empty {
+  padding: 20px 16px; color: var(--muted); font-size: 12.5px; text-align: center; line-height: 1.7;
+}
+
+.note {
+  width: 100%; margin-top: 10px; min-height: 54px; resize: none;
+  background: transparent; border: 1px dashed var(--line); border-radius: 14px;
+  padding: 11px 13px; font-size: 13.5px; outline: none; color: var(--ink-soft);
+}
+.note:focus { border-color: rgba(var(--accent-rgb), .45); }
+.note::placeholder { color: var(--muted); opacity: .75; }
+
+/* ---------- 日记卡 ---------- */
+
+.entry { margin-top: 26px; padding: 22px 22px 16px; animation: fade .5s both; }
+.entry-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.entry-day { font-size: 11px; letter-spacing: .12em; color: var(--muted); }
+.mood {
+  font-size: 11px; padding: 3px 9px; border-radius: 999px;
+  border: 1px solid currentColor; opacity: .9; white-space: nowrap;
+}
+.entry-title {
+  font-family: var(--serif); font-size: 24px; font-weight: 600;
+  margin: 0 0 14px; line-height: 1.45; letter-spacing: .01em;
+}
+.entry-body { font-family: var(--kaiti); font-size: 17px; line-height: 2.02; color: var(--ink); }
+.entry-body .para { margin: 0 0 13px; animation: rise .55s cubic-bezier(.2, .7, .2, 1) both; }
+.entry-body .para:last-child { margin-bottom: 0; }
+.stale {
+  margin-top: 14px; font-size: 11.5px; color: var(--accent);
+  background: var(--wash-2); border-radius: 10px; padding: 8px 11px;
+}
+.facts { margin-top: 18px; border-top: 1px dashed var(--line); padding-top: 12px; }
+.facts summary {
+  font-size: 11.5px; color: var(--muted); letter-spacing: .08em;
+  cursor: pointer; list-style: none; outline: none;
+}
+.facts summary::-webkit-details-marker { display: none; }
+.facts summary::before { content: '▸ '; opacity: .6; }
+.facts[open] summary::before { content: '▾ '; }
+.fact-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.fact {
+  font-size: 11.5px; padding: 3px 9px; border-radius: 8px;
+  background: rgba(var(--sh), .045); color: var(--ink-soft);
+}
+.fact.dim { color: var(--muted); }
+.fact-note { font-size: 12px; color: var(--muted); margin-top: 10px; font-style: italic; }
+
+.entry-actions { display: flex; gap: 8px; margin-top: 16px; }
+.mini {
+  height: 34px; padding: 0 14px; border-radius: 10px;
+  background: rgba(var(--sh), .05); font-size: 12.5px; color: var(--ink-soft);
+  transition: background .15s;
+}
+.mini:active { background: rgba(var(--sh), .1); }
+.mini.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+
+/* 正在写 */
+.writing { text-align: center; padding: 40px 20px; }
+.writing p { color: var(--muted); font-size: 13px; margin: 16px 0 0; letter-spacing: .05em; }
+.dots { display: flex; gap: 6px; justify-content: center; }
+.dots i {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--muted); opacity: .4;
+  animation: blink 1.1s infinite;
+}
+.dots i:nth-child(2) { animation-delay: .18s; }
+.dots i:nth-child(3) { animation-delay: .36s; }
+
+/* ---------- 日记本 ---------- */
+
+.month { margin-bottom: 22px; }
+.month-label {
+  font-size: 11px; letter-spacing: .12em; color: var(--muted);
+  margin: 0 4px 8px;
+}
+.row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 12px; border-radius: 16px;
+  border-bottom: 1px solid var(--line-soft);
+  transition: background .15s;
+}
+.row:active { background: rgba(var(--sh), .035); }
+.row-date {
+  flex: 0 0 40px; text-align: center; border-right: 1px solid var(--line-soft);
+  padding-right: 12px;
+}
+.row-date b { display: block; font-family: var(--serif); font-size: 19px; font-weight: 600; line-height: 1.2; }
+.row-date span { font-size: 10px; color: var(--muted); }
+.row-main { flex: 1; min-width: 0; }
+.row-title {
+  font-family: var(--serif); font-size: 16px; margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.row-ex {
+  font-size: 11.5px; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.row-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 7px; opacity: .8; }
+
+.empty {
+  text-align: center; padding: 46px 24px; margin-top: 10px;
+}
+.empty p { color: var(--muted); font-size: 13.5px; line-height: 1.9; margin: 14px 0 18px; }
+
+/* ---------- 单篇 ---------- */
+
+.backrow { margin-bottom: 14px; }
+.back { font-size: 13px; color: var(--muted); padding: 6px 0; }
+.entry-hero { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }
+.eh-face { width: 82px; height: 82px; flex: 0 0 82px; }
+.eh-face svg { width: 100%; height: 100%; }
+.eh-meta { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.eh-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.eh-tags span { font-size: 11px; color: var(--muted); }
+
+/* ---------- 它 ---------- */
+
+.pet-hero { text-align: center; padding: 12px 0 22px; }
+.ph-face { width: 150px; height: 150px; margin: 0 auto; }
+.ph-face svg { width: 100%; height: 100%; }
+.ph-name { font-family: var(--serif); font-size: 28px; margin: 6px 0 4px; font-weight: 600; }
+.ph-sub { color: var(--muted); font-size: 12.5px; margin: 0; letter-spacing: .03em; }
+
+.stats { display: flex; padding: 18px 8px; }
+.stat { flex: 1; text-align: center; position: relative; }
+.stat + .stat::before {
+  content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
+  width: 1px; background: var(--line-soft);
+}
+.stat b { display: block; font-family: var(--serif); font-size: 23px; font-weight: 600; line-height: 1.2; }
+.stat span { font-size: 10.5px; color: var(--muted); letter-spacing: .05em; }
+
+.chart { margin-top: 2px; }
+.chart svg { width: 100%; height: 74px; display: block; overflow: visible; }
+.chart-meta { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); margin-top: 6px; }
+
+.kv {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px dashed var(--line-soft); font-size: 13.5px;
+}
+.kv:last-child { border-bottom: 0; }
+.kv span { color: var(--muted); font-size: 12.5px; }
+.kv b { font-weight: 500; }
+
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+/* ---------- 底部导航 ---------- */
+
+.tabs {
+  position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: 100%; max-width: 460px;
+  display: flex; padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line-soft);
+  z-index: 20;
+}
+body.no-tabs .tabs { display: none; }
+.tab {
+  flex: 1; height: 52px; border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  color: var(--muted); font-size: 10.5px; letter-spacing: .06em; transition: color .2s, background .2s;
+}
+.tab svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tab.on { color: var(--ink); background: rgba(var(--sh), .045); }
+
+/* ---------- toast ---------- */
+
+#toast {
+  position: fixed; left: 50%; bottom: 92px; transform: translate(-50%, 10px);
+  background: rgba(var(--sh), .93); color: var(--paper-2);
+  padding: 9px 16px; border-radius: 999px; font-size: 12.5px;
+  opacity: 0; pointer-events: none; transition: .25s; z-index: 50;
+  max-width: 80vw; text-align: center;
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- 动画 ---------- */
+
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink {
+  0%, 100% { opacity: .25; transform: translateY(0); }
+  40% { opacity: .9; transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ---------- 零碎 ---------- */
+
+.list-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 22px 0 4px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .12em;
+}
+
+.mini.full { display: block; width: 100%; margin-top: 14px; height: 42px; }
+
+.chart-meta.big { justify-content: flex-start; gap: 14px; padding-top: 2px; }
+.chart-meta.big span:first-child { font-family: var(--serif); font-size: 26px; color: var(--ink); letter-spacing: .02em; }
+.chart-meta.big span:last-child { color: var(--muted); font-size: 12px; }
+
+
+
+/* ---------------- 照片 / 视频 ---------------- */
+
+.mstrip { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.mtile {
+  position: relative; width: 78px; height: 78px; border-radius: 15px; overflow: hidden;
+  background: var(--paper-4); border: 1px solid var(--line-soft); cursor: pointer;
+}
+.mtile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mtile img.muted { opacity: 0; }
+.mtile .mblank { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 11px; color: var(--muted); }
+
+.mtile-x {
+  position: absolute; right: 3px; top: 3px; width: 20px; height: 20px; padding: 0;
+  border: 0; border-radius: 50%; background: rgba(30, 24, 20, .58); color: #fff;
+  font-size: 13px; line-height: 20px; cursor: pointer;
+}
+
+.mplay {
+  position: absolute; left: 50%; top: 50%; width: 13px; height: 13px; margin: -6px 0 0 -4px;
+  border-left: 12px solid rgba(255, 255, 255, .95); border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .45));
+}
+
+.madd {
+  width: 78px; height: 78px; border-radius: 15px; border: 1px dashed rgba(var(--sh), .28);
+  background: transparent; color: var(--ink-soft); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  font-family: var(--sans); font-size: 11.5px; transition: border-color .2s, color .2s;
+}
+.madd span { font-size: 19px; line-height: 1; opacity: .55; }
+.madd:active { border-color: var(--accent); color: var(--accent); }
+
+.mtip { margin-top: 9px; font-size: 11.5px; line-height: 1.65; color: var(--muted); }
+
+.mgrid { display: grid; gap: 8px; margin: 18px 0 2px; }
+.mgrid.n1 { grid-template-columns: 1fr; }
+.mgrid.n2, .mgrid.n3, .mgrid.n4 { grid-template-columns: 1fr 1fr; }
+.mcell {
+  position: relative; border-radius: 15px; overflow: hidden; background: var(--paper-4);
+  aspect-ratio: 1 / 1; cursor: pointer;
+}
+.mgrid.n1 .mcell { aspect-ratio: 4 / 3; }
+.mcell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mcell .mblank { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 11px; color: var(--muted); }
+
+.lb {
+  position: fixed; inset: 0; z-index: 90; background: rgba(22, 18, 15, .93);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  animation: fade .18s both;
+}
+.lb img, .lb video { max-width: 100%; max-height: 100%; border-radius: 12px; box-shadow: 0 24px 70px rgba(0, 0, 0, .55); }
+.lb video { background: #000; }
+.lb-x {
+  position: absolute; top: 14px; right: 14px; width: 40px; height: 40px; padding: 0;
+  border: 0; border-radius: 50%; background: rgba(255, 255, 255, .14); color: #fff;
+  font-size: 22px; line-height: 1; cursor: pointer;
+}
+
+/* 视频角标：给一个深色底，任何封面上都看得清 */
+.mplay {
+  position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px;
+  border: 0; border-radius: 50%; background: rgba(28, 22, 18, .42); filter: none;
+  border-left: 0; border-top: 0; border-bottom: 0;
+}
+.mplay::after {
+  content: ''; position: absolute; left: 13px; top: 10px; width: 0; height: 0;
+  border-left: 11px solid rgba(255, 255, 255, .96);
+  border-top: 7px solid transparent; border-bottom: 7px solid transparent;
+}
+
+.madds { display: flex; gap: 10px; }
+
+
+/* ---------------- 多只宠物 ---------------- */
+.petswitch {
+  display: flex; gap: 8px; margin: 0 0 16px; overflow-x: auto;
+  padding: 2px 2px 4px; scrollbar-width: none;
+}
+.petswitch::-webkit-scrollbar { display: none; }
+.psw {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 7px;
+  padding: 5px 13px 5px 6px; border-radius: 999px;
+  border: 1px solid var(--line); background: transparent;
+  color: var(--muted); font-size: 13px; line-height: 1;
+  transition: background .18s, border-color .18s, color .18s;
+}
+.psw.on {
+  background: var(--paper-3); color: var(--ink); border-color: rgba(var(--accent-rgb), .38);
+  box-shadow: 0 2px 8px rgba(var(--sh), .06);
+}
+.psw-face { width: 26px; height: 26px; display: block; }
+.psw-face svg { width: 100%; height: 100%; display: block; }
+.psw-name { font-family: var(--serif); letter-spacing: .02em; }
+
+.ph-bio {
+  max-width: 300px; margin: 12px auto 0; color: var(--ink-soft);
+  font-family: var(--kaiti); font-size: 14.5px; line-height: 1.85;
+  text-align: center; opacity: .92;
+}
+
+.pets .petrow { margin-bottom: 8px; }
+.petrow {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  padding: 9px 4px; border: 0; border-radius: 14px; background: transparent;
+  text-align: left; color: var(--ink);
+}
+.petrow.on { background: rgba(var(--accent-rgb), .055); }
+.pr-face { width: 38px; height: 38px; flex: 0 0 38px; display: block; }
+.pr-face svg { width: 100%; height: 100%; display: block; }
+.pr-main { flex: 1; min-width: 0; display: block; }
+.pr-main b { display: block; font-family: var(--serif); font-weight: 500; font-size: 15.5px; }
+.pr-main i {
+  display: block; font-style: normal; color: var(--muted); font-size: 12px;
+  margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pr-on { flex: 0 0 auto; font-size: 11px; color: var(--accent); opacity: .8; }
+
+.mini.dash {
+  border: 1px dashed rgba(var(--sh), .2); background: transparent;
+  color: var(--ink-soft); margin-top: 6px;
+}
+
+/* 占位文字要明显比真实输入淡，别让人以为已经填好了 */
+.input::placeholder, .note::placeholder, textarea::placeholder {
+  color: rgba(var(--sh), .3); opacity: 1;
+}
+.petswitch { margin-top: 2px; }
+.psw-face { width: 30px; height: 26px; }
+
+/* ---------- 品种选择 ---------- */
+.breeds {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 2px;
+}
+.breed {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 2px 5px; border-radius: 14px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--ink); font: inherit; cursor: pointer;
+  transition: background .16s, border-color .16s;
+}
+.breed .bd-face { display: block; width: 40px; height: 40px; }
+.breed .bd-face svg { display: block; width: 100%; height: 100%; }
+.breed .bd-name { font-size: 10.5px; letter-spacing: .02em; color: var(--muted); }
+.breed.on { background: rgba(var(--accent-rgb), .08); border-color: rgba(var(--accent-rgb), .38); }
+.breed.on .bd-name { color: var(--accent); }
+
+/* ---------- 自定义事件 ---------- */
+.chip.mine { position: relative; }
+.chip .mine-x {
+  position: absolute; top: -5px; right: -4px;
+  width: 15px; height: 15px; line-height: 14px; text-align: center;
+  font-size: 11px; font-style: normal; border-radius: 50%;
+  background: var(--paper-2); color: var(--muted);
+  border: 1px solid var(--line);
+}
+.chip.add { border-style: dashed; color: var(--muted); }
+
+.composer {
+  margin-top: 10px; padding: 12px 12px 10px;
+  border: 1px dashed rgba(var(--sh), .22); border-radius: 16px;
+  background: color-mix(in srgb, var(--paper-3) 60%, transparent);
+}
+.cp-row { display: flex; gap: 8px; align-items: center; }
+.cp-row .input { flex: 1; min-width: 0; }
+.cp-row .mini { white-space: nowrap; }
+.cp-label { margin: 12px 0 6px; font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.emoji-grid {
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px;
+}
+.emoji-grid .eo {
+  font-size: 17px; line-height: 1; padding: 5px 0; text-align: center;
+  background: transparent; border: 1px solid transparent; border-radius: 9px; cursor: pointer;
+}
+.emoji-grid .eo.on { background: rgba(var(--accent-rgb), .12); border-color: rgba(var(--accent-rgb), .4); }
+.cp-tip { margin: 10px 1px 0; font-size: 11.5px; color: var(--muted); line-height: 1.7; }
+
+/* ---------- 健康档案 ---------- */
+.health { list-style: none; margin: 0; padding: 0; }
+.health li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px dashed var(--line); }
+.health li:first-child { border-top: 0; padding-top: 2px; }
+.hl-ic { font-size: 15px; line-height: 1.5; width: 20px; text-align: center; }
+.hl-main { display: flex; flex-direction: column; gap: 2px; }
+.hl-main b { font-size: 14px; font-weight: 500; }
+.hl-main i { font-size: 11.5px; font-style: normal; color: var(--muted); }
+
+.chip.mine { border-color: rgba(var(--accent-rgb), .3); background: rgba(var(--accent-rgb), .05); }
+.mtags { display: flex; flex-wrap: wrap; gap: 6px; }
+.mtag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 4px 4px 9px; border-radius: 999px;
+  background: var(--paper-3); border: 1px solid var(--line);
+  font-size: 12px; color: var(--ink-soft);
+}
+.mtag i { font-style: normal; font-size: 13px; }
+.mtx {
+  width: 17px; height: 17px; line-height: 16px; padding: 0; text-align: center;
+  border: 0; border-radius: 50%; background: rgba(var(--sh), .07);
+  color: var(--muted); font-size: 12px; cursor: pointer;
+}
+
+/* 自定义事件面板：输入框吃掉剩余宽度，按钮不被拉伸 */
+.cp-row { display: flex; gap: 8px; align-items: center; }
+.cp-row .input { flex: 1 1 auto; min-width: 0; padding: 10px 12px; font-size: 14px; }
+.cp-row .mini { flex: 0 0 auto; padding: 10px 16px; }
+
+/* 覆盖掉重复定义：输入框吃满，按钮按内容宽 */
+.composer .cp-row { display: flex; gap: 8px; align-items: center; }
+.composer .cp-row .input { flex: 1 1 0; width: auto; min-width: 0; padding: 10px 12px; font-size: 14px; }
+.composer .cp-row .mini { flex: 0 0 auto; width: auto; padding: 0 16px; }
+
+/* ---------------- 档案 ---------------- */
+.arc-head { display: flex; align-items: center; gap: 14px; margin: 4px 0 16px; }
+.arc-face { flex: 0 0 76px; width: 76px; }
+.arc-face svg { width: 100%; height: auto; display: block; }
+.arc-id h1 { font-family: var(--serif); font-size: 26px; margin: 0 0 3px; letter-spacing: .02em; }
+.arc-id p { margin: 0; font-size: 12.5px; color: var(--muted); }
+
+.tl-year {
+  font-family: var(--serif); font-size: 12.5px; letter-spacing: .08em;
+  color: var(--muted); margin: 16px 0 4px; padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.tl-year:first-child { margin-top: 2px; }
+.tl { list-style: none; margin: 0 0 10px; padding: 0; }
+.tl-i {
+  display: grid; grid-template-columns: 58px 18px 1fr 62px 16px; align-items: center;
+  gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--line-soft);
+}
+.tl-i:last-child { border-bottom: 0; }
+.tl-d { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tl-ic { font-size: 14px; text-align: center; line-height: 1; }
+.tl-t { font-size: 13.5px; color: var(--ink); }
+.tl-age { font-size: 10.5px; color: var(--muted); opacity: .85; white-space: nowrap; text-align: right; }
+.tl-i.mine .tl-t { color: var(--accent); }
+.tl-i.fixed .tl-t { font-weight: 600; }
+.tl-x {
+  border: 0; background: none; padding: 0 0 0 6px; color: var(--muted);
+  font-size: 14px; line-height: 1; cursor: pointer;
+}
+.tl-x:hover { color: var(--accent); }
+.emoji-grid.compact { grid-template-columns: repeat(7, 1fr); }
+
+.kv i { font-style: normal; color: var(--muted); font-size: 11.5px; margin-left: 6px; }
+.tl-x-w { display: flex; justify-content: flex-end; }
+
+
+.mini.accent { background: rgba(var(--accent-rgb), .10); border-color: rgba(var(--accent-rgb), .34); color: var(--accent); }
+
+
+/* ---------- 主题选择 ---------- */
+.themes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.theme {
+  display: grid; grid-template-columns: 30px 1fr; grid-template-rows: auto auto; align-items: center;
+  gap: 0 9px; padding: 9px 10px; text-align: left; cursor: pointer;
+  background: var(--paper-3); border: 1px solid var(--line); border-radius: 12px;
+  font-family: var(--sans); color: var(--ink);
+}
+.theme b { font-size: 13.5px; font-weight: 600; }
+.theme em { grid-column: 2; font-style: normal; font-size: 11px; color: var(--muted); line-height: 1.3; }
+.theme .th-dots { grid-row: span 2; display: flex; gap: 0; }
+.theme .th-dots i {
+  width: 15px; height: 30px; display: block; border: 1px solid var(--line);
+}
+.theme .th-dots i:first-child { border-radius: 15px 0 0 15px; }
+.theme .th-dots i:last-child { border-radius: 0 15px 15px 0; border-left: 0; }
+.theme.on { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .08); }
+
+/* ---------- 「发生了什么」编辑态 ---------- */
+.sec-title.row { display: flex; align-items: center; justify-content: space-between; }
+.via {
+  border: 0; background: none; padding: 2px 2px 2px 10px; cursor: pointer;
+  font-family: var(--sans); font-size: 12px; color: var(--accent); letter-spacing: .02em;
+}
+.via:active { opacity: .6; }
+.chips.editing .chip { border-style: dashed; border-color: rgba(var(--accent-rgb), .4); }
+.chip.editing { position: relative; cursor: grab; touch-action: none; user-select: none; }
+.chip .cx {
+  position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--paper-3); color: var(--accent); font-size: 12px; line-height: 15px; text-align: center;
+  font-family: var(--sans); border: 1px solid rgba(var(--accent-rgb), .55);
+}
+.chip.lift { opacity: .55; transform: scale(.96); box-shadow: 0 10px 20px -12px rgba(var(--sh), .8); }
+.chip.off { opacity: .55; border-style: dashed; }
+.chips.palette { margin-top: 6px; }
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* types.js — 事件类型与心情的词表（数据层共用） */(function () {  'use strict';  var PT = (window.PT = window.PT || {});  PT.TYPES = [    { id: 'meal',    label: '吃饭',  icon: '🍚', group: 'eat',  num: { unit: 'g',    def: 40, step: 10, min: 1, max: 999 } },    { id: 'water',   label: '喝水',  icon: '💧', group: 'eat',  num: { unit: '次',   def: 1,  step: 1,  min: 1, max: 20 } },    { id: 'poop',    label: '便便',  icon: '💩', group: 'body', opt: ['正常', '偏软', '偏硬', '拉稀'] },    { id: 'pee',     label: '尿尿',  icon: '🌊', group: 'body' },    { id: 'vomit',   label: '吐了',  icon: '🤢', group: 'body' },    { id: 'status',  label: '状态',  icon: '🌡️', group: 'body', opt: ['很好', '正常', '有点蔫', '不舒服'] },    { id: 'vaccine', label: '打疫苗', icon: '💉', group: 'body' },    { id: 'deworm',  label: '驱虫',  icon: '🐛', group: 'body' },    { id: 'med',     label: '吃药',  icon: '💊', group: 'body' },    { id: 'vet',     label: '看医生', icon: '🩺', group: 'body' },    { id: 'surgery', label: '手术',  icon: '🏥', group: 'body', opt: ['绝育手术', '其他手术', '体检'] },    { id: 'weight',  label: '称重',  icon: '⚖️', group: 'body', num: { unit: 'kg', def: 4.2, step: 0.1, min: 0.1, max: 99, float: true } },    { id: 'walk',    label: '出门',  icon: '🐾', group: 'act',  num: { unit: '分钟', def: 20, step: 5, min: 1, max: 600 } },    { id: 'play',    label: '玩耍',  icon: '🎾', group: 'act' },    { id: 'bath',    label: '洗澡',  icon: '🛁', group: 'act' },    { id: 'sleep',   label: '睡觉',  icon: '🌙', group: 'act' },    { id: 'cuddle',  label: '撒娇',  icon: '🫶', group: 'mood' },    { id: 'naughty', label: '捣蛋',  icon: '💥', group: 'mood' }  ];  PT.TYPE = {};  PT.TYPES.forEach(function (t) { PT.TYPE[t.id] = t; });  /* 需要出现在「健康档案」时间线里的事 */  PT.HEALTH = ['vaccine', 'deworm', 'vet', 'med', 'surgery', 'bath', 'vomit'];  /* 品种：不只是名字，还决定它长什么样（毛色 / 花纹 / 耳朵） */  PT.BREEDS = {    cat: [      { id: 'orange',  label: '橘猫',     fur: '#F0C48A', furD: '#DDA469', pattern: 'tabby' },      { id: 'lihua',   label: '狸花猫',   fur: '#C6B29A', furD: '#A28B72', pattern: 'tabby' },      { id: 'sanhua',  label: '三花猫',   fur: '#F2E7D8', furD: '#C79A6A', pattern: 'calico' },      { id: 'cow',     label: '奶牛猫',   fur: '#F6F1E7', furD: '#4E453D', pattern: 'patch' },      { id: 'white',   label: '白猫',     fur: '#FBF6ED', furD: '#EBE0CF' },      { id: 'black',   label: '黑猫',     fur: '#5F554E', furD: '#4A413A', eye: '#E0B04C' },      { id: 'ragdoll', label: '布偶猫',   fur: '#F4EBDF', furD: '#B9A08C', pattern: 'point', eye: '#6E8FB8' },      { id: 'siamese', label: '暹罗猫',   fur: '#EADFCE', furD: '#6B5748', pattern: 'point', eye: '#5E86B0' },      { id: 'blue',    label: '英短蓝猫', fur: '#BCC1C7', furD: '#A3A9B0', eye: '#C79A46' },      { id: 'silver',  label: '银渐层',   fur: '#E8E4DC', furD: '#BEB8AC', pattern: 'tabby' },      { id: 'tiger',   label: '美短虎斑', fur: '#D9D1C4', furD: '#8F857A', pattern: 'tabby' }    ],    dog: [      { id: 'shiba',   label: '柴犬',     fur: '#E0B072', furD: '#C68C4E', ears: 'point' },      { id: 'corgi',   label: '柯基',     fur: '#E2A55E', furD: '#C4803A', ears: 'point' },      { id: 'golden',  label: '金毛',     fur: '#E9C68F', furD: '#CFA468', ears: 'flop' },      { id: 'lab',     label: '拉布拉多', fur: '#E6D8C0', furD: '#CBB99B', ears: 'flop' },      { id: 'poodle',  label: '泰迪',     fur: '#CB9D70', furD: '#AC7F53', ears: 'flop' },      { id: 'border',  label: '边牧',     fur: '#413B36', furD: '#F1ECE2', pattern: 'patch', ears: 'semi', eye: '#7A9AAE' },      { id: 'husky',   label: '哈士奇',   fur: '#DEDAD4', furD: '#8A8680', pattern: 'mask', ears: 'point' },      { id: 'samoyed', label: '萨摩耶',   fur: '#FBF7EF', furD: '#E6DDCE', ears: 'point' },      { id: 'bichon',  label: '比熊',     fur: '#F9F4EA', furD: '#E3D9C8', ears: 'flop' },      { id: 'maltese', label: '马尔济斯', fur: '#FDFAF4', furD: '#E8DFCE', eye: '#4A3B31' },      { id: 'shihtzu', label: '西施',     fur: '#EFE2CB', furD: '#C7AC86', eye: '#4A3B31' },      { id: 'westie',  label: '西高地',   fur: '#FBF7EE', furD: '#E7DFCF', eye: '#463930' },      { id: 'schnauzer', label: '雪纳瑞', fur: '#8F959A', furD: '#EFEADE', eye: '#3B302A' },      { id: 'pomeranian', label: '博美',  fur: '#E9B36B', furD: '#F7E4C8', eye: '#4A3B31' },      { id: 'tianyuan', label: '中华田园犬', fur: '#D9BC8D', furD: '#B2936A', ears: 'point' }    ]  };  PT.breedById = function (species, id) {    var list = PT.BREEDS[species === 'dog' ? 'dog' : 'cat'] || [];    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];    return null;  };  PT.breedOf = function (pet) {    if (!pet) return null;    return PT.breedById(pet.species, pet.breedId);  };  PT.breedLabel = function (pet) {    var b = PT.breedOf(pet);    return b ? b.label : ((pet && pet.breed) || '');  };  /* 自定义事件可选的表情 */  PT.EMOJIS = [    '💉', '💊', '🩺', '🏥', '🩹', '🧪', '🌡️', '🧬',    '🛁', '🚿', '🪥', '🧴', '🧻', '🛏️', '🧸', '🎂',    '🎾', '🦴', '🧶', '🏃', '🚗', '✈️', '🌳', '🏖️',    '🥰', '😿', '😾', '🤩', '😴', '😷', '🥳', '😮',    '🍽️', '🍗', '🥩', '🥛', '🍬', '💧', '💩', '⭐️',    '📌', '📅', '✂️', '🧹', '🎵', '🌙', '☀️', '❄️'  ];  PT.MOODS = {    calm:    { key: 'calm',    label: '满足',   emoji: '😌', color: '#8FA07B' },    happy:   { key: 'happy',   label: '开心',   emoji: '😊', color: '#D89A4E' },    love:    { key: 'love',    label: '黏人',   emoji: '🥰', color: '#C9738A' },    proud:   { key: 'proud',   label: '神气',   emoji: '😼', color: '#C2613F' },    sick:    { key: 'sick',    label: '不舒服', emoji: '🤒', color: '#7E8CA8' },    sleepy:  { key: 'sleepy',  label: '懒',     emoji: '😴', color: '#9C8FA0' },    excited: { key: 'excited', label: '兴奋',   emoji: '🤩', color: '#D9803F' }  };  /* 中文日期 */  PT.weekday = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];  PT.weekShort = ['日', '一', '二', '三', '四', '五', '六'];  PT.parseDate = function (key) {    var p = String(key).split('-');    return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));  };  PT.todayKey = function () {    var d = new Date(), m = d.getMonth() + 1, day = d.getDate();    return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;  };  PT.keyOf = function (d) {    var m = d.getMonth() + 1, day = d.getDate();    return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;  };  PT.daysBetween = function (a, b) {    var d1 = PT.parseDate(a), d2 = PT.parseDate(b);    return Math.round((d2 - d1) / 86400000);  };  PT.fmtCN = function (key) {    var d = PT.parseDate(key);    return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + PT.weekday[d.getDay()];  };  PT.fmtShort = function (key) {    var d = PT.parseDate(key);    return (d.getMonth() + 1) + '月' + d.getDate() + '日';  };  PT.fmtYMD = function (key) {    var d = PT.parseDate(key);    return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';  };  PT.escape = function (s) {    return String(s == null ? '' : s)      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');  };})();
+</script>
+<script>
+/* theme.js — 主题：换一层纸的颜色，字和卡片都跟着走 */
+(function () {
+  'use strict';
+  var PT = (window.PT = window.PT || {});
+
+  var THEMES = [
+    {
+      id: 'paper', label: '纸墨', hint: '原来那层暖白',
+      vars: {
+        '--paper': '#F5EEE3', '--paper-2': '#FBF6EC', '--paper-3': '#FFFDF8', '--paper-4': '#E7DCCB',
+        '--wash': '#FDF1EA', '--wash-2': '#FBEDE6',
+        '--ink': '#3A322C', '--ink-soft': '#5C5148', '--muted': '#8C8074',
+        '--line': 'rgba(58, 50, 44, .12)', '--line-soft': 'rgba(58, 50, 44, .07)',
+        '--accent': '#C2613F', '--accent-rgb': '194, 97, 63', '--sh': '58, 50, 44',
+        '--sage': '#7E8F6E',
+        '--bg': '#E9DFCE', '--bg-glow': '#FBF6EC', '--bg-2': '#E2D5BF'
+      }
+    },
+    {
+      id: 'night', label: '夜灯', hint: '关灯以后写',
+      vars: {
+        '--paper': '#262320', '--paper-2': '#2E2A26', '--paper-3': '#35302B', '--paper-4': '#3B3530',
+        '--wash': '#3A3128', '--wash-2': '#332C24',
+        '--ink': '#F0E7D9', '--ink-soft': '#D8CBB8', '--muted': '#A2958A',
+        '--line': 'rgba(240, 231, 217, .14)', '--line-soft': 'rgba(240, 231, 217, .08)',
+        '--accent': '#E0895C', '--accent-rgb': '224, 137, 92', '--sh': '0, 0, 0',
+        '--sage': '#9FB38C',
+        '--bg': '#1B1917', '--bg-glow': '#2B2622', '--bg-2': '#141312'
+      }
+    },
+    {
+      id: 'mint', label: '薄荷', hint: '早上，凉的',
+      vars: {
+        '--paper': '#EDF2EA', '--paper-2': '#F5F9F2', '--paper-3': '#FBFDF9', '--paper-4': '#DCE5D6',
+        '--wash': '#E6F2E8', '--wash-2': '#E0EEE3',
+        '--ink': '#2E3730', '--ink-soft': '#4F5B50', '--muted': '#7C887C',
+        '--line': 'rgba(46, 55, 48, .14)', '--line-soft': 'rgba(46, 55, 48, .07)',
+        '--accent': '#4E7A5C', '--accent-rgb': '78, 122, 92', '--sh': '46, 55, 48',
+        '--sage': '#6E8F72',
+        '--bg': '#DEE7DA', '--bg-glow': '#F5F9F2', '--bg-2': '#CFDBC9'
+      }
+    },
+    {
+      id: 'sakura', label: '樱野', hint: '软一点的粉',
+      vars: {
+        '--paper': '#FAF0EE', '--paper-2': '#FEF8F6', '--paper-3': '#FFFCFB', '--paper-4': '#EFDCD9',
+        '--wash': '#FBE7E4', '--wash-2': '#FADFDB',
+        '--ink': '#3E2D2B', '--ink-soft': '#5F4A47', '--muted': '#8F7A77',
+        '--line': 'rgba(62, 45, 43, .13)', '--line-soft': 'rgba(62, 45, 43, .07)',
+        '--accent': '#C2596B', '--accent-rgb': '194, 89, 107', '--sh': '62, 45, 43',
+        '--sage': '#8B9A76',
+        '--bg': '#F0DDDA', '--bg-glow': '#FEF8F6', '--bg-2': '#E7CFCB'
+      }
+    },
+    {
+      id: 'sepia', label: '旧照', hint: '牛皮纸',
+      vars: {
+        '--paper': '#EFE4CA', '--paper-2': '#F7EFDC', '--paper-3': '#FDF8EC', '--paper-4': '#DDCEA9',
+        '--wash': '#F6E7CE', '--wash-2': '#F2E2C6',
+        '--ink': '#463725', '--ink-soft': '#5F4E38', '--muted': '#8B7A60',
+        '--line': 'rgba(70, 55, 37, .15)', '--line-soft': 'rgba(70, 55, 37, .08)',
+        '--accent': '#A25E2C', '--accent-rgb': '162, 94, 44', '--sh': '70, 55, 37',
+        '--sage': '#7C8A5E',
+        '--bg': '#E0D2AF', '--bg-glow': '#F7EFDC', '--bg-2': '#CFBE96'
+      }
+    }
+  ];
+
+  function themeById(id) {
+    return THEMES.filter(function (t) { return t.id === id; })[0] || THEMES[0];
+  }
+
+  function apply(id) {
+    var t = themeById(id);
+    var root = document.documentElement;
+    Object.keys(t.vars).forEach(function (k) { root.style.setProperty(k, t.vars[k]); });
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', t.vars['--paper']);
+    return t;
+  }
+
+  PT.THEMES = THEMES;
+  PT.themeById = themeById;
+  PT.applyTheme = apply;
+})();
+
+</script>
+<script>
+/* art.js — 手绘风格 SVG：宠物表情、爪印、空状态小画
+   猫狗的脸按品种改五官：头形、耳朵（立耳/垂耳/半立/卷毛球）、口鼻（白口罩）、额头白斑、眼罩、眉毛 */
+(function () {
+  'use strict';
+  var PT = (window.PT = window.PT || {});
+
+  var INK = '#3A322C';
+  var FUR = '#EFE3D0';
+  var FUR_D = '#E2D2BB';
+  var ACC = '#C2613F';
+  var BLUSH = '#D98A72';
+  var CREAM = '#F6EEE1';
+  var PINK = '#D79A93';
+
+  function esc(n) { return (Math.round(n * 10) / 10).toString(); }
+
+  function lum(hex) {
+    var n = parseInt(String(hex).replace('#', ''), 16);
+    var r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+  }
+
+  /* 猫：脸型按品种微调 */
+  var CAT_TRAITS = {
+    orange: { ears: 'point', cheek: true },
+    lihua: { ears: 'point' },
+    sanhua: { ears: 'point' },
+    cow: { ears: 'point' },
+    white: { ears: 'point', pink: true },
+    black: { ears: 'point' },
+    ragdoll: { ears: 'point', cheek: true, fluffy: true },
+    siamese: { ears: 'point', big: true },
+    blue: { ears: 'point', cheek: true, round: true },
+    silver: { ears: 'point', cheek: true },
+    tiger: { ears: 'point', cheek: true }
+  };
+
+  /* 狗：决定「像不像」的几个关键——耳朵、头形、口鼻、白斑、眉毛 */
+  var DOG_TRAITS = {
+    shiba: { ears: 'prick', head: 'wedge', muzzle: 'cream', brows: true, cheeks: true },
+    corgi: { ears: 'prick', head: 'round', muzzle: 'cream', blaze: true, brows: true, mz: 1.02 },
+    golden: { ears: 'flop', head: 'broad', muzzle: 'cream', mz: 1.14 },
+    lab: { ears: 'flop', head: 'broad', muzzle: 'cream', mz: 1.12 },
+    poodle: { ears: 'flop', head: 'round', muzzle: 'same', topknot: true, mz: 0.94 },
+    border: { ears: 'semi', head: 'broad', muzzle: 'cream', blaze: true },
+    husky: { ears: 'prick', head: 'broad', muzzle: 'cream', blaze: true, mask: true },
+    samoyed: { ears: 'prick', earScale: 1.1, head: 'broad', muzzle: 'cream', smile: true, chest: true, mz: 1.06 },
+    bichon: { ears: 'drop', head: 'round', cloud: true, muzzle: 'short', mz: 0.92 },
+    westie: { ears: 'prick', earScale: 0.74, head: 'wedge', muzzle: 'short', brows: true, chest: true, mz: 0.92 },
+    schnauzer: { ears: 'semi', head: 'broad', muzzle: 'beard', browLight: true },
+    shihtzu: { ears: 'long', head: 'round', muzzle: 'short', topknot: 'bow', mz: 0.86 },
+    maltese: { ears: 'long', head: 'round', muzzle: 'short', mz: 0.84 },
+    pomeranian: { ears: 'prick', earSmall: true, head: 'round', cloud: true, muzzle: 'short', chest: true, mz: 0.78 },
+    tianyuan: { ears: 'prick', head: 'wedge', muzzle: 'cream', brows: true }
+  };
+
+  function pal(b) {
+    b = b || {};
+    var fur = b.fur || FUR;
+    return {
+      id: b.id || '',
+      fur: fur,
+      furD: b.furD || FUR_D,
+      eye: b.eye || null,
+      pattern: b.pattern || '',
+      dark: lum(fur) < 0.55,
+      line: lum(fur) < 0.55 ? CREAM : INK
+    };
+  }
+
+  /* ---------------- 眼睛 ---------------- */
+
+  function eye(cx, cy, kind, species, r, tint) {
+    r = r || 1;
+    var sw = 2.2;
+    var s = 'fill="none" stroke="' + INK + '" stroke-width="' + sw + '" stroke-linecap="round"';
+    var pupFill = tint ? 'fill="' + tint + '"' : 'fill="' + INK + '"';
+    var w = 10 * r, h = 11 * r;
+    switch (kind) {
+      case 'open':
+        if (species === 'dog') {
+          return '<ellipse cx="' + esc(cx) + '" cy="' + esc(cy) + '" rx="' + esc(w * 0.85) + '" ry="' + esc(h * 0.9) + '" fill="#fff" stroke="' + INK + '" stroke-width="2"/>' +
+            '<circle cx="' + esc(cx) + '" cy="' + esc(cy + 1) + '" r="' + esc(5.2 * r) + '" ' + pupFill + '/>' +
+            '<circle cx="' + esc(cx - 2) + '" cy="' + esc(cy - 2.4) + '" r="1.5" fill="#fff"/>';
+        }
+        return '<ellipse cx="' + esc(cx) + '" cy="' + esc(cy) + '" rx="' + esc(w * 0.8) + '" ry="' + esc(h * 0.9) + '" fill="#fff" stroke="' + INK + '" stroke-width="1.8"/>' +
+          '<ellipse cx="' + esc(cx) + '" cy="' + esc(cy + 0.5) + '" rx="' + esc(2.6 * r) + '" ry="' + esc(7.4 * r) + '" ' + pupFill + '/>' +
+          '<circle cx="' + esc(cx - 1.4) + '" cy="' + esc(cy - 3.4) + '" r="1.3" fill="#fff"/>';
+      case 'happy':
+        return '<path d="M' + esc(cx - w) + ' ' + esc(cy + 3) + ' Q' + esc(cx) + ' ' + esc(cy - 9 * r) + ' ' + esc(cx + w) + ' ' + esc(cy + 3) + '" ' + s + '/>';
+      case 'closed':
+        return '<path d="M' + esc(cx - w) + ' ' + esc(cy) + ' Q' + esc(cx) + ' ' + esc(cy + 8 * r) + ' ' + esc(cx + w) + ' ' + esc(cy) + '" ' + s + '/>';
+      case 'half':
+        return '<path d="M' + esc(cx - w) + ' ' + esc(cy - 2) + ' Q' + esc(cx) + ' ' + esc(cy + 5 * r) + ' ' + esc(cx + w) + ' ' + esc(cy - 2) + '" ' + s + '/>' +
+          '<path d="M' + esc(cx - w) + ' ' + esc(cy - 4) + ' L' + esc(cx + w) + ' ' + esc(cy - 4) + '" ' + s + '/>';
+      case 'big':
+        return '<ellipse cx="' + esc(cx) + '" cy="' + esc(cy) + '" rx="' + esc(w) + '" ry="' + esc(h * 1.05) + '" fill="#fff" stroke="' + INK + '" stroke-width="2"/>' +
+          '<circle cx="' + esc(cx) + '" cy="' + esc(cy + 1) + '" r="' + esc(5.6 * r) + '" ' + pupFill + '/>' +
+          '<circle cx="' + esc(cx - 2.2) + '" cy="' + esc(cy - 2.6) + '" r="2" fill="#fff"/>' +
+          '<circle cx="' + esc(cx + 3.2) + '" cy="' + esc(cy + 3.6) + '" r="1.1" fill="#fff"/>';
+      case 'sick':
+        return '<path d="M' + esc(cx - w) + ' ' + esc(cy + 4) + ' Q' + esc(cx) + ' ' + esc(cy - 4) + ' ' + esc(cx + w) + ' ' + esc(cy + 4) + '" ' + s + '/>' +
+          '<path d="M' + esc(cx - 3) + ' ' + esc(cy - 7) + ' Q' + esc(cx) + ' ' + esc(cy - 3) + ' ' + esc(cx + 3) + ' ' + esc(cy - 7) + '" ' + s + '/>';
+      case 'sleep':
+        return '<path d="M' + esc(cx - w) + ' ' + esc(cy + 2) + ' Q' + esc(cx) + ' ' + esc(cy + 9 * r) + ' ' + esc(cx + w) + ' ' + esc(cy + 2) + '" ' + s + '/>';
+      default:
+        return '';
+    }
+  }
+
+  function blush(cx, cy, r) {
+    return '<ellipse cx="' + esc(cx) + '" cy="' + esc(cy) + '" rx="' + esc(r) + '" ry="' + esc(r * 0.62) + '" fill="' + BLUSH + '" opacity=".38"/>';
+  }
+
+  var E = { open: 'open', happy: 'happy', love: 'happy', proud: 'half', sick: 'sick', sleepy: 'sleep', excited: 'big' };
+  function eyeKind(mood) { return E[mood] || 'open'; }
+
+  /* ---------------- 耳朵 ---------------- */
+
+  function catEars(p) {
+    var inner = p.dark ? CREAM : PINK;
+    var fill = p.fur;
+    return '<path d="M58 66 L46 18 L94 44 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M62 60 L54 32 L86 47 Z" fill="' + inner + '"/>' +
+      '<path d="M142 66 L154 18 L106 44 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M138 60 L146 32 L114 47 Z" fill="' + inner + '"/>';
+  }
+
+  function dogEars(t, p) {
+    var fill = p.fur;
+    if (t.ears === 'prick') {
+      var s = '<path d="M64 72 L46 20 L98 46 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path d="M66 64 L55 33 L87 48 Z" fill="' + CREAM + '" opacity=".34"/>' +
+        '<path d="M136 72 L154 20 L102 46 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path d="M134 64 L145 33 L113 48 Z" fill="' + CREAM + '" opacity=".34"/>';
+      var k = t.earScale || (t.earSmall ? 0.84 : 1);
+      return k === 1 ? s : '<g transform="translate(100 96) scale(' + k + ') translate(-100 -96)">' + s + '</g>';
+    }
+    if (t.ears === 'semi') {
+      return '<path d="M62 74 L42 28 Q62 16 84 40 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path d="M138 74 L158 28 Q138 16 116 40 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path d="M46 40 Q60 34 74 46" fill="none" stroke="' + INK + '" stroke-width="1.6" opacity=".45"/>' +
+        '<path d="M154 40 Q140 34 126 46" fill="none" stroke="' + INK + '" stroke-width="1.6" opacity=".45"/>';
+    }
+    if (t.ears === 'puff') {
+      return '<circle cx="58" cy="70" r="19" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4"/>' +
+        '<circle cx="142" cy="70" r="19" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4"/>' +
+        '<circle cx="50" cy="57" r="12" fill="' + fill + '" stroke="' + INK + '" stroke-width="2"/>' +
+        '<circle cx="150" cy="57" r="12" fill="' + fill + '" stroke="' + INK + '" stroke-width="2"/>';
+    }
+    if (t.ears === 'drop') {
+      /* 比熊：垂在两侧的圆毛耳，位置低、贴脸 */
+      return '<circle cx="44" cy="108" r="19" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4"/>' +
+        '<circle cx="156" cy="108" r="19" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4"/>' +
+        '<circle cx="36" cy="130" r="12" fill="' + fill + '" stroke="' + INK + '" stroke-width="2"/>' +
+        '<circle cx="164" cy="130" r="12" fill="' + fill + '" stroke="' + INK + '" stroke-width="2"/>';
+    }
+    if (t.ears === 'long') {
+      /* 西施 / 马尔济斯：从头顶垂到下巴的长毛，画在头后面 */
+      return '<path d="M64 50 C32 58 22 112 30 152 C33 170 58 170 64 152 C74 118 76 78 72 52 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path d="M136 50 C168 58 178 112 170 152 C167 170 142 170 136 152 C126 118 124 78 128 52 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path d="M50 80 q-8 26 -5 52" fill="none" stroke="' + p.furD + '" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>' +
+        '<path d="M150 80 q8 26 5 52" fill="none" stroke="' + p.furD + '" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>';
+    }
+    /* flop：垂耳，挂在脸两侧 */
+    return '<path d="M66 58 C34 46 20 88 26 122 C30 146 48 156 58 140 C68 122 70 84 66 58 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M134 58 C166 46 180 88 174 122 C170 146 152 156 142 140 C132 122 130 84 134 58 Z" fill="' + fill + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>';
+  }
+
+  /* 萨摩耶那种毛茸茸的立耳：短、圆、外缘有弧度 */
+  function fluffyEars(p) {
+    return '<path d="M66 76 Q40 50 54 26 Q80 24 96 50 Z" fill="' + p.fur + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M134 76 Q160 50 146 26 Q120 24 104 50 Z" fill="' + p.fur + '" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M68 68 Q52 50 60 36 Q78 38 88 52 Z" fill="' + CREAM + '" opacity=".5"/>' +
+      '<path d="M132 68 Q148 50 140 36 Q122 38 112 52 Z" fill="' + CREAM + '" opacity=".5"/>';
+  }
+
+  /* ---------------- 头形 ---------------- */
+
+  /* 毛球轮廓：用一段段外凸的圆弧拼出一圈毛边，避免多个描边圆互相露出接缝 */
+  function scallop(cx, cy, R, n, bulge, fill, stroke, sw) {
+    var pts = [], i, a, d;
+    for (i = 0; i < n; i++) {
+      a = (Math.PI * 2 * i) / n - Math.PI / 2;
+      pts.push([cx + Math.cos(a) * R, cy + Math.sin(a) * R]);
+    }
+    d = 'M' + esc(pts[0][0]) + ' ' + esc(pts[0][1]);
+    for (i = 1; i <= n; i++) {
+      var q = pts[i % n];
+      d += ' A' + esc(bulge) + ' ' + esc(bulge) + ' 0 0 1 ' + esc(q[0]) + ' ' + esc(q[1]);
+    }
+    return '<path d="' + d + ' Z" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (sw || 2.4) + '" stroke-linejoin="round"/>';
+  }
+
+  function headShape(t, p, species) {
+    var attrs = 'fill="' + p.fur + '" stroke="' + INK + '" stroke-width="2.6" stroke-linejoin="round"';
+    if (species === 'cat') {
+      return '<ellipse cx="100" cy="104" rx="' + (t.cheek ? 62 : 58) + '" ry="' + (t.cheek ? 54 : 53) + '" ' + attrs + '/>';
+    }
+    if (t.cloud) {
+      return scallop(100, 104, 54, 9, 21, p.fur, INK, 2.4) +
+        '<ellipse cx="100" cy="104" rx="52" ry="47" fill="' + p.fur + '"/>';
+    }
+    if (t.head === 'round') {
+      return '<ellipse cx="100" cy="104" rx="58" ry="53" ' + attrs + '/>';
+    }
+    if (t.head === 'wedge') {
+      /* 柴犬 / 田园犬：上宽下收，脸略尖 */
+      return '<path d="M42 92 Q44 54 100 50 Q156 54 158 92 Q156 138 100 150 Q44 138 42 92 Z" ' + attrs + '/>';
+    }
+    return '<ellipse cx="100" cy="102" rx="61" ry="52" ' + attrs + '/>';
+  }
+
+  /* ---------------- 花纹 ---------------- */
+
+  function catMark(p) {
+    var s = '';
+    if (p.pattern === 'tabby') {
+      s += '<g fill="none" stroke="' + p.furD + '" stroke-width="5" stroke-linecap="round" opacity=".75">' +
+        '<path d="M86 74 q3 -9 -3 -17"/><path d="M100 70 q0 -11 0 -19"/><path d="M114 74 q-3 -9 3 -17"/>' +
+        '<path d="M52 106 q-7 3 -10 9"/><path d="M148 106 q7 3 10 9"/>' +
+        '</g>';
+    } else if (p.pattern === 'patch') {
+      s += '<path d="M54 74 q26 -22 46 -2 q8 14 -8 18 q-30 8 -38 -16 z" fill="' + p.furD + '" opacity=".9"/>' +
+        '<path d="M140 60 q12 8 10 22 q-10 4 -14 -8 z" fill="' + p.furD + '" opacity=".8"/>';
+    } else if (p.pattern === 'calico') {
+      s += '<path d="M56 76 q22 -22 40 -2 q8 14 -8 18 q-28 8 -32 -16 z" fill="' + p.furD + '" opacity=".88"/>' +
+        '<path d="M118 84 q22 -8 30 8 q4 15 -15 16 q-19 0 -15 -24 z" fill="#C4835A" opacity=".72"/>' +
+        '<ellipse cx="100" cy="116" rx="15" ry="9" fill="' + p.furD + '" opacity=".3"/>';
+    } else if (p.pattern === 'point') {
+      s += '<ellipse cx="100" cy="120" rx="27" ry="19" fill="' + p.furD + '" opacity=".5"/>';
+    }
+    return s;
+  }
+
+  function dogMark(t, p) {
+    var s = '';
+    if (t.blaze) {
+      s += '<path d="M100 50 Q110 62 108 84 L108 112 Q100 118 92 112 L92 84 Q90 62 100 50 Z" fill="' + CREAM + '" opacity=".92"/>';
+    }
+    if (t.mask) {
+      s += '<ellipse cx="76" cy="92" rx="20" ry="15" fill="' + p.furD + '" opacity=".55"/>' +
+        '<ellipse cx="124" cy="92" rx="20" ry="15" fill="' + p.furD + '" opacity=".55"/>';
+    }
+    if (p.pattern === 'patch' && !t.blaze) {
+      s += '<path d="M104 50 q34 -4 40 30 q-6 22 -28 16 q-18 -8 -12 -46 z" fill="' + p.furD + '" opacity=".85"/>';
+    }
+    if (t.brows) {
+      s += '<path d="M70 76 q6 -4 12 -2" fill="none" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>' +
+        '<path d="M130 76 q-6 -4 -12 -2" fill="none" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>';
+    }
+    if (t.browLight) {
+      /* 雪纳瑞的浓白眉 */
+      s += '<path d="M64 84 q11 -9 23 -4" fill="none" stroke="' + CREAM + '" stroke-width="8" stroke-linecap="round"/>' +
+        '<path d="M136 84 q-11 -9 -23 -4" fill="none" stroke="' + CREAM + '" stroke-width="8" stroke-linecap="round"/>';
+    }
+    if (t.topknot === 'bow') {
+      s += '<path d="M100 46 l-17 -11 q-6 11 0 22 q12 0 17 -11 z" fill="' + ACC + '" opacity=".9" stroke="' + INK + '" stroke-width="1.6" stroke-linejoin="round"/>' +
+        '<path d="M100 46 l17 -11 q6 11 0 22 q-12 0 -17 -11 z" fill="' + ACC + '" opacity=".9" stroke="' + INK + '" stroke-width="1.6" stroke-linejoin="round"/>' +
+        '<circle cx="100" cy="46" r="4.5" fill="' + ACC + '" stroke="' + INK + '" stroke-width="1.6"/>';
+    }
+    if (t.topknot === true) {
+      s += '<circle cx="100" cy="42" r="20" fill="' + p.furD + '" stroke="' + INK + '" stroke-width="2.2"/>' +
+        '<path d="M86 34 q14 -8 28 0" fill="none" stroke="' + INK + '" stroke-width="1.5" opacity=".35"/>';
+    }
+    return s;
+  }
+
+  /* ---------------- 口鼻 ---------------- */
+
+  function dogMuzzle(t, p, mouth) {
+    var style = t.muzzle || 'cream';
+    var mx = (style === 'cream' || style === 'beard') ? CREAM : p.furD;
+    var s = t.mz || 1;
+    var y = 126, rx = 27 * s, ry = 18 * s, op = style === 'same' ? '.5' : '.95';
+    if (style === 'short') { rx = 23 * s; ry = 15 * s; y = 124; }
+    var beard = style === 'beard'
+      ? '<path d="M72 114 q28 -10 56 0 q-2 36 -28 38 q-26 -2 -28 -38 z" fill="' + CREAM + '" opacity=".95"/>' +
+        '<path d="M84 140 q16 6 32 0" fill="none" stroke="' + INK + '" stroke-width="1.6" opacity=".25"/>'
+      : '';
+    var noseW = 28 * Math.max(s, .8);
+    return beard +
+      '<ellipse cx="100" cy="' + esc(y) + '" rx="' + esc(rx) + '" ry="' + esc(ry) + '" fill="' + mx + '" opacity="' + op + '"/>' +
+      '<path d="M' + esc(100 - noseW / 2) + ' ' + esc(y - 14) + ' q' + esc(noseW / 2) + ' -5 ' + esc(noseW) + ' 0 q-2 12 -' + esc(noseW / 2) + ' 13 q-' + esc(noseW / 2 - 2) + ' -1 -' + esc(noseW / 2) + ' -13 z" fill="' + INK + '" opacity=".92" transform="translate(0,-2)"/>' +
+      '<ellipse cx="95" cy="' + esc(y - 17) + '" rx="3" ry="1.8" fill="#fff" opacity=".45"/>' +
+      mouth;
+  }
+
+  /* ---------------- 猫脸 ---------------- */
+
+  function catFace(mood, o) {
+    o = o || {};
+    var p = pal(o.breed);
+    var t = CAT_TRAITS[p.id] || { ears: 'point' };
+    var kind = eyeKind(mood);
+    var eyeR = t.big ? 1.1 : 1;
+    var eyes = eye(80, 98, kind, 'cat', eyeR, p.eye) + eye(120, 98, kind, 'cat', eyeR, p.eye);
+    var mouth = '';
+    var extra = '';
+
+    if (mood === 'happy' || mood === 'love' || mood === 'excited') {
+      mouth = '<path d="M88 122 Q100 136 112 122" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<path d="M96 129 Q100 136 104 129 Q100 133 96 129 Z" fill="' + ACC + '" opacity=".85"/>';
+    } else if (mood === 'proud') {
+      mouth = '<path d="M88 124 Q94 131 100 125" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<path d="M100 125 Q106 119 113 124" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>';
+    } else if (mood === 'sick') {
+      mouth = '<path d="M89 126 Q94 122 99 126 Q104 130 111 124" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>';
+      extra = '<path d="M148 62 q7 9 0 13 q-7 -4 0 -13 z" fill="#9DB0C6" opacity=".85"/>' +
+        '<path d="M152 74 q4 4 0 7" fill="none" stroke="#9DB0C6" stroke-width="1.6" stroke-linecap="round"/>';
+    } else if (mood === 'sleepy') {
+      mouth = '<path d="M94 124 q6 5 12 0" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>';
+      extra = '<text x="150" y="52" font-size="15" fill="' + p.line + '" opacity=".55" font-family="Georgia,serif">z</text>' +
+        '<text x="162" y="38" font-size="11" fill="' + p.line + '" opacity=".45" font-family="Georgia,serif">z</text>';
+    } else {
+      mouth = '<path d="M100 116 L100 121" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<path d="M100 121 q-6 7 -12 2" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<path d="M100 121 q6 7 12 2" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>';
+    }
+
+    if (mood === 'love') {
+      extra += blush(64, 116, 10) + blush(136, 116, 10) +
+        '<path d="M152 70 c3 -5 10 -3 9 2 c-1 5 -9 9 -9 9 s-8 -4 -9 -9 c-1 -5 6 -7 9 -2 z" fill="' + ACC + '" opacity=".55"/>';
+    }
+    if (mood === 'happy') extra += blush(64, 116, 9) + blush(136, 116, 9);
+
+    var whisk = '';
+    [[-1, 0], [-1, 1], [-1, 2], [1, 0], [1, 1], [1, 2]].forEach(function (w) {
+      var x0 = 100 + w[0] * 34, x1 = 100 + w[0] * (62 + w[1] * 2);
+      var y0 = 112 + w[1] * 7, y1 = 108 + w[1] * 9;
+      whisk += '<path d="M' + esc(x0) + ' ' + esc(y0) + ' L' + esc(x1) + ' ' + esc(y1) + '" stroke="' + p.line + '" stroke-width="1.4" opacity="' + (p.dark ? '.4' : '.55') + '" stroke-linecap="round"/>';
+    });
+
+    var cheeks = '';
+
+    return '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="face-svg" role="img" aria-label="它">' +
+      '<g transform="rotate(' + (o.tilt != null ? o.tilt : -1.5) + ' 100 104)">' +
+      catEars(p) +
+      cheeks +
+      headShape(t, p, 'cat') +
+      catMark(p) +
+      '<path d="M84 58 q4 -8 0 -14 M100 54 q4 -9 0 -15 M116 58 q4 -8 0 -14" fill="none" stroke="' + p.furD + '" stroke-width="3" stroke-linecap="round" opacity=".8"/>' +
+      eyes +
+      '<path d="M94 110 L106 110 L100 117 Z" fill="' + ACC + '" opacity=".9"/>' +
+      mouth + whisk + extra +
+      '</g></svg>';
+  }
+
+  /* ---------------- 狗脸 ---------------- */
+
+  function dogFace(mood, o) {
+    o = o || {};
+    var p = pal(o.breed);
+    var t = DOG_TRAITS[p.id] || { ears: 'flop', head: 'broad', muzzle: 'cream' };
+    var kind = eyeKind(mood);
+    var eyes = eye(78, 96, kind, 'dog', 1.05, p.eye) + eye(122, 96, kind, 'dog', 1.05, p.eye);
+    var extra = '';
+    var mouth;
+
+    if (mood === 'happy' || mood === 'love' || mood === 'excited') {
+      mouth = '<path d="M86 130 q14 17 28 0" fill="' + ACC + '" opacity=".2" stroke="' + p.line + '" stroke-width="2.2" stroke-linejoin="round"/>' +
+        '<path d="M92 137 q8 13 16 0" fill="' + ACC + '" opacity=".7"/>';
+    } else if (mood === 'proud') {
+      mouth = '<path d="M84 130 q16 8 32 -2" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>';
+    } else if (mood === 'sick') {
+      mouth = '<path d="M86 132 q7 -5 14 0 q7 5 14 0" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>';
+      extra = '<path d="M150 62 q7 9 0 13 q-7 -4 0 -13 z" fill="#9DB0C6" opacity=".85"/>';
+    } else if (mood === 'sleepy') {
+      mouth = '<ellipse cx="100" cy="133" rx="5" ry="4" fill="none" stroke="' + p.line + '" stroke-width="2"/>';
+      extra = '<text x="150" y="52" font-size="15" fill="' + p.line + '" opacity=".5" font-family="Georgia,serif">z</text>' +
+        '<text x="162" y="38" font-size="11" fill="' + p.line + '" opacity=".4" font-family="Georgia,serif">z</text>';
+    } else if (t.smile) {
+      /* 萨摩耶那种「在笑」的嘴 */
+      mouth = '<path d="M100 132 q-10 8 -17 1" fill="none" stroke="' + p.line + '" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<path d="M100 132 q10 8 17 1" fill="none" stroke="' + p.line + '" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<path d="M86 126 q14 12 28 0" fill="none" stroke="' + p.line + '" stroke-width="1.6" stroke-linecap="round" opacity=".5"/>';
+    } else {
+      mouth = '<path d="M100 134 q-9 6 -14 0" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<path d="M100 134 q9 6 14 0" fill="none" stroke="' + p.line + '" stroke-width="2.2" stroke-linecap="round"/>';
+    }
+    if (mood === 'love') extra += blush(62, 114, 10) + blush(138, 114, 10);
+    if (mood === 'happy') extra += blush(62, 114, 9) + blush(138, 114, 9);
+
+    var cheeks = t.cheeks
+      ? '<ellipse cx="60" cy="120" rx="15" ry="13" fill="' + CREAM + '" opacity=".95"/>' +
+        '<ellipse cx="140" cy="120" rx="15" ry="13" fill="' + CREAM + '" opacity=".95"/>'
+      : '';
+    var bib = '';
+    if (t.chest) {
+      /* 下巴下面露出来的几撮毛：画在头后面，只留外缘，像一圈毛边 */
+      bib = '<circle cx="74" cy="146" r="16" fill="' + p.fur + '" stroke="' + INK + '" stroke-width="2.4"/>' +
+        '<circle cx="100" cy="152" r="17" fill="' + p.fur + '" stroke="' + INK + '" stroke-width="2.4"/>' +
+        '<circle cx="126" cy="146" r="16" fill="' + p.fur + '" stroke="' + INK + '" stroke-width="2.4"/>';
+    }
+
+    return '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="face-svg" role="img" aria-label="它">' +
+      '<g transform="rotate(' + (o.tilt != null ? o.tilt : -1.5) + ' 100 104)">' +
+      (t.fluffEars ? fluffyEars(p) : dogEars(t, p)) +
+      bib +
+      headShape(t, p, 'dog') +
+      dogMark(t, p) +
+      cheeks +
+      dogMuzzle(t, p, '') +
+      eyes +
+      mouth + extra +
+      '</g></svg>';
+  }
+
+  function face(species, mood, o) {
+    return (species === 'dog' ? dogFace : catFace)(mood || 'calm', o || {});
+  }
+
+  function paw(size, color) {
+    size = size || 24;
+    color = color || INK;
+    return '<svg viewBox="0 0 64 64" width="' + size + '" height="' + size + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<g fill="' + color + '">' +
+      '<ellipse cx="32" cy="42" rx="13" ry="11"/>' +
+      '<ellipse cx="15" cy="27" rx="6" ry="7.5"/>' +
+      '<ellipse cx="26" cy="18" rx="6" ry="8"/>' +
+      '<ellipse cx="38" cy="18" rx="6" ry="8"/>' +
+      '<ellipse cx="49" cy="27" rx="6" ry="7.5"/>' +
+      '</g></svg>';
+  }
+
+  PT.ART = { face: face, paw: paw, INK: INK, FUR: FUR, ACC: ACC };
+})();
+
+</script>
+<script>
+/* writer.js — 「它眼里的世界」日记引擎
+ * 输入：宠物档案 + 某一天的事实
+ * 输出：一篇它自己写的日记（第一人称、可复现、不重复）
+ */
+(function () {
+  'use strict';
+  var PT = (window.PT = window.PT || {});
+
+  /* ---------------- 词库 ---------------- */
+
+  var LEX = {
+    open: [
+      '天还没亮的时候，我已经把整个屋子走了一遍。你还在睡，我不敢踩那块会响的地板。',
+      '光从窗帘的缝里挤进来，先落在你的被子上，再落在我身上。',
+      '今天醒来第一件事，是确认你还在。',
+      '楼下有些动静，我听了很久，确认那不是你的脚步。',
+      '你出门的时候我坐在门口。门关上了，我又坐了一会儿。',
+      '今天的空气闻起来是湿的。我不喜欢湿，但我喜欢窗边。',
+      '我趴在你能看见的地方。你路过时顺手摸一下，一天就这么开始了。',
+      '你今天起得比平时早。我假装刚醒，其实一直在等这个动静。',
+      '空气里有一种新的味道。我说不清是什么，就先记下来。',
+      '太阳爬到你枕头上的时候，我决定今天对你温柔一点。',
+      '我听见脚步从楼道那头过来，就提前站到门后了。',
+      '今天没什么特别的开始。就是普通的、有你的一个早上。',
+      '我在窗边坐了一会儿，看外面的世界忙来忙去，跟我没关系。',
+      '你走之前说了句什么。我没听懂，但我点头了。',
+      '天气转凉了。你把我抱起来的时候，手比我的肚子还凉。',
+      '今天早上什么都没发生。这在我这里，算一件好事。'
+    ],
+    openCat: [
+      '我在纸箱里睡到下午。纸箱比窝好，因为那是你拆快递剩下的。',
+      '窗台上有一只鸟，我们互相看了一上午，谁也没赢。',
+      '凌晨我跑了两趟客厅。地板很滑，我拐弯的时候很帅。'
+    ],
+    openDog: [
+      '你一睁眼，我的尾巴就开始上班了。',
+      '我今天闻了一路。什么都要闻，昨天闻过的也要再闻一次。'
+    ],
+
+    beat: {
+      meal: [
+        '饭盆放下的声音，我这辈子都不会听错。',
+        '我吃得很慢，因为吃完就没了；但也没慢到你会收走。',
+        '今天的饭很好吃。一粒都没剩，这是我表达感谢的方式。',
+        '我假装不饿，等你走开两步，才把头低下去。',
+        '你蹲在旁边看我吃。我已经习惯被看着吃饭了，人类真奇怪。',
+        '吃完我还舔了三遍碗，万一还有呢。',
+        '我留了最好的一口，想给你。后来忘了，就自己吃了。',
+        '你称了 {n} 克。我数不清克，我只知道不够。'
+      ],
+      mealMulti: [
+        '今天吃了好几顿。我不能说我不满意。',
+        '饭盆空了一次又一次。今天是个好日子。'
+      ],
+      water: [
+        '我喝了很久的水。你听见了，抬头看我一眼，我就喝得更响。',
+        '水碗里飘着一根我的毛，我照喝不误。',
+        '今天的口渴来得很突然，我把整张脸都埋了进去。',
+        '我喝水的时候你不在。不然我会多喝两口给你看。'
+      ],
+      poop: [
+        '今天的便便很标准。我把它埋好，有一点点骄傲。',
+        '你每次都会看一眼再冲掉。我觉得这是一种关心。',
+        '我在地板上转了三圈才找到感觉。你假装没看见。',
+        '结束后我跳上沙发，坐得很端正。'
+      ],
+      poopOpt: {
+        '正常': ['很好，很标准。今天身体是听话的。', '形状完美。我埋的时候特别认真。'],
+        '偏软': ['今天不太成形。我有点不好意思，但你只是看了一眼，没说什么。', '软了一点。你的眉毛动了一下，我看在眼里。'],
+        '偏硬': ['今天有点费劲。我背对着你，不太想被看见。', '干了点。我喝的水大概还不够。'],
+        '拉稀': ['今天不太对劲。你皱着眉拿纸，我在旁边装作很无辜。', '不太妙。我今天可能吃错了什么。']
+      },
+      pee: [
+        '我尿在了该尿的地方。这个家的规矩，我其实都懂。',
+        '尿完我很满意，还用爪子假装处理了一下。',
+        '你正好路过。我们交换了一个「都懂」的眼神。'
+      ],
+      vomit: [
+        '我吐在了地板上。吐完先抬头看你一眼，怕你生气。',
+        '又吐了。你擦地板的时候手很快，我站在旁边，尾巴贴着腿。',
+        '胃里翻了一下，我没忍住。你蹲下来摸我的背，说没关系。',
+        '我吐完自己走开了两步，觉得丢脸。',
+        '那团东西我看着眼熟。今天的饭，白吃了。'
+      ],
+      med: [
+        '药是苦的。你的手是甜的，所以我还是咽下去了。',
+        '你把药藏在罐头里。我早就发现了，但我配合你。',
+        '吃完药你奖励了我一下。这笔交易我接受。',
+        '我吐了一半出来，你又塞回去。我们都不容易。'
+      ],
+      vet: [
+        '白衣服的人摸我的肚子，我忍住了，因为你一直在旁边。',
+        '医院的味道我认得。我把头埋进你的胳膊里，这样没那么怕。',
+        '针扎进来时我叫了一声。不是为了疼，是为了让你心疼。',
+        '一路上你都在跟我说话，语速比平时快。我听不懂，但我知道要乖。',
+        '回家的车上我睡着了。醒来已经在楼下，我认得那个味道。'
+      ],
+      weight: [
+        '你把我放上那块冷冰冰的板子。我坐得笔直，像在领奖。',
+        '{n} 公斤。你笑了。我不知道那是什么意思，但应该不是坏事。',
+        '我在板子上待了不到五秒，你念叨了一整天。',
+        '数字跳了两下才停。你拿手机拍了照，我就知道这事很重要。',
+        '比上次重了一点。你没说什么，但摸我的时候手更轻了。'
+      ],
+      walk: [
+        '外面的世界很大，我还是更习惯你走的方向。',
+        '我走两步就回头看你一眼，确认你还在后面。'
+      ],
+      walkCat: [
+        '你把我放进包里，我露出一个头。街上的人都在看我，我装作不在意。',
+        '出门三分钟我就想回家了。但你在，我就再坚持一会儿。',
+        '我蹲在草里不动。你以为我害怕，其实我在观察一只虫子。',
+        '路过的每一辆车我都记住了。下次它们再来，我就知道。'
+      ],
+      walkDog: [
+        '绳子一响，我的四条腿比脑子先动。',
+        '我闻了七棵树、三个消防栓，还有一个我认识的朋友。',
+        '今天跑得很快，风把耳朵吹到后面去了。我很帅，我知道。',
+        '路上遇到一只同类。我们对视两秒，交换了全部信息。',
+        '一到楼下我就开始拉你。你被拽得踉跄，还在笑。'
+      ],
+      play: [
+        '你扔出去，我追回来。这个游戏你好像永远玩不腻。',
+        '我把玩具藏在沙发底下，然后假装找不到，等你帮我。',
+        '我们追着跑了两圈。你喘得比我厉害。',
+        '我扑住了那只红色的东西。它没有生命，但今天它是我的猎物。',
+        '你躲在门后吓我，我配合地跳了一下。',
+        '玩到一半我突然不想玩了。你举着玩具愣在那里，很好笑。'
+      ],
+      bath: [
+        '水。又是水。我假装很生气，其实水温刚好。',
+        '我抖了一百下，把水全甩到你身上。这是我今天最成功的事。',
+        '洗完我闻起来像你喜欢的味道。我照了照镜子，勉强满意。',
+        '泡沫进了一点到鼻子里，我打了个很大的喷嚏。你笑得很开心。',
+        '擦干的时候我很乖。因为我知道，接下来会有奖励。'
+      ],
+      sleep: [
+        '我睡了很久。梦里有你，还有一只我追不到的鸟。',
+        '我选了你椅子底下那块地板睡。这样你一动我就能醒。',
+        '你也在睡。我们呼吸的节奏慢慢对上了。',
+        '睡着之前我翻了个身，把肚皮朝着你。这是我能给的最大信任。',
+        '我睡在阳光走过的那块地板上。它走了，我就换个地方继续。'
+      ],
+      cuddle: [
+        '我蹭了你的手。你也蹭回来。我们扯平了。',
+        '我把整个重量都靠在你身上。你动了动，但没推开我。',
+        '你摸我的下巴，我发出了不该发出的声音。',
+        '我把头搁在你腿上。你打字的声音从骨头里传上来。',
+        '你叫我名字的时候，我假装没听见，但尾巴出卖了我。'
+      ],
+      naughty: [
+        '我打碎了一个杯子。你骂我的时候，我一直在看你的睫毛。',
+        '我把桌上的东西推下去了。推的时候，你在看手机。',
+        '我抓了沙发。那个声音太爽了，我控制不住。',
+        '我咬你的手指，没用力。你笑了，我就咬得更轻。',
+        '我翻垃圾桶被你抓到。我站在原地，装作只是路过。'
+      ],
+      vaccine: [
+        '今天被按在台子上，扎了一下。我没闹，因为你说「乖」。',
+        '针进去的时候，我在数你的呼吸。三下。都挺稳的。',
+        '胳膊有点酸。我今天什么都不想干，这也是有理由的。',
+        '那个人夸我勇敢。其实我只是没跑掉。',
+        '回家的路上你一直摸我的头。我就当这是奖励了。',
+        '我知道你带我出门，有一半是为了这个。我原谅你了。'
+      ],
+      deworm: [
+        '后颈被挤了一管凉凉的东西。味道我不喜欢，但我没舔。',
+        '你翻我脖子的动作很熟练，我配合得像排练过。',
+        '药水凉了一下就没了。剩下的半天，我都在闻自己。',
+        '这件事你比我记得清楚。你数着日子呢。'
+      ],
+      surgery: [
+        '醒来的时候你在旁边。我第一件事是找你。',
+        '今天睡了一觉，醒来身上有点不对。你说没事，我就信了。',
+        '肚子上有点疼。我尽量不表现得像个病号，但走得慢了。',
+        '你没让我舔那个地方。我试了两次，都被你拦住了。',
+        '今天我没什么力气。你把我抱到床上，我就没再动。'
+      ],
+      status: [
+        '我今天什么样子，你一眼就看出来了。你比体温计准。',
+        '你摸了很久我的鼻子。大概是凉的，你就放心了。',
+        '你今天看我的次数比平时多。我什么都没说，但我都看见了。'
+      ],
+      statusOpt: {
+        '很好': [
+          '今天我状态很好。跳上柜子一次就成了，落地也很稳。',
+          '今天浑身是劲。我绕着屋子跑了两圈，纯属开心。',
+          '今天我什么都想试试。连你藏起来的那个袋子我也够到了。'
+        ],
+        '正常': [
+          '和平时一样。没什么可说的——这挺好的。',
+          '今天很正常。吃饭、睡觉、看你，都在正常范围内。',
+          '一切照旧。这种没有意外的日子，其实很贵。'
+        ],
+        '有点蔫': [
+          '今天我没什么力气。趴着，看着，等你过来。',
+          '我不想动。不是不开心，就是今天想省着点用。',
+          '我在角落里待着。你来找我，我尾巴动了一下。'
+        ],
+        '不舒服': [
+          '今天我不太舒服。你摸我的时候，我往你手里靠了靠。',
+          '我躲到了床底下。你不喊我，只是把水和饭放在门口。',
+          '我不太想被碰，但你在旁边坐着，我就没那么难受。'
+        ]
+      }
+    },
+
+    photo: [
+      '你举起那个会闪光的小方块对着我。我配合地看了一眼，你就笑了。',
+      '你拍了我。我假装没看见，其实偷偷把下巴抬高了一点。',
+      '那个小方块又闪了一下。我想，它比我更常被你看着。',
+      '你对着我拍了很久。我猜，你是想把今天留下来。',
+      '我被拍的时候有点紧张。但你在笑，那就算了。',
+      '你蹲下来，把那个小方块凑得很近。我第一次发现，你蹲下来和我一样高。',
+      '今天我出现在那个小方块里了。不知道它会不会替我记住。'
+    ],
+
+    videoShot: [
+      '你举着那个小方块，对着我拍了好一会儿。我假装不知道，其实每一步都走得很稳。',
+      '镜头一直跟着我。我走到哪儿，它就转到哪儿——像你一样。',
+      '你拍了会动的那种。我看了一眼回放，原来我跑起来是这个样子。'
+    ],
+
+    observe: [
+      '人类真奇怪。明明有那么多事要做，却愿意花十分钟看我吃饭。',
+      '你总说「马上」。我不认识「马上」，我只认识门开的声音。',
+      '我数过你一天叫我名字的次数。比你以为的多，也比你以为的少。',
+      '你难过的时候不说话。我不问，我只是挨着你坐下。',
+      '你们把时间分成一格一格，我把它分成「你在」和「你不在」。',
+      '我不知道「永远」有多长。但如果你在，我可以先不着急。',
+      '你出门前会回头看一眼。那一眼我收下了。',
+      '你身上的味道每天都不太一样，只有一种不变——那是「家」。',
+      '你说的话我大部分听不懂。但我听得懂你的语气，尤其是叫我的时候。',
+      '我记不住日期。我记住的是「洗澡那天」「打针那天」「你哭的那天」。',
+      '你把我的照片存在一个小小的方块里。我也把你，存在一个小小的方块里。',
+      '人类喜欢问「你爱不爱我」。我不回答，我只是走过去。',
+      '我这一生去过的地方不多。你是最好玩的那一个。',
+      '你睡着的时候最好看。我看过很多次，每次都这样觉得。',
+      '世界很大，我知道。可我的世界，从这扇门到那扇窗，已经很够了。',
+      '你们总是在算日子。我只算你回来过几次。',
+      '你今天叹了几次气，我都数着呢。有一声特别长。',
+      '你把好吃的都分我一半，把难过的都留给自己。这不公平。',
+      '我听得懂「乖」，也听得懂「不许」。但这两个词你从来不会说得很凶。',
+      '有时候我只是想确认你会不会回头。你回头了，我就跑过来。'
+    ],
+
+    close: [
+      '明天见。如果你还记得的话。',
+      '我已经想好明天要在哪里等你了。',
+      '晚安。我把爪子搭在你手边，这样你翻身的时候就不会找不到我。',
+      '今天就这样吧。剩下的时间，我用来喜欢你。',
+      '明天，罐头，还是你。随便哪个先来都行。',
+      '我把今天收好了，存在只有我知道的地方。',
+      '明天也要在。这句我写在心里，不用你答应。',
+      '灯关了。我在黑暗里睁着眼，等你睡着了我才睡。',
+      '今天到此为止。我的尾巴还翘着。',
+      '你说明天会下雨。那明天就待在你旁边。',
+      '我不想写完了。写完，这一天就真的过去了。',
+      '就这样。我趴下了。',
+      '明天我打算对你更好一点。今天就先这样。',
+      '我把一天折好，放在你脚边。'
+    ],
+
+    person: {
+      tsundere: [
+        '我才没有一直守在门口等你。我只是刚好在那里。',
+        '你摸我的时候我没躲，但也没有很享受。你别多想。',
+        '我叫你，是因为我饿了。跟你本人没有关系。',
+        '这个位置不是给你留的。你坐吧，我勉强让一半。',
+        '你回来的时候我背对着你。但我的耳朵是朝着门的。'
+      ],
+      clingy: [
+        '你去哪个房间，我就跟到哪个房间。这不叫粘人，这叫顺路。',
+        '你坐下我就上去，你站起来我就在你脚边。',
+        '你出门以后，我把你的拖鞋推到了窝里。',
+        '我在你门口趴了一下午。地板有点凉，但那是离你最近的地方。',
+        '你今天在外面待得太久了。我是数着时间过的。'
+      ],
+      aloof: [
+        '我今天看了你很久，一句话都没说。这就是我的表达方式。',
+        '我不需要你。但我允许你在我附近坐着。',
+        '你叫我，我抬了一下眼皮。这已经是很大的回应了。',
+        '我选了一个能看见你、但你不太容易摸到我的位置。',
+        '你的手伸过来，我挪了两厘米。然后就算了。'
+      ],
+      greedy: [
+        '我一天里最重要的事，是等开饭的声音。',
+        '你手里有东西的时候，你是我最爱的人。',
+        '我在厨房门口坐着。我知道你今天会开那个柜子。',
+        '我算过，你一天要开四次冰箱。其中两次跟我有关。',
+        '我把鼻子凑到你的碗边。你分了我一口。这很合理。'
+      ],
+      curious: [
+        '这个家里所有的柜子，我都需要再检查一遍。',
+        '你新拿回来的袋子，我闻了二十分钟。',
+        '有只虫子在墙上。我盯了它一个小时，它赢了。',
+        '你手机里的声音是从哪里来的？我找过，找不到。',
+        '门开了一条缝。我决定先不进，先看看。'
+      ]
+    },
+
+    title: {
+      calm: ['今天也很好', '没什么事，你也在', '普通得刚刚好', '阳光、地板、你', '一个安静的今天', '什么也没有发生'],
+      happy: ['尾巴先替我回答了', '今天有好事发生', '风是甜的', '跑起来的那一天', '我笑了一整天'],
+      love: ['我不想离你太远', '就待在这里', '你身上有太阳的味道', '跟着你走', '今天的距离是零'],
+      proud: ['我才没有很想你', '今天也是我赢', '看在你份上', '勉强同意', '我做得很好'],
+      sick: ['今天有点难', '我没什么精神', '撑一撑就过去了', '你摸着我就好', '不太好的一天'],
+      sleepy: ['我睡了很久', '什么都不想做', '一块被晒暖的石头', '今天暂停营业', '梦见了你'],
+      excited: ['快一点，再快一点', '我今天特别行', '出门！', '世界很吵，很好', '忍不住了']
+    },
+
+    /* 大事那天的开场：先把气氛定在正事上，而不是随手写天气 */
+    openBig: {
+      vaccine: [
+        '今天出门的方向不对。不是公园那边。',
+        '一路上你没怎么说话，我就知道今天不是去玩。',
+        '门口的牌子我认识。上一次来，我在这里叫了很久。',
+        '今天没走那条有草的路。'
+      ],
+      vet: [
+        '车停在一个我认识的地方。我不太想下车。',
+        '今天身上有点不对劲。你比我先发现。',
+        '我闻到了消毒水的味道，往你腿后面退了半步。',
+        '这一路上我一直贴着你，你也一直没把我放下。'
+      ],
+      bath: [
+        '水声一响，我就知道躲不掉了。',
+        '你卷起袖子的样子，我一看就明白。',
+        '今天的地板是湿的，我也是。'
+      ],
+      surgery: [
+        '今天没有早饭。我知道要发生点什么。',
+        '空气里有药味，跟平时不一样。',
+        '你抱我的时候比平常紧一点。'
+      ],
+      deworm: [
+        '你翻我后颈的动作，我认得。',
+        '又到了这个日子。',
+        '那个小瓶子一拿出来，我就开始躲。'
+      ]
+    },
+
+    /* 大事那天的标题 */
+    titleBig: {
+      vaccine: ['今天挨了一下', '打针的那天', '我忍住了', '一下就好', '今天有正事'],
+      vet: ['去看医生', '今天去了医院', '我没事，你别皱眉', '白大褂的人', '不太舒服的一天'],
+      bath: ['洗澡日', '水声之后', '湿透了的一天', '我不喜欢水', '洗完还是香的'],
+      surgery: ['手术那天', '醒来第一眼是你', '睡了一觉', '今天很长', '有点疼，但你在'],
+      deworm: ['又到这一天', '后颈一凉', '小瓶子的日子', '例行的事'],
+      status: ['今天状态很好', '一切都在位上', '满格的一天', '状态：好']
+    },
+
+    noteTpl: [      '你写下：「{n}」。我不识字，但我猜那里面有我。',
+      '你在手机上记了一笔：「{n}」。字很小，可我知道你在说我。',
+      '你说了一句「{n}」，语气很轻。我记下了。'
+    ],
+
+    /* 自定义性格：先引用你写的，再决定要不要补一句 */
+    personQuote: [
+      '你写我是个「{x}」的家伙。我承认一半。',
+      '你说我「{x}」。你比我自己还清楚我。',
+      '「{x}」——这话是你写的，我记下了。',
+      '你在本子上形容我：「{x}」。我今天就按这个演。'
+    ],
+    personCustom: [
+      '你懂我，所以我不必解释。',
+      '我做我自己。你也在旁边做你自己。挺好。',
+      '我不知道这算不算性格。我只知道今天我想这样过。'
+    ],
+
+    /* 自定义事件：{x} 是你给它起的名字。
+       写成"我正在经历的事"，不写成"你记了一笔所以我认了"。 */
+    custom: [
+      '你把我按在腿上做「{x}」。我假装要跑，其实一动没动。',
+      '「{x}」，前后不到五分钟。这五分钟里我看了你八次。',
+      '做「{x}」的时候你一直跟我说话。我一句没听懂，但声音是好的。',
+      '「{x}」完事，你给了我一块冻干。所以我决定记得香一点。',
+      '今天做了「{x}」。我不喜欢，但我忍住了，因为你在旁边。',
+      '「{x}」的时候我盯着你的手。你的手指头有点抖，比我还紧张。'
+    ],
+  };
+
+  /* ---------------- 随机与去重 ---------------- */
+
+  function hash(s) {
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(36);
+  }
+  function seedOf(s) {
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function clean(pool) {
+    return (pool || []).filter(function (s) { return typeof s === 'string' && s.length; });
+  }
+
+  /* 从池中选一句：优先没被用过的；{n} 需要 ctx.num 才可选 */
+  function pick(rng, pool, used, ctx) {
+    pool = clean(pool);
+    if (ctx && !ctx.num) pool = pool.filter(function (s) { return s.indexOf('{n}') < 0; });
+    if (!pool.length) return '';
+    var fresh = pool.filter(function (s) { return !used[hash(s)]; });
+    var arr = fresh.length ? fresh : pool;
+    var line = arr[Math.floor(rng() * arr.length)];
+    used[hash(line)] = 1;
+    return line;
+  }
+
+  /* ---------------- 心情 ---------------- */
+
+  function has(events, t) {
+    return events.some(function (e) { return e.type === t; });
+  }
+
+  function computeMood(events) {
+    var worse = events.some(function (e) {
+      return e.type === 'status' && (e.opt === '不舒服' || e.opt === '有点蔫');
+    });
+    if (worse || has(events, 'vomit') || has(events, 'vet') || has(events, 'surgery')) return 'sick';
+    if (has(events, 'naughty')) return 'proud';
+    if (has(events, 'walk') || has(events, 'play')) return 'excited';
+    if (has(events, 'cuddle') || has(events, 'med')) return 'love';
+    if (events.some(function (e) { return e.type === 'status' && e.opt === '很好'; })) return 'happy';
+    if (has(events, 'sleep') && events.length === 1) return 'sleepy';
+    if (has(events, 'meal') || has(events, 'water') || has(events, 'poop')) return 'calm';
+    if (has(events, 'bath') || has(events, 'weight')) return 'sleepy';
+    return 'calm';
+  }
+
+  /* 事件显示名：内置的用 PT.TYPE，自定义的用你自己起的名字 */
+  function labelOf(e) {
+    if (!e) return '';
+    var t = PT.TYPE[e.type];
+    return t ? t.label : (e.label || e.type || '');
+  }
+
+  /* ---------------- 段落组织 ---------------- */
+
+  var PROMINENT = { vomit: 0, vet: 1, vaccine: 1.5, deworm: 2.5, med: 2, bath: 3, naughty: 4, status: 6 };
+
+  function pickBeats(events) {
+    var seen = {};
+    var list = [];
+    events.slice().sort(function (a, b) {
+      return (a.at || 0) - (b.at || 0);
+    }).forEach(function (e) {
+      if (!e || !e.type || seen[e.type]) {
+        if (e && e.type && seen[e.type]) seen[e.type].count++;
+        return;
+      }
+      var b = { type: e.type, num: e.num, opt: e.opt, count: 1, at: e.at, label: e.label };
+      seen[e.type] = b;
+      list.push(b);
+    });
+    var MAX = 5;
+    if (list.length <= MAX) return list;
+    // 太长的日子：保留最早的 2 条 + 最重要的几条
+    var keep = list.slice(0, 2);
+    var rest = list.slice(2).sort(function (a, b) {
+      var pa = PROMINENT[a.type] == null ? 9 : PROMINENT[a.type];
+      var pb = PROMINENT[b.type] == null ? 9 : PROMINENT[b.type];
+      return pa - pb;
+    });
+    keep = keep.concat(rest).slice(0, MAX);
+    keep.sort(function (a, b) { return (a.at || 0) - (b.at || 0); });
+    return keep;
+  }
+
+  function fmtNum(n) {
+    if (n == null || n === '') return '';
+    var v = Number(n);
+    if (!isFinite(v)) return String(n);
+    return (Math.round(v * 10) / 10).toString();
+  }
+
+  function beatLines(b, pet) {
+    var species = pet.species === 'dog' ? 'dog' : 'cat';
+    var B = LEX.beat;
+    var lines = [];
+    switch (b.type) {
+      case 'meal':
+        lines = b.count >= 2 ? B.mealMulti.concat(B.meal) : B.meal;
+        break;
+      case 'poop':
+        if (b.opt && B.poopOpt[b.opt]) lines = B.poopOpt[b.opt].concat(B.poop);
+        else lines = B.poop;
+        break;
+      case 'walk':
+        lines = B.walk.concat(species === 'dog' ? B.walkDog : B.walkCat);
+        break;
+      case 'status':
+        lines = B.statusOpt[b.opt] || B.status;
+        break;
+      default:
+        lines = B[b.type] || (PT.TYPE[b.type] ? [] : LEX.custom);
+    }
+    return lines;
+  }
+
+  /* ---------------- 主函数 ---------------- */
+
+  function generate(opt) {
+    opt = opt || {};
+    var pet = opt.pet || {};
+    var date = opt.date || PT.todayKey();
+    var events = (opt.events || []).filter(function (e) { return e && e.type; });
+    var note = (opt.note || '').trim();
+    var reroll = opt.reroll || 0;
+    var history = opt.history || [];
+
+    var rng = mulberry32(seedOf(
+      date + '|' + (pet.name || '') + '|' + (pet.personality || '') + '|' + (pet.personalityText || '') + '|' + reroll + '|' + events.length + '|' + (opt.media || []).length
+    ));
+    var used = {};
+    history.forEach(function (h) { used[h] = 1; });
+
+    var mood = computeMood(events);
+    var beats = pickBeats(events);
+    var species = pet.species === 'dog' ? 'dog' : 'cat';
+    var paras = [];
+
+    /* 今天最"重"的那件事：开场和标题要先照顾它 */
+    var lead = beats.slice().sort(function (a, b) {
+      var pa = PROMINENT[a.type] == null ? 9 : PROMINENT[a.type];
+      var pb = PROMINENT[b.type] == null ? 9 : PROMINENT[b.type];
+      return pa - pb;
+    })[0];
+
+    var opener = pick(rng, LEX.open.concat(species === 'dog' ? LEX.openDog : LEX.openCat), used);
+    if (lead && LEX.openBig[lead.type] && rng() < 0.72) {
+      opener = pick(rng, LEX.openBig[lead.type], used, {}) || opener;
+    }
+    paras.push(opener);
+
+    beats.forEach(function (b) {
+      var line = pick(rng, beatLines(b, pet), used, { num: b.num != null && b.num !== '' });
+      if (!line) return;
+      if (line.indexOf('{n}') >= 0) line = line.replace(/\{n\}/g, fmtNum(b.num));
+      if (line.indexOf('{x}') >= 0) line = line.replace(/\{x\}/g, (b.label || labelOf(b)).replace(/[「」]/g, ''));
+      paras.push(line);
+    });
+
+    var ptxt = (pet.personalityText || '').trim();
+    var isCustom = pet.personality === 'custom' || (!LEX.person[pet.personality] && !!ptxt);
+    var media = opt.media || [];
+    var hasPhoto = false, hasVideo = false;
+    media.forEach(function (m) {
+      if (m && m.kind === 'photo') hasPhoto = true;
+      if (m && m.kind === 'video') hasVideo = true;
+    });
+    if (hasPhoto || hasVideo) {
+      paras.push(pick(rng, LEX.photo.concat(hasVideo ? LEX.videoShot : []), used));
+    }
+
+    if (isCustom) {
+      if (ptxt && rng() < 0.8) {
+        paras.push(pick(rng, LEX.personQuote, used).replace(/\{x\}/g, ptxt.replace(/[「」]/g, '')));
+      } else if (rng() < 0.4) {
+        paras.push(pick(rng, LEX.personCustom, used));
+      }
+    } else if (rng() < 0.62) {
+      paras.push(pick(rng, LEX.person[pet.personality] || LEX.person.aloof, used));
+    }
+
+    paras.push(pick(rng, LEX.observe, used));
+
+    if (note) {
+      var tpl = pick(rng, LEX.noteTpl, used);
+      paras.push(tpl.replace(/\{n\}/g, note.replace(/[「」]/g, '')));
+    }
+
+    paras.push(pick(rng, LEX.close, used));
+
+    var titles = LEX.title[mood] || LEX.title.calm;
+    var title = '';
+    if (lead && LEX.titleBig[lead.type] && rng() < 0.8) {
+      title = pick(rng, LEX.titleBig[lead.type], used, {});
+    }
+    if (!title) title = pick(rng, titles, used);
+
+    var tags = [];
+    beats.forEach(function (b) {
+      var label = labelOf(b);
+      if (label && tags.indexOf(label) < 0) tags.push(label);
+    });
+
+    return {
+      title: title,
+      body: paras.filter(Boolean).join('\n'),
+      mood: mood,
+      tags: tags.slice(0, 3),
+      used: Object.keys(used),
+      seed: reroll
+    };
+  }
+
+  /* 首屏的一句话（按日期稳定，不随刷新乱跳） */
+  var FLAVOR = [
+    '我在这儿。',
+    '今天也要记我吗？',
+    '你先忙，我看着你。',
+    '我把今天留了一个位置给你。',
+    '有点无聊，但还好有你。',
+    '我刚睡醒。你呢？',
+    '今天可以摸我三次。',
+    '我在想一件很重要的事。想不起来了。'
+  ];
+  function flavor(pet, dateKey) {
+    var i = seedOf((pet && pet.name ? pet.name : '') + '|' + (dateKey || PT.todayKey())) % FLAVOR.length;
+    return FLAVOR[i];
+  }
+
+  function greeting() {
+    var h = new Date().getHours();
+    if (h < 5) return '这么晚还没睡。';
+    if (h < 11) return '早上好。';
+    if (h < 14) return '中午了，吃饭了吗。';
+    if (h < 18) return '下午的光很好。';
+    if (h < 23) return '天黑了。';
+    return '该睡了。';
+  }
+
+  PT.WRITER = {
+    generate: generate,
+    flavor: flavor,
+    greeting: greeting,
+    computeMood: computeMood,
+    _lex: LEX
+  };
+})();
+
+</script>
+<script>
+/* media.js — 照片/视频：压一压，然后存进 IndexedDB（localStorage 装不下这些字节） */
+(function () {
+  'use strict';
+  var PT = (window.PT = window.PT || {});
+
+  var DB_NAME = 'pawseye.media.v1';
+  var STORE = 'files';
+  var _db = null;
+
+  function db() {
+    if (_db) return _db;
+    _db = new Promise(function (resolve, reject) {
+      if (!window.indexedDB) { reject(new Error('这个浏览器不支持本地存文件')); return; }
+      var req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = function () {
+        var d = req.result;
+        if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE);
+      };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error || new Error('打不开本地库')); };
+    });
+    return _db;
+  }
+
+  function put(id, blob) {
+    return db().then(function (d) {
+      return new Promise(function (res, rej) {
+        var t = d.transaction(STORE, 'readwrite');
+        t.objectStore(STORE).put(blob, id);
+        t.oncomplete = function () { res(id); };
+        t.onerror = function () { rej(friendly(t.error)); };
+        t.onabort = function () { rej(friendly(t.error)); };
+      });
+    });
+  }
+
+  /* 空间满了 / 私密模式禁写：换成一句人话 */
+  function friendly(err) {
+    var name = (err && err.name) || '';
+    if (name === 'QuotaExceededError') {
+      return new Error('这台设备上放不下了，先删几个旧视频再试');
+    }
+    if (name === 'InvalidStateError' || name === 'NotAllowedError') {
+      return new Error('浏览器不让存（可能是无痕模式）');
+    }
+    return new Error((err && err.message) || '存不进去');
+  }
+
+  function get(id) {
+    return db().then(function (d) {
+      return new Promise(function (res, rej) {
+        var t = d.transaction(STORE, 'readonly');
+        var r = t.objectStore(STORE).get(id);
+        r.onsuccess = function () { res(r.result || null); };
+        r.onerror = function () { rej(r.error); };
+      });
+    }).catch(function () { return null; });
+  }
+
+  function del(id) {
+    return db().then(function (d) {
+      return new Promise(function (res) {
+        var t = d.transaction(STORE, 'readwrite');
+        t.objectStore(STORE).delete(id);
+        t.oncomplete = function () { res(true); };
+        t.onerror = function () { res(false); };
+      });
+    }).catch(function () { return false; });
+  }
+
+  function clear() {
+    return db().then(function (d) {
+      return new Promise(function (res) {
+        var t = d.transaction(STORE, 'readwrite');
+        t.objectStore(STORE).clear();
+        t.oncomplete = function () { res(true); };
+        t.onerror = function () { res(false); };
+      });
+    }).catch(function () { return false; });
+  }
+
+  function uid() {
+    return 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function pickSize(w, h, max) {
+    var s = Math.min(1, max / Math.max(w || 1, h || 1));
+    return { w: Math.max(1, Math.round((w || 1) * s)), h: Math.max(1, Math.round((h || 1) * s)) };
+  }
+
+  function toBlob(canvas, type, q) {
+    return new Promise(function (res) { canvas.toBlob(res, type, q); });
+  }
+
+  function loadImage(file) {
+    return new Promise(function (res, rej) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () { res({ img: img, url: url }); };
+      img.onerror = function () { URL.revokeObjectURL(url); rej(new Error('这张图打不开')); };
+      img.src = url;
+    });
+  }
+
+  /* 照片：最长边 1800、JPEG 0.86，够看清又够小 */
+  function readPhoto(file) {
+    if (file.size > 40 * 1024 * 1024) return Promise.reject(new Error('这张照片超过 40MB 了'));
+    return loadImage(file).then(function (o) {
+      var img = o.img;
+      var size = pickSize(img.naturalWidth || img.width, img.naturalHeight || img.height, 1800);
+      var c = document.createElement('canvas');
+      c.width = size.w; c.height = size.h;
+      var ctx = c.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, size.w, size.h);
+      ctx.drawImage(img, 0, 0, size.w, size.h);
+      URL.revokeObjectURL(o.url);
+      return toBlob(c, 'image/jpeg', 0.86).then(function (blob) {
+        if (!blob) throw new Error('图片处理失败');
+        return { blob: blob, w: size.w, h: size.h, type: 'image/jpeg', kind: 'photo' };
+      });
+    });
+  }
+
+  /* 视频：原样存本地，另外抽一张封面。
+     抽不到封面不算失败 —— 视频照样存下来、照样能放，只是缩略图空着。
+     手机上（尤其是 iPhone 的 HEVC .mov）canvas 经常抓不到帧，
+     以前这种情况整条上传就废了，现在不会。 */
+  function readVideo(file) {
+    if (file.size > 500 * 1024 * 1024) return Promise.reject(new Error('这个视频超过 500MB 了，剪短一点再传'));
+    var url = URL.createObjectURL(file);
+    var v = document.createElement('video');
+    v.preload = 'metadata';
+    v.muted = true;
+    v.setAttribute('playsinline', '');
+    v.setAttribute('webkit-playsinline', '');
+    v.src = url;
+
+    return new Promise(function (resolve) {
+      var settled = false, captureTimer = null, metaTimer = null;
+      var hardTimer = setTimeout(function () { finish(); }, 20000);
+
+      function cleanup() {
+        clearTimeout(hardTimer);
+        if (captureTimer) clearTimeout(captureTimer);
+        if (metaTimer) clearTimeout(metaTimer);
+        try { v.removeAttribute('src'); v.load(); } catch (e) { }
+        try { URL.revokeObjectURL(url); } catch (e) { }
+      }
+      function finish(poster) {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        resolve({
+          blob: file,
+          kind: 'video',
+          w: v.videoWidth || 0,
+          h: v.videoHeight || 0,
+          dur: isFinite(v.duration) ? (v.duration || 0) : 0,
+          type: file.type || 'video/mp4',
+          poster: poster || null
+        });
+      }
+      function grab() {
+        if (settled) return;
+        var w = v.videoWidth || 0, h = v.videoHeight || 0;
+        if (!w || !h) { finish(null); return; }
+        var size = pickSize(w, h, 900);
+        var c = document.createElement('canvas');
+        c.width = size.w; c.height = size.h;
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, size.w, size.h);
+        try { ctx.drawImage(v, 0, 0, size.w, size.h); } catch (e) { finish(null); return; }
+        toBlob(c, 'image/jpeg', 0.82).then(function (poster) {
+          finish(poster && poster.size > 2000 ? poster : null);
+        }, function () { finish(null); });
+      }
+      v.onloadedmetadata = function () {
+        /* 有些文件 duration 是 Infinity，先跳一下再回来 */
+        if (!isFinite(v.duration)) { try { v.currentTime = 1e101; } catch (e) { } }
+        try { v.currentTime = Math.min(0.3, (isFinite(v.duration) ? v.duration : 1) * 0.2); } catch (e) { finish(null); return; }
+        captureTimer = setTimeout(function () { grab(); }, 2500);
+      };
+      v.onseeked = function () { grab(); };
+      v.onerror = function () { finish(null); };
+      /* 有些容器 metadata 永远不触发，别让用户干等 */
+      metaTimer = setTimeout(function () { grab(); }, 6000);
+    });
+  }
+
+  PT.MEDIA = { put: put, get: get, del: del, clear: clear, uid: uid, readPhoto: readPhoto, readVideo: readVideo };
+})();
+
+</script>
+<script>
+/* store.js — 数据层：多只宠物、状态、持久化、日记生成、示例数据 */
+(function () {
+  'use strict';
+  var PT = (window.PT = window.PT || {});
+  var KEY = 'pawseye.diary.v1';
+
+  var state = null;
+
+  function defaultState() {
+    return { v: 2, createdAt: new Date().toISOString(), activeId: null, pets: [], days: {}, settings: {} };
+  }
+
+  function uid() {
+    return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  /* v1（单只宠物、days 是平铺的）→ v2（pets[] + days[petId]） */
+  function migrate(s) {
+    if (s && s.v === 2 && Array.isArray(s.pets)) {
+      if (!s.days) s.days = {};
+      if (!s.settings) s.settings = {};
+      if (!s.activeId && s.pets[0]) s.activeId = s.pets[0].id;
+      return s;
+    }
+    var out = defaultState();
+    if (!s || typeof s !== 'object') return out;
+    out.createdAt = s.createdAt || out.createdAt;
+    out.settings = s.settings || {};
+    if (s.pet) {
+      var id = uid();
+      var pet = {};
+      Object.keys(s.pet).forEach(function (k) { pet[k] = s.pet[k]; });
+      pet.id = id;
+      if (pet.bio == null) pet.bio = '';
+      out.pets = [pet];
+      out.activeId = id;
+      out.days[id] = s.days || {};
+    }
+    return out;
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) state = migrate(JSON.parse(raw));
+    } catch (e) { /* 忽略损坏数据 */ }
+    if (!state) state = defaultState();
+    return state;
+  }
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {
+      console.warn('保存失败（可能是本地存储已满）', e);
+    }
+  }
+
+  function setting(k, def) {
+    var st = get();
+    if (!st.settings) st.settings = {};
+    return st.settings[k] === undefined ? def : st.settings[k];
+  }
+
+  function setSetting(k, v) {
+    var st = get();
+    if (!st.settings) st.settings = {};
+    st.settings[k] = v;
+    save();
+  }
+
+  function get() {
+    if (!state) load();
+    return state;
+  }
+
+  /* ---------------- 宠物 ---------------- */
+
+  function pets() { return get().pets || []; }
+
+  function petById(id) {
+    return pets().filter(function (p) { return p.id === id; })[0] || null;
+  }
+
+  function active() {
+    var s = get();
+    return petById(s.activeId) || pets()[0] || null;
+  }
+
+  function activeId() {
+    var p = active();
+    return p ? p.id : null;
+  }
+
+  function setActive(id) {
+    if (!petById(id)) return;
+    get().activeId = id;
+    save();
+  }
+
+  function addPet(pet) {
+    var s = get();
+    var p = { bio: '' };
+    Object.keys(pet || {}).forEach(function (k) { if (k !== 'id') p[k] = pet[k]; });
+    p.id = uid();
+    p.createdAt = p.createdAt || new Date().toISOString();
+    s.pets.push(p);
+    if (!s.days[p.id]) s.days[p.id] = {};
+    s.activeId = p.id;
+    save();
+    return p;
+  }
+
+  function updatePet(id, patch) {
+    var p = petById(id);
+    if (!p) return null;
+    Object.keys(patch || {}).forEach(function (k) { if (k !== 'id') p[k] = patch[k]; });
+    save();
+    return p;
+  }
+
+  function removePet(id) {
+    var s = get();
+    if (s.pets.length <= 1) return false;
+    s.pets = s.pets.filter(function (p) { return p.id !== id; });
+    delete s.days[id];
+    if (s.activeId === id) s.activeId = s.pets[0].id;
+    save();
+    return true;
+  }
+
+  function setPet(pet) {
+    var a = active();
+    if (a) return updatePet(a.id, pet);
+    return addPet(pet);
+  }
+
+  /* ---------------- 重要节点（档案用） ---------------- */
+
+  function milestones(petId) {
+    var p = petById(petId || activeId());
+    if (!p) return [];
+    if (!p.milestones) p.milestones = [];
+    return p.milestones.slice().sort(function (a, b) {
+      return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+    });
+  }
+
+  function addMilestone(date, label, icon) {
+    var p = active();
+    if (!p) return null;
+    if (!p.milestones) p.milestones = [];
+    var m = { id: 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: date, label: String(label || '').slice(0, 14), icon: icon || '⭐️' };
+    p.milestones.push(m);
+    save();
+    return m;
+  }
+
+  function removeMilestone(id) {
+    var p = active();
+    if (!p || !p.milestones) return false;
+    var n = p.milestones.length;
+    p.milestones = p.milestones.filter(function (m) { return m.id !== id; });
+    if (p.milestones.length === n) return false;
+    save();
+    return true;
+  }
+
+  /* ---------------- 每天 ---------------- */
+
+  function bucket(petId) {
+    var s = get();
+    if (!s.days) s.days = {};
+    if (!s.days[petId]) s.days[petId] = {};
+    return s.days[petId];
+  }
+
+  function day(key, petId) {
+    var s = get();
+    var b = s.days[petId || activeId()];
+    return (b && b[key]) || null;
+  }
+
+  function ensureDay(key, petId) {
+    var b = bucket(petId || activeId());
+    if (!b[key]) b[key] = { date: key, events: [], note: '', diary: null };
+    var d = b[key];
+    if (!d.events) d.events = [];
+    if (d.note == null) d.note = '';
+    return d;
+  }
+
+  function addEvent(key, type, opts) {
+    opts = opts || {};
+    var d = ensureDay(key);
+    var t = PT.TYPE[type];
+    var custom = !t ? customType(type) : null;
+    if (!t && !custom) return null;
+    var ev = { id: uid(), type: type, at: Date.now() };
+    if (t && t.num) ev.num = opts.num != null ? opts.num : t.num.def;
+    if (t && t.opt) ev.opt = opts.opt || t.opt[0];
+    if (custom) ev.label = custom.label;
+    d.events.push(ev);
+    if (d.diary) d.diary.stale = true;
+    save();
+    return ev;
+  }
+
+  /* ---------------- 自定义事件类型 ---------------- */
+
+  function customTypes() {
+    return get().customTypes || [];
+  }
+
+  function customType(id) {
+    var list = customTypes();
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+
+  function addCustomType(label, icon) {
+    label = String(label || '').trim().slice(0, 8);
+    if (!label) return null;
+    var s = get();
+    if (!s.customTypes) s.customTypes = [];
+    var dup = s.customTypes.filter(function (t) { return t.label === label; })[0];
+    if (dup) return dup;
+    var t = { id: 'x' + uid(), label: label, icon: String(icon || '⭐️') };
+    s.customTypes.push(t);
+    save();
+    return t;
+  }
+
+  function removeCustomType(id) {
+    var s = get();
+    if (!s.customTypes) return;
+    s.customTypes = s.customTypes.filter(function (t) { return t.id !== id; });
+    save();
+  }
+
+  function updateEvent(key, id, patch) {
+    var d = day(key);
+    if (!d) return;
+    var ev = d.events.filter(function (e) { return e.id === id; })[0];
+    if (!ev) return;
+    Object.keys(patch).forEach(function (k) { ev[k] = patch[k]; });
+    if (d.diary) d.diary.stale = true;
+    save();
+  }
+
+  function removeEvent(key, id) {
+    var d = day(key);
+    if (!d) return;
+    d.events = d.events.filter(function (e) { return e.id !== id; });
+    if (d.diary) d.diary.stale = true;
+    save();
+  }
+
+  function setNote(key, note) {
+    var d = ensureDay(key);
+    d.note = note || '';
+    if (d.diary) d.diary.stale = true;
+    save();
+  }
+
+  function addMedia(key, meta) {
+    var d = ensureDay(key);
+    d.media = d.media || [];
+    d.media.push(meta);
+    save();
+    return d.media;
+  }
+
+  function removeMedia(key, id) {
+    var d = day(key);
+    if (!d || !d.media) return;
+    d.media = d.media.filter(function (m) { return m.id !== id; });
+    save();
+  }
+
+  function mediaOf(key) {
+    var d = day(key);
+    return (d && d.media) || [];
+  }
+
+  function historyHashes(petId, limit) {
+    var s = get();
+    var b = s.days[petId || activeId()] || {};
+    var out = [];
+    var keys = Object.keys(b).sort().reverse();
+    for (var i = 0; i < keys.length && out.length < (limit || 160); i++) {
+      var d = b[keys[i]];
+      if (d.diary && d.diary.used) out = out.concat(d.diary.used);
+    }
+    return out.slice(0, limit || 160);
+  }
+
+  function generateFor(petId, key, reroll) {
+    var pet = petById(petId);
+    if (!pet) return null;
+    var d = ensureDay(key, petId);
+    var diary = PT.WRITER.generate({
+      pet: pet,
+      date: key,
+      events: d.events,
+      note: d.note,
+      media: d.media || [],
+      reroll: reroll || 0,
+      history: historyHashes(petId, 160)
+    });
+    diary.createdAt = new Date().toISOString();
+    diary.stale = false;
+    d.diary = diary;
+    save();
+    return diary;
+  }
+
+  function generate(key, reroll) {
+    return generateFor(activeId(), key, reroll);
+  }
+
+  function clearDiary(key) {
+    var d = day(key);
+    if (!d) return;
+    d.diary = null;
+    save();
+  }
+
+  function allDays(petId) {
+    var s = get();
+    var b = s.days[petId || activeId()] || {};
+    var out = [];
+    Object.keys(b).forEach(function (k) {
+      var d = b[k];
+      if ((d.events && d.events.length) || d.diary) out.push(d);
+    });
+    return out.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+  }
+
+  function stats(petId) {
+    var s = get();
+    var id = petId || activeId();
+    var days = allDays(id);
+    var withDiary = days.filter(function (d) { return d.diary; });
+    var pet = petById(id) || {};
+    var start = pet.homeDate || pet.birthday || (s.createdAt || '').slice(0, 10);
+    var together = start ? PT.daysBetween(start, PT.todayKey()) + 1 : 0;
+    var first = days.length ? days[days.length - 1].date : null;
+    return {
+      together: Math.max(1, together),
+      recordedDays: days.filter(function (d) { return d.events && d.events.length; }).length,
+      diaryCount: withDiary.length,
+      firstDate: first,
+      lastDate: days.length ? days[0].date : null
+    };
+  }
+
+  function weights(petId) {
+    var out = [];
+    allDays(petId).slice().reverse().forEach(function (d) {
+      (d.events || []).forEach(function (e) {
+        if (e.type === 'weight' && e.num != null) out.push({ date: d.date, kg: Number(e.num) });
+      });
+    });
+    return out;
+  }
+
+  function exportJSON() { return JSON.stringify(get(), null, 2); }
+
+  function importJSON(text) {
+    var s = migrate(JSON.parse(text));
+    /* 备份里没有图片视频的字节，别把空壳位置带进来 */
+    Object.keys(s.days).forEach(function (pid) {
+      Object.keys(s.days[pid] || {}).forEach(function (k) {
+        if (s.days[pid][k]) delete s.days[pid][k].media;
+      });
+    });
+    state = s;
+    save();
+    return true;
+  }
+
+  function reset() {
+    state = defaultState();
+    save();
+  }
+
+  /* ---------------- 示例数据 ---------------- */
+
+  function agoKey(n) {
+    var d = new Date();
+    d.setDate(d.getDate() - n);
+    return PT.keyOf(d);
+  }
+
+  function seedDemo() {
+    state = defaultState();
+    var todayKey = agoKey(0);
+
+    var mao = addPet({
+      name: '麻薯',
+      species: 'cat',
+      breed: '中华田园猫',
+      breedId: 'orange',
+      personality: 'tsundere',
+      bio: '三岁半的橘猫。怕生，只认纸箱和你刚坐热的那把椅子。',
+      birthday: agoKey(1280),
+      homeDate: agoKey(560)
+    });
+    var gao = addPet({
+      name: '年糕',
+      species: 'dog',
+      breed: '柴犬',
+      breedId: 'shiba',
+      personality: 'clingy',
+      bio: '两岁的柴犬。谁开门都当是自己的朋友，包括快递员。',
+      birthday: agoKey(730),
+      homeDate: agoKey(210)
+    });
+
+    var maoScript = [
+      { d: 1, ev: ['meal', 'poop', 'cuddle'] },
+      { d: 2, ev: ['walk', 'play', 'meal'] },
+      { d: 3, ev: ['vomit', 'vet', 'med'], note: '吐了两次，明天还是带去看看吧' },
+      { d: 5, ev: ['bath', 'weight', 'meal'] },
+      { d: 7, ev: ['walk', 'play', 'poop'] },
+      { d: 9, ev: ['meal', 'water', 'sleep'] },
+      { d: 12, ev: ['naughty', 'meal', 'cuddle'], note: '今天把我杯子推下去了，还看着我' },
+      { d: 0, ev: ['meal', 'walk'] }
+    ];
+    var gaoScript = [
+      { d: 1, ev: ['walk', 'poop', 'play'], note: '在小区门口坐着不肯走' },
+      { d: 4, ev: ['vaccine', 'weight', 'meal'] },
+      { d: 6, ev: ['bath', 'walk'] },
+      { d: 10, ev: ['vet', 'med'], note: '打针，全程没叫，回来蔫了一下午' },
+      { d: 0, ev: ['walk', 'cuddle'] }
+    ];
+    var defaults = { meal: 45, walk: 30, weight: 4.3, water: 120 };
+    var gaoDefaults = { meal: 110, walk: 40, weight: 9.6, water: 300 };
+
+    function fill(pet, script, defs) {
+      script.forEach(function (row) {
+        var key = agoKey(row.d);
+        var d = ensureDay(key, pet.id);
+        row.ev.forEach(function (type) {
+          var t = PT.TYPE[type];
+          if (!t) return;
+          var ev = { id: uid(), type: type, at: Date.now() };
+          if (t.num) ev.num = defs[type] != null ? defs[type] : t.num.def;
+          if (t.opt) ev.opt = t.opt[0];
+          d.events.push(ev);
+        });
+        if (row.note) d.note = row.note;
+      });
+      // 按日期顺序生成，模拟真实书写轨迹；今天留白，等你自己点「让它写今天的日记」
+      Object.keys(state.days[pet.id]).sort().forEach(function (k) {
+        var d = state.days[pet.id][k];
+        if (d.events.length && k !== todayKey) generateFor(pet.id, k, 0);
+      });
+    }
+
+    fill(mao, maoScript, defaults);
+    fill(gao, gaoScript, gaoDefaults);
+
+    /* 一条自定义事件：主人自己加的「剪指甲」 */
+    var ct = addCustomType('剪指甲', '✂️');
+    if (ct) {
+      var ck = agoKey(7);
+      var cd = ensureDay(ck, mao.id);
+      cd.events.push({ id: uid(), type: ct.id, label: ct.label, at: Date.now() });
+      generateFor(mao.id, ck, 0);
+    }
+
+    state.activeId = mao.id;
+    /* 档案里手记的两个重要节点：绝育手术、一次疫苗 */
+    mao.milestones = [
+      { id: 'm' + uid(), date: agoKey(300), label: '绝育手术', icon: '🏥' },
+      { id: 'm' + uid(), date: agoKey(150), label: '搬家到新家', icon: '🏠' }
+    ];
+    var vk = agoKey(48);
+    var vd = ensureDay(vk, mao.id);
+    vd.events.push({ id: uid(), type: 'vaccine', at: Date.now() });
+    generateFor(mao.id, vk, 0);
+    save();
+    save();
+  }
+
+  PT.STORE = {
+    setting: setting, setSetting: setSetting,
+    load: load, save: save, get: get,
+    pets: pets, active: active, setActive: setActive, addPet: addPet, updatePet: updatePet,
+    removePet: removePet, petById: petById, setPet: setPet,
+    day: day, ensureDay: ensureDay,
+    addEvent: addEvent, updateEvent: updateEvent, removeEvent: removeEvent, setNote: setNote,
+    customTypes: customTypes, customType: customType, addCustomType: addCustomType, removeCustomType: removeCustomType,
+    milestones: milestones, addMilestone: addMilestone, removeMilestone: removeMilestone,
+    addMedia: addMedia, removeMedia: removeMedia, mediaOf: mediaOf,
+    generate: generate, generateFor: generateFor, clearDiary: clearDiary, historyHashes: historyHashes,
+    allDays: allDays, stats: stats, weights: weights,
+    exportJSON: exportJSON, importJSON: importJSON, reset: reset, seedDemo: seedDemo,
+    uid: uid, KEY: KEY
+  };
+})();
+
+</script>
+<script>
+/* app.js — 界面与交互 */
+(function () {
+  'use strict';
+  var PT = window.PT, S = PT.STORE;
+  var $app = document.getElementById('app');
+  var esc = PT.escape;
+
+  var view = { name: 'today', key: null };
+  var writing = null;
+  var toastTimer = null;
+
+  var PERSON = [
+    { id: 'tsundere', label: '傲娇', desc: '嘴上不在乎，行动很诚实' },
+    { id: 'clingy', label: '黏人', desc: '你去哪，它就去哪' },
+    { id: 'aloof', label: '高冷', desc: '允许你待在附近' },
+    { id: 'greedy', label: '贪吃', desc: '心里只有开饭的声音' },
+    { id: 'curious', label: '好奇', desc: '所有柜子都要检查一遍' }
+  ];
+
+  /* ---------------- 小工具 ---------------- */
+
+  function dayNo(key) {
+    var pet = S.active() || {};
+    var start = pet.homeDate || pet.birthday || (S.get().createdAt || '').slice(0, 10);
+    if (!start) return 1;
+    return Math.max(1, PT.daysBetween(start, key) + 1);
+  }
+
+  function moodObj(k) { return PT.MOODS[k] || PT.MOODS.calm; }
+
+  function toast(msg) {
+    var el = document.getElementById('toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'toast';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 1600);
+  }
+
+  function paragraphs(body, animate) {
+    return String(body || '').split('\n').filter(Boolean).map(function (p, i) {
+      var st = animate ? ' style="animation-delay:' + (i * 110) + 'ms"' : '';
+      return '<p class="para"' + st + '>' + esc(p) + '</p>';
+    }).join('');
+  }
+
+  function factsHTML(d) {
+    var items = (d.events || []).map(function (e) {
+      var t = typeInfo(e);
+      var extra = '';
+      if (e.num != null) extra = ' ' + e.num + (t.num ? t.num.unit : '');
+      if (e.opt) extra = ' ' + e.opt;
+      return '<span class="fact">' + esc(t.icon) + ' ' + esc(t.label) + esc(extra) + '</span>';
+    }).join('');
+    var note = d.note ? '<div class="fact-note">你写下：' + esc(d.note) + '</div>' : '';
+    return '<div class="fact-list">' + (items || '<span class="fact dim">没有留下事实</span>') + '</div>' + note;
+  }
+
+  function entryCard(key, opts) {
+    opts = opts || {};
+    var d = S.day(key);
+    if (!d || !d.diary) return '';
+    var mo = moodObj(d.diary.mood);
+    var body = paragraphs(d.diary.body, opts.animate);
+    return '' +
+      '<article class="entry card" id="entry-' + key + '">' +
+      '<div class="entry-top">' +
+      '<span class="entry-day">' + PT.fmtShort(key) + ' · 第 ' + dayNo(key) + ' 天</span>' +
+      '<span class="mood" style="color:' + mo.color + ';border-color:' + mo.color + '33">' + mo.emoji + ' ' + mo.label + '</span>' +
+      '</div>' +
+      '<h2 class="entry-title">' + esc(d.diary.title) + '</h2>' +
+      '<div class="entry-body">' + body + '</div>' +
+      mediaGrid(key) +
+      (d.diary.stale ? '<div class="stale">这一天的事实后来改过，这篇是当时的版本。</div>' : '') +
+      '<details class="facts"><summary>那天的事实</summary>' + factsHTML(d) + '</details>' +
+      (opts.hideActions ? '' :
+        '<div class="entry-actions">' +
+        '<button class="mini" data-act="reroll" data-key="' + key + '">重写</button>' +
+        '<button class="mini" data-act="share" data-key="' + key + '">存成图片</button>' +
+        (d.diary ? '<button class="mini ghost" data-act="cleardiary" data-key="' + key + '">删掉这篇</button>' : '') +
+        '</div>') +
+      '</article>';
+  }
+
+  /* ---------------- 照片 / 视频 ---------------- */
+
+  var objUrls = [];
+  var urlCache = {};
+
+  function posterId(m) {
+    if (m.kind !== 'video') return m.id;
+    return m.hasPoster ? m.id + '-p' : '';
+  }
+
+  function mediaStrip(key) {
+    var media = S.mediaOf(key);
+    var tiles = media.map(function (m) {
+      var pid = posterId(m);
+      return '<div class="mtile' + (m.kind === 'video' ? ' vid' : '') + '" data-act="media-open" data-mid="' + m.id + '">' +
+        (pid ? '<img data-mid="' + pid + '" alt="">' : '<span class="mblank">视频</span>') +
+        (m.kind === 'video' ? '<span class="mplay"></span>' : '') +
+        '<button class="mtile-x" data-act="media-del" data-mid="' + m.id + '" data-key="' + key + '" aria-label="删除">×</button>' +
+        '</div>';
+    }).join('');
+    return '<div class="mstrip">' + tiles +
+      '<div class="madds">' +
+      '<button class="madd" data-act="pick-photo" data-key="' + key + '"><span>＋</span>照片</button>' +
+      '<button class="madd" data-act="pick-video" data-key="' + key + '"><span>＋</span>视频</button>' +
+      '</div></div>' +
+      (media.length ? '<div class="mtip">点开看原图；长视频建议剪短再传，它只存在这台设备上。</div>' : '') +
+      '<input type="file" class="mfile" id="file-photo" data-key="' + key + '" accept="image/*" multiple hidden>' +
+      '<input type="file" class="mfile" id="file-video" data-key="' + key + '" accept="video/*" multiple hidden>';
+  }
+
+  function mediaGrid(key) {
+    var media = S.mediaOf(key);
+    if (!media.length) return '';
+    var cells = media.map(function (m) {
+      var pid = posterId(m);
+      return '<div class="mcell' + (m.kind === 'video' ? ' vid' : '') + '" data-act="media-open" data-mid="' + m.id + '">' +
+        (pid ? '<img data-mid="' + pid + '" alt="">' : '<span class="mblank">视频</span>') +
+        (m.kind === 'video' ? '<span class="mplay"></span>' : '') +
+        '</div>';
+    }).join('');
+    return '<div class="mgrid n' + Math.min(media.length, 4) + '">' + cells + '</div>';
+  }
+
+  /* 把 IndexedDB 里的字节贴回 <img> 上（objectURL 每次渲染重建） */
+  function hydrateMedia() {
+    objUrls.forEach(function (u) { URL.revokeObjectURL(u); });
+    objUrls = [];
+    urlCache = {};
+    var imgs = document.querySelectorAll('img[data-mid]');
+    Array.prototype.forEach.call(imgs, function (img) {
+      var id = img.getAttribute('data-mid');
+      if (!id) return;
+      if (urlCache[id]) { img.src = urlCache[id]; return; }
+      PT.MEDIA.get(id).then(function (blob) {
+        if (!blob) { img.classList.add('muted'); img.alt = '文件已丢失'; return; }
+        var url = URL.createObjectURL(blob);
+        urlCache[id] = url;
+        objUrls.push(url);
+        if (img.isConnected) img.src = url;
+      });
+    });
+  }
+
+  function openMedia(mid) {
+    PT.MEDIA.get(mid).then(function (blob) {
+      if (!blob) { toast('这个文件已经找不到了'); return; }
+      var url = URL.createObjectURL(blob);
+      var meta = null;
+      Object.keys(S.get().days).forEach(function (pid) {
+        Object.keys(S.get().days[pid] || {}).forEach(function (k) {
+          var d = S.get().days[pid][k];
+          (d && d.media ? d.media : []).forEach(function (m) { if (m.id === mid) meta = m; });
+        });
+      });
+      var isVideo = meta ? meta.kind === 'video' : (blob.type || '').indexOf('video') === 0;
+      var lb = document.createElement('div');
+      lb.className = 'lb';
+      lb.innerHTML = (isVideo
+        ? '<video src="' + url + '" controls autoplay playsinline></video>'
+        : '<img src="' + url + '" alt="">') +
+        '<button class="lb-x" aria-label="关闭">×</button>';
+      lb.addEventListener('click', function (ev) {
+        if (ev.target === lb || ev.target.classList.contains('lb-x')) {
+          if (isVideo) { var v = lb.querySelector('video'); if (v) v.pause(); }
+          URL.revokeObjectURL(url);
+          lb.remove();
+        }
+      });
+      document.body.appendChild(lb);
+    });
+  }
+
+  function ingest(files, kind, key) {
+    var list = [].slice.call(files || []);
+    if (!list.length) return;
+    var ok = 0;
+    toast(kind === 'photo' ? '正在处理照片…' : '正在读视频，稍等…');
+    var chain = Promise.resolve();
+    list.forEach(function (f) {
+      chain = chain.then(function () {
+        var p = kind === 'photo' ? PT.MEDIA.readPhoto(f) : PT.MEDIA.readVideo(f);
+        return p.then(function (r) {
+          var id = PT.MEDIA.uid();
+          var meta = { id: id, kind: r.kind, w: r.w, h: r.h, dur: r.dur || 0, type: r.type, hasPoster: !!r.poster };
+          return PT.MEDIA.put(id, r.blob).then(function () {
+            if (r.poster) return PT.MEDIA.put(id + '-p', r.poster);
+          }).then(function () {
+            S.addMedia(key, meta);
+            ok++;
+          });
+        }).catch(function (err) {
+          toast((err && err.message) || '这个文件处理不了');
+        });
+      });
+    });
+    chain.then(function () {
+      render({});
+      if (ok) toast(ok + ' 个' + (kind === 'photo' ? '照片' : '视频') + '存好了');
+    });
+  }
+
+  /* ---------------- 引导 ---------------- */
+
+  var ob = { species: 'cat', breedId: 'orange', personality: 'tsundere', ptext: '', editing: false, mode: 'first', draft: null };
+
+  /* 表单重渲染前先收一遍已输入的内容，别让用户白打 */
+  /* 档案节点表单：换表情时先把已输入的内容收起来 */
+  function harvestMs() {
+    var l = document.getElementById('ms-label');
+    var d = document.getElementById('ms-date');
+    if (l) ms.label = l.value;
+    if (d) ms.date = d.value;
+  }
+
+  function harvestOb() {
+    var n = document.getElementById('ob-name');
+    var b = document.getElementById('ob-bio');
+    var h = document.getElementById('ob-home');
+    var p = document.getElementById('ob-ptext');
+    ob.draft = {
+      name: n ? n.value : (ob.draft ? ob.draft.name : ''),
+      bio: b ? b.value : (ob.draft ? ob.draft.bio : ''),
+      home: h ? h.value : (ob.draft ? ob.draft.home : '')
+    };
+    if (p) ob.ptext = p.value;
+  }
+
+  function breedOfSpecies(sp, id) {
+    var b = PT.breedById(sp, id);
+    if (b) return b;
+    return (PT.BREEDS[sp === 'dog' ? 'dog' : 'cat'] || [])[0] || null;
+  }
+
+  function renderOnboarding() {
+    var prev = ob.editing ? S.active() : null;
+    var adding = ob.mode === 'new';
+    /* 只在「第一次进入这个表单」时用现有资料铺底，之后以用户的选择为准 */
+    if (prev && ob.seedFor !== prev.id) {
+      ob.seedFor = prev.id;
+      ob.species = prev.species === 'dog' ? 'dog' : 'cat';
+      ob.personality = prev.personality || 'tsundere';
+      ob.ptext = prev.personalityText || '';
+      if (prev.breedId) ob.breedId = prev.breedId;
+      ob.draft = null;
+    }
+    if (!prev) ob.seedFor = '';
+    var breed = breedOfSpecies(ob.species, ob.breedId);
+    ob.breedId = breed ? breed.id : '';
+    var hero = PT.ART.face(ob.species, 'calm', { tilt: -2, breed: breed });
+    var dval = function (k, fallback) {
+      if (ob.draft) return ob.draft[k] || '';
+      return fallback || '';
+    };
+
+    var breeds = (PT.BREEDS[ob.species] || []).map(function (b) {
+      return '<button class="breed' + (ob.breedId === b.id ? ' on' : '') + '" data-act="ob-breed" data-id="' + b.id + '">' +
+        '<span class="bd-face">' + PT.ART.face(ob.species, 'calm', { tilt: 0, breed: b }) + '</span>' +
+        '<span class="bd-name">' + b.label + '</span></button>';
+    }).join('');
+
+    var isCustom = ob.personality === 'custom';
+    var person = PERSON.map(function (p) {
+      return '<button class="pchip' + (ob.personality === p.id ? ' on' : '') + '" data-act="ob-person" data-id="' + p.id + '">' +
+        '<b>' + p.label + '</b><span>' + p.desc + '</span></button>';
+    }).join('') +
+      '<button class="pchip' + (isCustom ? ' on' : '') + '" data-act="ob-person" data-id="custom">' +
+      '<b>自己写</b><span>用你的话形容它</span></button>';
+
+    var title = prev ? '改一改它的资料' : adding ? '再添一只' : '它眼里的世界';
+    var sub = prev ? '改完之后，它还是它。'
+      : adding ? '它和别的家伙共用一个本子，<br>但说话的方式是它自己的。'
+        : '你只记事实，它来写日记。<br>日子久了，你就有它的一生。';
+    return '' +
+      '<div class="onboard">' +
+      '<div class="ob-art">' + hero + '</div>' +
+      '<h1 class="ob-title">' + title + '</h1>' +
+      '<p class="ob-sub">' + sub + '</p>' +
+
+      '<div class="ob-field"><label>它叫什么</label>' +
+      '<input id="ob-name" class="input" maxlength="12" placeholder="麻薯" autocomplete="off" value="' + esc(dval('name', prev ? prev.name : '')) + '"></div>' +
+
+      '<div class="ob-field"><label>它是</label>' +
+      '<div class="species">' +
+      '<button class="sp' + (ob.species === 'cat' ? ' on' : '') + '" data-act="ob-species" data-id="cat"><span>🐱</span>猫</button>' +
+      '<button class="sp' + (ob.species === 'dog' ? ' on' : '') + '" data-act="ob-species" data-id="dog"><span>🐶</span>狗</button>' +
+      '</div></div>' +
+
+      '<div class="ob-field"><label>什么品种 <em>决定它长什么样</em></label>' +
+      '<div class="breeds">' + breeds + '</div></div>' +
+
+      '<div class="ob-field"><label>它的性格 <em>决定它写日记的语气</em></label>' +
+      '<div class="pchips">' + person + '</div>' +
+      (isCustom
+        ? '<input id="ob-ptext" class="input" maxlength="24" autocomplete="off" placeholder="比如：胆小、怕打雷，只对家里人黏人" value="' + esc(ob.ptext) + '">'
+        : '') +
+      '</div>' +
+
+      '<div class="ob-field"><label>一句话介绍它 <em>选填，会显示在它的页面</em></label>' +
+      '<textarea id="ob-bio" class="input note" rows="2" maxlength="60" placeholder="一句话介绍它，比如：三岁半的橘猫，怕生。">' + esc(dval('bio', prev ? prev.bio : '')) + '</textarea></div>' +
+
+      '<div class="ob-field"><label>它到家的日子 <em>选填，用来数「第几天」</em></label>' +
+      '<input id="ob-home" class="input" type="date" value="' + esc(dval('home', prev ? prev.homeDate : '')) + '"></div>' +
+
+      '<button class="primary big" data-act="ob-start">' + (prev ? '保存' : adding ? '添上它' : '开始记录') + '</button>' +
+      (prev || adding
+        ? '<button class="ghost link" data-act="' + (prev ? 'cancel-edit' : 'cancel-new') + '">算了，不改了</button>'
+        : '<button class="ghost link" data-act="demo">先看看一只叫麻薯的猫的日记</button>') +
+      '<p class="ob-foot">数据只存在这台设备上，不上传。</p>' +
+      '</div>';
+  }
+
+  /* ---------------- 今天 ---------------- */
+
+  function petSwitcher() {
+    var pets = S.pets();
+    if (pets.length < 2) return '';
+    var cur = S.active() || {};
+    return '<div class="petswitch">' + pets.map(function (p) {
+      var on = p.id === cur.id;
+      return '<button class="psw' + (on ? ' on' : '') + '" data-act="switch-pet" data-id="' + p.id + '">' +
+        '<span class="psw-face">' + PT.ART.face(p.species, on ? 'happy' : 'calm', { tilt: 0, breed: PT.breedOf(p) }) + '</span>' +
+        '<span class="psw-name">' + esc(p.name) + '</span></button>';
+    }).join('') + '</div>';
+  }
+
+  /* ---------------- 自定义事件 ---------------- */
+
+  var composer = { open: false, icon: '⭐️' };
+
+
+  /* ---------------- 主题 ---------------- */
+
+  function curThemeId() { return S.setting('theme', 'paper'); }
+
+  /* ---------------- 「发生了什么」的按钮：排序 / 收起 / 加回来 ---------------- */
+
+  var chips = { edit: false };
+
+  function allChipIds() {
+    return PT.TYPES.map(function (t) { return t.id; })
+      .concat(S.customTypes().map(function (t) { return t.id; }));
+  }
+
+  function chipIds() {
+    var saved = S.setting('chips', null);
+    if (!saved || !saved.length) return allChipIds();
+    return saved.filter(function (id) { return PT.TYPE[id] || S.customType(id); });
+  }
+
+  function saveChips(ids) { S.setSetting('chips', ids); }
+
+  function chipMeta(id) {
+    var t = PT.TYPE[id];
+    if (t) return { id: id, label: t.label, icon: t.icon, mine: false };
+    var c = S.customType(id);
+    return c ? { id: id, label: c.label, icon: c.icon, mine: true } : null;
+  }
+
+  function chipsHTML() {
+    var html = chipIds().map(function (id) {
+      var m = chipMeta(id);
+      if (!m) return '';
+      return '<button class="chip' + (m.mine ? ' mine' : '') + (chips.edit ? ' editing' : '') + '" data-act="add" data-id="' + id + '">' +
+        '<span class="ci">' + esc(m.icon) + '</span>' + esc(m.label) +
+        (chips.edit ? '<span class="cx" data-act="chip-hide" data-id="' + id + '">×</span>' : '') +
+        '</button>';
+    }).join('');
+    if (!chips.edit) {
+      html += '<button class="chip add' + (composer.open ? ' on' : '') + '" data-act="composer"><span class="ci">＋</span>自定义</button>';
+    }
+    return html;
+  }
+
+  function chipPalette() {
+    var ids = chipIds();
+    var hidden = allChipIds().filter(function (id) { return ids.indexOf(id) < 0; });
+    if (!hidden.length) {
+      return '<p class="cp-tip">按住一个按钮拖着走，就能换位置；点它右上角的 × 收起来，想加回来随时可以。</p>';
+    }
+    return '<div class="cp-label">收起来了，点一下加回来</div><div class="chips palette">' +
+      hidden.map(function (id) {
+        var m = chipMeta(id);
+        return m ? '<button class="chip off" data-act="chip-show" data-id="' + id + '"><span class="ci">' + esc(m.icon) + '</span>' + esc(m.label) + '</button>' : '';
+      }).join('') + '</div>';
+  }
+
+  function composerPanel(key) {
+    var emo = PT.EMOJIS.map(function (e) {
+      return '<button class="eo' + (composer.icon === e ? ' on' : '') + '" data-act="cp-emoji" data-id="' + e + '">' + e + '</button>';
+    }).join('');
+    var mine = S.customTypes().map(function (t) {
+      return '<span class="mtag"><i>' + esc(t.icon) + '</i>' + esc(t.label) +
+        '<button class="mtx" data-act="del-type" data-id="' + t.id + '" aria-label="删掉">×</button></span>';
+    }).join('');
+    return '<div class="composer">' +
+      '<div class="cp-row">' +
+      '<input id="cp-name" class="input" maxlength="8" autocomplete="off" placeholder="比如：打疫苗、剪指甲、刷牙">' +
+      '<button class="mini primary" data-act="cp-add" data-key="' + key + '">加上</button>' +
+      '</div>' +
+      '<div class="cp-label">配个表情</div>' +
+      '<div class="emoji-grid">' + emo + '</div>' +
+      '<p class="cp-tip">加上之后，它就一直留在这排按钮里，点一下就记一条。</p>' +
+      (mine ? '<div class="cp-label">我加的</div><div class="mtags">' + mine + '</div>' : '') +
+      '</div>';
+  }
+
+  /* 事件显示信息：内置的看 PT.TYPE，自定义的看它自己的 name/icon */
+  function typeInfo(e) {
+    var t = PT.TYPE[e.type];
+    if (t) return t;
+    return { id: e.type, label: e.label || '自定义', icon: e.icon || '⭐️', custom: true };
+  }
+
+  function renderToday() {
+    var key = PT.todayKey();
+    var pet = S.active() || {};
+    var d = S.day(key);
+    var mo = d && d.diary ? moodObj(d.diary.mood) : moodObj('calm');
+    var chipRow = chipsHTML();
+
+    var evs = '';
+    if (d && d.events.length) {
+      evs = d.events.map(function (e) {
+        var t = typeInfo(e);
+        var ctl = '';
+        if (t.num) {
+          ctl = '<span class="numwrap"><input class="num" type="number" inputmode="decimal" step="' + (t.num.step || 1) + '" value="' + (e.num != null ? e.num : '') + '" data-act="num" data-id="' + e.id + '" data-key="' + key + '"><i>' + t.num.unit + '</i></span>';
+        }
+        if (t.opt) {
+          ctl = '<select class="opt" data-act="opt" data-id="' + e.id + '" data-key="' + key + '">' +
+            t.opt.map(function (o) { return '<option' + (e.opt === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') +
+            '</select>';
+        }
+        return '<div class="ev">' +
+          '<span class="ev-ic">' + esc(t.icon) + '</span>' +
+          '<span class="ev-name">' + esc(t.label) + '</span>' +
+          ctl +
+          '<button class="ev-x" data-act="del" data-id="' + e.id + '" data-key="' + key + '" aria-label="删除">×</button>' +
+          '</div>';
+      }).join('');
+    } else {
+      evs = '<div class="ev-empty">今天还是空白。上面点几下就行，不用写句子。</div>';
+    }
+
+    var hasEvents = d && d.events.length > 0;
+    var genLabel = d && d.diary ? '重新写今天的日记' : '让它写今天的日记';
+
+    var entry = '';
+    if (writing === key) {
+      entry = '<div class="entry card writing"><div class="dots"><i></i><i></i><i></i></div>' +
+        '<p>它正在回想今天……</p></div>';
+    } else if (d && d.diary) {
+      entry = entryCard(key, { animate: true });
+    }
+
+    return '' +
+      petSwitcher() +
+      '<header class="head">' +
+      '<div class="kicker">' + PT.fmtCN(key) + '</div>' +
+      '<h1 class="page-title">第 <em>' + dayNo(key) + '</em> 天</h1>' +
+      '</header>' +
+
+      '<section class="hero card">' +
+      '<div class="hero-face" style="color:' + mo.color + '">' + PT.ART.face(pet.species, (d && d.diary ? d.diary.mood : 'calm'), { tilt: -2, breed: PT.breedOf(pet) }) + '</div>' +
+      '<div class="hero-say">' +
+      '<div class="bubble">' + esc(PT.WRITER.flavor(pet, key)) + '</div>' +
+      '<div class="hero-meta">' + esc(pet.name) + (d && d.events.length ? ' · 今天记了 ' + d.events.length + ' 件事' : ' · 今天还没有记录') + '</div>' +
+      '</div></section>' +
+
+      '<section class="block">' +
+      '<div class="sec-title row"><span>发生了什么</span><button class="via" data-act="chip-edit">' + (chips.edit ? '完成' : '编辑') + '</button></div>' +
+      '<div class="chips' + (chips.edit ? ' editing' : '') + '">' + chipRow + '</div>' +
+      (chips.edit ? chipPalette() : '') +
+      (composer.open && !chips.edit ? composerPanel(key) : '') +
+      '</section>' +
+
+      '<section class="block">' +
+      '<div class="sec-title">今天的事实 <span class="dim">' + (hasEvents ? d.events.length + ' 条' : '') + '</span></div>' +
+      '<div class="evs">' + evs + '</div>' +
+      '<textarea class="note" id="note" data-key="' + key + '" rows="2" maxlength="60" placeholder="想补一句就写在这儿（选填）">' + esc(d ? d.note : '') + '</textarea>' +
+      '</section>' +
+
+      '<section class="block">' +
+      '<div class="sec-title">今天拍到的 <span class="dim">' + S.mediaOf(key).length + '</span></div>' +
+      mediaStrip(key) +
+      '</section>' +
+
+      '<button class="primary big' + (hasEvents ? '' : ' disabled') + '" data-act="gen" data-key="' + key + '"' + (hasEvents ? '' : ' disabled') + '>' + genLabel + '</button>' +
+
+      entry +
+      '<p class="foot">事实是给你看的，日记是它写的。同一个日子，两种记忆。</p>';
+  }
+
+  /* ---------------- 日记本 ---------------- */
+
+  function renderDiary() {
+    var days = S.allDays().filter(function (d) { return d.diary; });
+    if (!days.length) {
+      return '' +
+        petSwitcher() +
+        '<header class="head"><div class="kicker">日记本</div><h1 class="page-title">还没有一页</h1></header>' +
+        '<div class="empty card">' + PT.ART.paw(48, '#D8CBB6') +
+        '<p>回到今天，记两笔。<br>它会替你写下来。</p>' +
+        '<button class="mini" data-act="tab" data-id="today">去记一笔</button></div>';
+    }
+    var groups = [];
+    var cur = null;
+    days.forEach(function (d) {
+      var m = d.date.slice(0, 7);
+      if (!cur || cur.m !== m) { cur = { m: m, items: [] }; groups.push(cur); }
+      cur.items.push(d);
+    });
+    var html = groups.map(function (g) {
+      var y = g.m.slice(0, 4), mo = Number(g.m.slice(5, 7));
+      var rows = g.items.map(function (d) {
+        var mo2 = moodObj(d.diary.mood);
+        var ex = d.diary.body.split('\n')[0] || '';
+        if (ex.length > 26) ex = ex.slice(0, 26) + '…';
+        return '<a class="row" data-act="entry" data-key="' + d.date + '">' +
+          '<div class="row-date"><b>' + Number(d.date.slice(8, 10)) + '</b><span>周' + PT.weekShort[PT.parseDate(d.date).getDay()] + '</span></div>' +
+          '<div class="row-main"><div class="row-title">' + esc(d.diary.title) + '</div><div class="row-ex">' + esc(ex) + '</div></div>' +
+          '<div class="row-dot" style="background:' + mo2.color + '"></div>' +
+          '</a>';
+      }).join('');
+      return '<div class="month"><div class="month-label">' + y + ' 年 ' + mo + ' 月</div>' + rows + '</div>';
+    }).join('');
+
+    var total = days.length;
+    return '' +
+      petSwitcher() +
+      '<header class="head"><div class="kicker">日记本</div><h1 class="page-title">它写的 ' + total + ' 篇</h1>' +
+      '<p class="sub">从 ' + PT.fmtShort(days[days.length - 1].date) + ' 到现在</p></header>' +
+      html +
+      '<p class="list-foot">' + PT.ART.paw(13, '#C9BBA5') + ' 它还在写</p>';
+  }
+
+  /* ---------------- 单篇 ---------------- */
+
+  function renderEntryPage(key) {
+    var d = S.day(key);
+    var pet = S.active() || {};
+    if (!d || !d.diary) {
+      return '<div class="head"><h1 class="page-title">没有这一篇</h1></div><button class="mini" data-act="tab" data-id="diary">回日记本</button>';
+    }
+    var mo = moodObj(d.diary.mood);
+    return '' +
+      '<div class="backrow"><button class="back" data-act="tab" data-id="diary">← 日记本</button></div>' +
+      '<header class="head">' +
+      '<div class="kicker">' + PT.fmtCN(key) + '</div>' +
+      '<h1 class="page-title">第 <em>' + dayNo(key) + '</em> 天</h1>' +
+      '</header>' +
+      '<div class="entry-hero">' +
+      '<div class="eh-face" style="color:' + mo.color + '">' + PT.ART.face(pet.species, d.diary.mood, { tilt: -3, breed: PT.breedOf(pet) }) + '</div>' +
+      '<div class="eh-meta"><span class="mood" style="color:' + mo.color + ';border-color:' + mo.color + '33">' + mo.emoji + ' ' + mo.label + '</span>' +
+      '<div class="eh-tags">' + (d.diary.tags || []).map(function (t) { return '<span>#' + esc(t) + '</span>'; }).join('') + '</div></div>' +
+      '</div>' +
+      entryCard(key, { animate: true });
+  }
+
+  /* ---------------- 它 ---------------- */
+
+  function sparkline(pts) {
+    if (!pts.length) return '<div class="dim small">还没称过。记两次以上就能看到曲线。</div>';
+    if (pts.length === 1) {
+      return '<div class="chart"><div class="chart-meta big"><span>' + pts[0].kg + ' kg</span><span>' + PT.fmtShort(pts[0].date) + ' · 再记一次就有曲线</span></div></div>';
+    }
+    var W = 280, H = 70, pad = 8;
+    var vals = pts.map(function (p) { return p.kg; });
+    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+    var span = max - min || 1;
+    var step = (W - pad * 2) / (pts.length - 1);
+    var path = pts.map(function (p, i) {
+      var x = pad + step * i;
+      var y = pad + (H - pad * 2) * (1 - (p.kg - min) / span);
+      return (i ? 'L' : 'M') + (Math.round(x * 10) / 10) + ' ' + (Math.round(y * 10) / 10);
+    }).join(' ');
+    var last = pts[pts.length - 1], first = pts[0];
+    return '<div class="chart"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' +
+      '<path d="' + path + '" fill="none" stroke="#C2613F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '</svg><div class="chart-meta"><span>' + first.kg + ' kg · ' + PT.fmtShort(first.date) + '</span><span>' + last.kg + ' kg · ' + PT.fmtShort(last.date) + '</span></div></div>';
+  }
+
+  function petRow(p, isOn) {
+    return '<button class="petrow' + (isOn ? ' on' : '') + '" data-act="switch-pet" data-id="' + p.id + '">' +
+      '<span class="pr-face">' + PT.ART.face(p.species, isOn ? 'happy' : 'calm', { tilt: 0, breed: PT.breedOf(p) }) + '</span>' +
+      '<span class="pr-main"><b>' + esc(p.name) + '</b><i>' + esc(p.bio || (p.species === 'dog' ? '一只狗' : '一只猫')) + '</i></span>' +
+      (isOn ? '<span class="pr-on">现在看的是它</span>' : '') +
+      '</button>';
+  }
+
+  /* 健康档案：洗澡、看病、疫苗、驱虫、吃药、吐，按时间倒序 */
+  function healthTimeline(pet) {
+    var rows = [];
+    S.allDays(pet.id).forEach(function (d) {
+      (d.events || []).forEach(function (e) {
+        if (PT.HEALTH.indexOf(e.type) < 0) return;
+        rows.push({ date: d.date, e: e, at: e.at || 0 });
+      });
+    });
+    rows.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : b.at - a.at; });
+    if (!rows.length) {
+      return '<div class="dim small">还没有记录。洗澡、看医生、打疫苗、驱虫都会自动记在这里。</div>';
+    }
+    var shown = rows.slice(0, 12);
+    return '<ul class="health">' + shown.map(function (r) {
+      var t = typeInfo(r.e);
+      var extra = r.e.opt ? ' · ' + r.e.opt : '';
+      var since = PT.daysBetween(r.date, PT.todayKey());
+      return '<li><span class="hl-ic">' + esc(t.icon) + '</span>' +
+        '<span class="hl-main"><b>' + esc(t.label) + esc(extra) + '</b>' +
+        '<i>' + PT.fmtShort(r.date) + (since > 0 ? ' · ' + since + ' 天前' : ' · 今天') + '</i></span></li>';
+    }).join('') + '</ul>' +
+      (rows.length > shown.length ? '<p class="dim small">还有 ' + (rows.length - shown.length) + ' 条更早的。</p>' : '');
+  }
+
+  function renderPet() {
+    var pet = S.active() || {};
+    var st = S.stats();
+    var w = S.weights();
+    var all = S.pets();
+    var pLabel = (PERSON.filter(function (p) { return p.id === pet.personality; })[0] || {}).label || '';
+    if (pet.personality === 'custom') pLabel = pet.personalityText || '自己写的';
+    else if (pet.personalityText) pLabel = pLabel + ' · ' + pet.personalityText;
+    return '' +
+      '<div class="pet-hero">' +
+      '<div class="ph-face">' + PT.ART.face(pet.species, 'calm', { tilt: -2, breed: PT.breedOf(pet) }) + '</div>' +
+      '<h1 class="ph-name">' + esc(pet.name) + '</h1>' +
+      '<p class="ph-sub">' + esc(PT.breedLabel(pet) || (pet.species === 'dog' ? '狗' : '猫')) + (pLabel ? ' · ' + esc(pLabel) : '') + '</p>' +
+      (pet.bio ? '<p class="ph-bio">' + esc(pet.bio) + '</p>' : '') +
+      '</div>' +
+
+      '<div class="stats card">' +
+      '<div class="stat"><b>' + st.together + '</b><span>陪伴天数</span></div>' +
+      '<div class="stat"><b>' + st.recordedDays + '</b><span>记录天数</span></div>' +
+      '<div class="stat"><b>' + st.diaryCount + '</b><span>日记篇数</span></div>' +
+      '</div>' +
+
+      '<div class="block"><div class="sec-title">档案 <span class="dim">体重 / 疫苗 / 重要节点都在「档案」里</span></div><div class="card pad">' +
+      '<div class="kv"><span>品种</span><b>' + esc(PT.breedLabel(pet) || '没填') + '</b></div>' +
+      '<div class="kv"><span>生日</span><b>' + (pet.birthday ? PT.fmtYMD(pet.birthday) : '没填') + '</b></div>' +
+      '<div class="kv"><span>到家</span><b>' + (pet.homeDate ? PT.fmtYMD(pet.homeDate) : '没填') + '</b></div>' +
+      '<div class="kv"><span>性格</span><b>' + esc(pLabel) + '</b></div>' +
+      '<button class="mini full accent" data-act="open-archive">打开档案</button>' +
+      '<button class="mini full" data-act="edit-profile">改一改资料</button>' +
+      '</div></div>' +
+
+      '<div class="block"><div class="sec-title">家里的 ' + all.length + ' 只</div><div class="card pad pets">' +
+      all.map(function (p) { return petRow(p, p.id === pet.id); }).join('') +
+      '<button class="mini full dash" data-act="new-pet">＋ 再添一只</button>' +
+      '</div></div>' +
+
+      '<div class="block"><div class="sec-title">换一层纸 <span class="dim">样子，不影响内容</span></div><div class="card pad">' +
+      '<div class="themes">' + PT.THEMES.map(function (t) {
+        var on = curThemeId() === t.id;
+        return '<button class="theme' + (on ? ' on' : '') + '" data-act="theme" data-id="' + t.id + '">' +
+          '<span class="th-dots"><i style="background:' + t.vars['--paper'] + '"></i><i style="background:' + t.vars['--accent'] + '"></i></span>' +
+          '<b>' + t.label + '</b><em>' + t.hint + '</em></button>';
+      }).join('') + '</div>' +
+      '</div></div>' +
+
+      '<div class="block"><div class="sec-title">数据</div><div class="card pad">' +
+      '<div class="actions">' +
+      '<button class="mini" data-act="export">导出备份</button>' +
+      '<button class="mini" data-act="import">导入</button>' +
+      '<button class="mini ghost" data-act="redo">重新开始</button>' +
+      '</div>' +
+      '<p class="dim small">日记存在这台设备的浏览器里。导出只带走文字，照片和视频留在原机。</p>' +
+      '</div></div>' +
+
+      '<p class="foot">「它眼里的世界」 · 一个只记事实、让它自己写的日记本</p>';
+  }
+
+  /* ---------------- 档案 ---------------- */
+
+  var ms = { open: false, icon: '⭐️', label: '', date: '' };
+  var MS_EMOJI = ['🎂', '🏠', '💉', '🏥', '💊', '🛁', '✂️', '🦷', '🐾', '⭐️', '🎉', '🧴', '🚑', '📌'];
+
+  /* 出生到现在：几岁几个月 */
+  function ageText(b) {
+    if (!b) return '';
+    var d = new Date(b + 'T00:00:00');
+    if (isNaN(d.getTime())) return '';
+    var now = new Date();
+    var m = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+    if (now.getDate() < d.getDate()) m -= 1;
+    if (m < 0) return '';
+    var y = Math.floor(m / 12), mm = m % 12;
+    if (y <= 0) return mm + ' 个月';
+    return y + ' 岁' + (mm ? ' ' + mm + ' 个月' : '');
+  }
+
+  /* 到某一天时它多大 */
+  function ageAt(b, date) {
+    if (!b || !date) return '';
+    var d = new Date(b + 'T00:00:00'), t = new Date(date + 'T00:00:00');
+    if (isNaN(d.getTime()) || isNaN(t.getTime())) return '';
+    var m = (t.getFullYear() - d.getFullYear()) * 12 + (t.getMonth() - d.getMonth());
+    if (t.getDate() < d.getDate()) m -= 1;
+    if (m < 0) return '';
+    var y = Math.floor(m / 12), mm = m % 12;
+    if (y <= 0) return mm ? mm + ' 个月' : '刚出生';
+    return y + ' 岁' + (mm ? ' ' + mm + ' 个月' : '');
+  }
+
+  function countType(pet, type) {
+    var n = 0;
+    S.allDays(pet.id).forEach(function (d) {
+      (d.events || []).forEach(function (e) { if (e.type === type) n++; });
+    });
+    return n;
+  }
+
+  function lastType(pet, type) {
+    var best = null;
+    S.allDays(pet.id).forEach(function (d) {
+      (d.events || []).forEach(function (e) { if (e.type === type && (!best || d.date > best)) best = d.date; });
+    });
+    return best;
+  }
+
+  /* 档案条目：手记的节点 + 出生/到家 + 日记里自动捞出来的健康事件 */
+  function archiveItems(pet) {
+    var out = [], seen = {};
+    function push(it) {
+      var k = it.date + '|' + it.label;
+      if (!it.date || seen[k]) return;
+      seen[k] = 1;
+      out.push(it);
+    }
+    (pet.milestones || []).forEach(function (m) {
+      push({ date: m.date, icon: m.icon || '⭐️', label: m.label || '节点', kind: 'mine', id: m.id });
+    });
+    if (pet.birthday) push({ date: pet.birthday, icon: '🎂', label: '出生', kind: 'fixed' });
+    if (pet.homeDate) push({ date: pet.homeDate, icon: '🏠', label: '到家', kind: 'fixed' });
+    S.allDays(pet.id).forEach(function (d) {
+      (d.events || []).forEach(function (e) {
+        if (PT.HEALTH.indexOf(e.type) < 0) return;
+        var t = typeInfo(e);
+        push({ date: d.date, icon: t.icon, label: t.label + (e.opt ? ' · ' + e.opt : ''), kind: 'auto' });
+      });
+    });
+    out.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+    return out;
+  }
+
+  function msPanel() {
+    return '<div class="composer">' +
+      '<div class="cp-row">' +
+      '<input id="ms-label" class="input" maxlength="14" placeholder="比如：绝育手术" value="' + esc(ms.label) + '">' +
+      '<button class="mini primary" data-act="ms-add">加上</button>' +
+      '</div>' +
+      '<div class="cp-row">' +
+      '<input id="ms-date" class="input" type="date" value="' + (ms.date || PT.todayKey()) + '">' +
+      '</div>' +
+      '<div class="cp-label">配个表情</div>' +
+      '<div class="emoji-grid compact">' + MS_EMOJI.map(function (e) {
+        return '<button class="eo' + (ms.icon === e ? ' on' : '') + '" data-act="ms-icon" data-id="' + e + '">' + e + '</button>';
+      }).join('') + '</div>' +
+      '<div class="cp-tip">日期可以填过去。加完会按年份排进上面的表。</div>' +
+      '</div>';
+  }
+
+  function renderArchive() {
+    var pet = S.active() || {};
+    var items = archiveItems(pet);
+    var w = S.weights();
+    var st = S.stats();
+    var vacN = countType(pet, 'vaccine');
+    var vacLast = lastType(pet, 'vaccine');
+    var dewN = countType(pet, 'deworm');
+    var dewLast = lastType(pet, 'deworm');
+
+    var byYear = {};
+    items.forEach(function (it) {
+      var y = it.date.slice(0, 4);
+      (byYear[y] = byYear[y] || []).push(it);
+    });
+    var timeline = Object.keys(byYear).sort().reverse().map(function (y) {
+      return '<div class="tl-year">' + y + ' 年</div>' +
+        '<ul class="tl">' + byYear[y].map(function (it) {
+          return '<li class="tl-i ' + it.kind + '">' +
+            '<span class="tl-d">' + PT.fmtShort(it.date) + '</span>' +
+            '<span class="tl-ic">' + esc(it.icon) + '</span>' +
+            '<span class="tl-t">' + esc(it.label) + '</span>' +
+            '<span class="tl-age">' + esc(it.kind === 'auto' ? '' : ageAt(pet.birthday, it.date)) + '</span>' +
+            '<span class="tl-x-w">' + (it.kind === 'mine' ? '<button class="tl-x" data-act="ms-del" data-id="' + it.id + '" aria-label="删掉">×</button>' : '') + '</span>' +
+            '</li>';
+        }).join('') + '</ul>';
+    }).join('');
+
+    if (!items.length) {
+      timeline = '<div class="dim small">还没有节点。第一次打疫苗、绝育、搬家，都可以记在这里。</div>';
+    }
+
+    var wNow = w.length ? w[w.length - 1] : null;
+
+    return '' +
+      '<div class="arc-head">' +
+      '<div class="arc-face">' + PT.ART.face(pet.species, 'calm', { tilt: -2, breed: PT.breedOf(pet) }) + '</div>' +
+      '<div class="arc-id">' +
+      '<h1>' + esc(pet.name) + '</h1>' +
+      '<p>' + esc(PT.breedLabel(pet) || (pet.species === 'dog' ? '狗' : '猫')) +
+      (pet.birthday ? ' · ' + esc(ageText(pet.birthday)) : '') +
+      ' · 陪伴 ' + st.together + ' 天</p>' +
+      '</div></div>' +
+
+      '<div class="block"><div class="sec-title">档案表</div><div class="card pad">' +
+      '<div class="kv"><span>出生</span><b>' + (pet.birthday ? PT.fmtYMD(pet.birthday) : '没填') + '</b></div>' +
+      '<div class="kv"><span>到家</span><b>' + (pet.homeDate ? PT.fmtYMD(pet.homeDate) : '没填') + '</b></div>' +
+      '<div class="kv"><span>品种</span><b>' + esc(PT.breedLabel(pet) || '没填') + '</b></div>' +
+      '<div class="kv"><span>现在体重</span><b>' + (wNow ? wNow.kg + ' kg <i>' + PT.fmtShort(wNow.date) + '</i>' : '还没称过') + '</b></div>' +
+      '<div class="kv"><span>疫苗</span><b>' + (vacN ? vacN + ' 次 <i>最近 ' + PT.fmtShort(vacLast) + '</i>' : '还没记') + '</b></div>' +
+      '<div class="kv"><span>驱虫</span><b>' + (dewN ? dewN + ' 次 <i>最近 ' + PT.fmtShort(dewLast) + '</i>' : '还没记') + '</b></div>' +
+      '</div></div>' +
+
+      '<div class="block"><div class="sec-title">重要节点 <span class="dim">按年份</span></div>' +
+      '<div class="card pad">' + timeline +
+      (ms.open ? msPanel() : '<button class="mini full dash" data-act="ms-new">＋ 记一个节点</button>') +
+      '</div></div>' +
+
+      '<div class="block"><div class="sec-title">体重走势</div>' +
+      '<div class="card pad">' + sparkline(w) + '</div></div>' +
+
+      '<p class="foot">它的一生，按日期排好</p>';
+  }
+
+  /* ---------------- 主渲染 ---------------- */
+
+  function render(opts) {
+    opts = opts || {};
+    PT.applyTheme(curThemeId());
+    var y = window.scrollY;
+    if (!S.pets().length || view.name === 'onboard') {
+      if (view.name === 'onboard' && S.pets().length && !ob.editing && ob.mode !== 'new') {
+        /* 深链进 #/onboard：当作改资料 */
+        ob.editing = true;
+      }
+      $app.innerHTML = renderOnboarding();
+      document.body.classList.add('no-tabs');
+      window.scrollTo(0, 0);
+      return;
+    }
+    var body = '';
+    if (view.name === 'today') body = renderToday();
+    else if (view.name === 'diary') body = renderDiary();
+    else if (view.name === 'entry') body = renderEntryPage(view.key);
+    else if (view.name === 'archive') body = renderArchive();
+    else if (view.name === 'pet') body = renderPet();
+
+    var tabs = ['today', 'diary', 'archive', 'pet'].map(function (id) {
+      var label = { today: '今天', diary: '日记', archive: '档案', pet: '它' }[id];
+      var ico = {
+        today: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/></svg>',
+        diary: '<svg viewBox="0 0 24 24"><path d="M5 4.5h11a2 2 0 0 1 2 2V20H7a2 2 0 0 1-2-2V4.5z"/><path d="M8 8h7M8 12h7M8 16h4"/></svg>',
+        archive: '<svg viewBox="0 0 24 24"><path d="M6 3.5h9l3 3V21H6z"/><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4"/></svg>',
+        pet: '<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="4"/><circle cx="6.5" cy="8" r="1.6" fill="currentColor"/><circle cx="17.5" cy="8" r="1.6" fill="currentColor"/><circle cx="10" cy="5.4" r="1.3" fill="currentColor"/><circle cx="14" cy="5.4" r="1.3" fill="currentColor"/></svg>'
+      }[id];
+      var on = view.name === id || (view.name === 'entry' && id === 'diary');
+      return '<button class="tab' + (on ? ' on' : '') + '" data-act="tab" data-id="' + id + '">' + ico + '<span>' + label + '</span></button>';
+    }).join('');
+
+    $app.innerHTML = body +
+      (view.name === 'entry' ? '' : '') +
+      '<nav class="tabs">' + tabs + '</nav>';
+    document.body.classList.toggle('no-tabs', view.name === 'entry');
+    if (opts.top) window.scrollTo(0, 0); else window.scrollTo(0, y);
+    hydrateMedia();
+  }
+
+  /* ---------------- 行为 ---------------- */
+
+  function go(name, key) {
+    view = { name: name, key: key || null };
+    var h = '#/' + name + (key ? '/' + key : '');
+    lastHash = h;
+    if (location.hash !== h) {
+      try { history.replaceState(null, '', h); } catch (e) { }
+    }
+    render({ top: true });
+  }
+
+  var lastHash = '';
+
+  function parseHash() {
+    var h = (location.hash || '').replace(/^#\/?/, '');
+    if (!h || h === 'demo') return null;
+    var p = h.split('/');
+    if (p[0] === 'entry') {
+      var k = p[1];
+      var d = k && S.day(k);
+      if (!d || !d.diary) return { name: 'diary', key: null };
+      return { name: 'entry', key: k };
+    }
+    if (['today', 'diary', 'archive', 'pet', 'onboard'].indexOf(p[0]) >= 0) {
+      if (p[0] === 'onboard' && p[1] === 'new') { ob.mode = 'new'; ob.editing = false; }
+      return { name: p[0], key: null };
+    }
+    return null;
+  }
+
+  window.addEventListener('hashchange', function () {
+    if (location.hash === lastHash) return;
+    var v = parseHash();
+    if (!v) return;
+    view = v;
+    lastHash = location.hash;
+    render({ top: true });
+  });
+
+  function startWriting(key) {
+    writing = key;
+    render();
+    setTimeout(function () {
+      S.generate(key, 0);
+      writing = null;
+      render();
+      var el = document.getElementById('entry-' + key);
+      if (el) setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60);
+      toast('它写完了。');
+    }, 1200);
+  }
+
+  function download(name, text, type) {
+    var blob = new Blob([text], { type: type || 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  }
+
+  /* 把一篇日记画成图片 */
+  function buildCard(key) {
+    var d = S.day(key), pet = S.active() || {};
+    if (!d || !d.diary) return null;
+    var W = 1080, H = 1440;
+    var c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = '#F5EEE3';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(58,50,44,.12)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(56, 56, W - 112, H - 112);
+
+    var pad = 110, maxW = W - pad * 2;
+    ctx.fillStyle = '#8C8074';
+    ctx.font = '26px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('它眼里的世界', pad, 150);
+
+    ctx.fillStyle = '#3A322C';
+    ctx.font = '30px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(PT.fmtCN(key), W - pad, 150);
+    ctx.textAlign = 'left';
+
+    // 第 N 天
+    ctx.fillStyle = '#C2613F';
+    ctx.font = '28px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('第 ' + dayNo(key) + ' 天', pad, 236);
+
+    // 标题
+    ctx.fillStyle = '#3A322C';
+    ctx.font = '64px "Songti SC","SimSun",serif';
+    var titleLines = wrapText(ctx, d.diary.title, pad, 0, maxW, 82);
+    titleLines.forEach(function (line, i) { ctx.fillText(line, pad, 330 + i * 82); });
+
+    // 正文：段与段之间空一行；放不下就一档档缩字号，最后才截断
+    var topY = 330 + titleLines.length * 82 + 26;
+    var bottom = H - 210;
+    var paras = d.diary.body.split('\n').filter(function (s) { return String(s).trim(); });
+    var sizes = [[36, 58], [33, 54], [30, 50], [28, 46], [26, 43]];
+    var chosen = null;
+    for (var si = 0; si < sizes.length && !chosen; si++) {
+      var sz = sizes[si][0], lh = sizes[si][1];
+      ctx.font = sz + 'px "Kaiti SC","KaiTi","SimSun",serif';
+      var ls = [];
+      paras.forEach(function (p, pi) {
+        if (pi) ls.push('');
+        ls = ls.concat(wrapText(ctx, p, pad, 0, maxW, lh));
+      });
+      if (ls.length * lh <= bottom - topY) chosen = { size: sz, lh: lh, lines: ls };
+    }
+    if (!chosen) {
+      var s2 = sizes[sizes.length - 1];
+      ctx.font = s2[0] + 'px "Kaiti SC","KaiTi","SimSun",serif';
+      var ls2 = [];
+      paras.forEach(function (p, pi) {
+        if (pi) ls2.push('');
+        ls2 = ls2.concat(wrapText(ctx, p, pad, 0, maxW, s2[1]));
+      });
+      ls2 = ls2.slice(0, Math.floor((bottom - topY) / s2[1]));
+      if (ls2.length) ls2[ls2.length - 1] = ls2[ls2.length - 1].replace(/.$/, '…');
+      chosen = { size: s2[0], lh: s2[1], lines: ls2 };
+    }
+    ctx.fillStyle = '#3A322C';
+    ctx.font = chosen.size + 'px "Kaiti SC","KaiTi","SimSun",serif';
+    chosen.lines.forEach(function (line, i) {
+      if (!line) return;
+      ctx.fillText(line, pad, topY + (i + 1) * chosen.lh);
+    });
+
+    ctx.strokeStyle = 'rgba(58,50,44,.18)';
+    ctx.beginPath();
+    ctx.moveTo(pad, H - 170);
+    ctx.lineTo(W - pad, H - 170);
+    ctx.stroke();
+
+    ctx.fillStyle = '#8C8074';
+    ctx.font = '28px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText(pet.name + ' · ' + d.diary.title, pad, H - 118);
+    ctx.textAlign = 'right';
+    ctx.fillText(moodObj(d.diary.mood).emoji + ' ' + moodObj(d.diary.mood).label, W - pad, H - 118);
+
+    return c;
+  }
+
+  function saveImage(key) {
+    var c = buildCard(key);
+    if (!c) return;
+    c.toBlob(function (blob) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = '它眼里的世界-' + key + '.png';
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 3000);
+    }, 'image/png');
+  }
+
+  function wrapText(ctx, text, x, y, maxW, lh) {
+    var out = [];
+    String(text).split('\n').forEach(function (para) {
+      var line = '';
+      for (var i = 0; i < para.length; i++) {
+        var test = line + para[i];
+        if (ctx.measureText(test).width > maxW && line) {
+          out.push(line);
+          line = para[i];
+        } else {
+          line = test;
+        }
+      }
+      out.push(line);
+    });
+    return out;
+  }
+
+  /* ---------------- 事件绑定 ---------------- */
+
+
+  /* 编辑态：按住一个按钮拖着走 */
+  var chipDrag = { el: null };
+
+  document.addEventListener('pointerdown', function (e) {
+    if (!chips.edit) return;
+    if (e.target.closest('[data-act="chip-hide"]')) return;
+    var c = e.target.closest('.chip[data-act="add"]');
+    if (!c) return;
+    chipDrag.el = c;
+    c.classList.add('lift');
+    c.style.pointerEvents = 'none';
+    if (e.cancelable) e.preventDefault();
+  });
+
+  document.addEventListener('pointermove', function (e) {
+    if (!chipDrag.el) return;
+    var box = document.elementFromPoint(e.clientX, e.clientY);
+    var t = box && box.closest ? box.closest('.chip[data-act="add"]') : null;
+    if (!t || t === chipDrag.el) return;
+    var r = t.getBoundingClientRect();
+    var after = e.clientX > r.left + r.width / 2;
+    t.parentNode.insertBefore(chipDrag.el, after ? t.nextSibling : t);
+  });
+
+  document.addEventListener('pointerup', function () {
+    if (!chipDrag.el) return;
+    var el = chipDrag.el;
+    chipDrag.el = null;
+    el.classList.remove('lift');
+    el.style.pointerEvents = '';
+    var box = el.parentNode;
+    var ids = Array.prototype.map.call(box.querySelectorAll('.chip[data-act="add"]'), function (c) { return c.dataset.id; });
+    saveChips(ids);
+    render({});
+  });
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act]');
+    if (!el) return;
+    var act = el.dataset.act;
+    var id = el.dataset.id;
+    var key = el.dataset.key || PT.todayKey();
+
+    if (act === 'tab') { go(id); return; }
+
+    if (act === 'pick-photo' || act === 'pick-video') {
+      var inp = document.getElementById(act === 'pick-photo' ? 'file-photo' : 'file-video');
+      if (inp) inp.click();
+      return;
+    }
+    if (act === 'media-open') { openMedia(el.dataset.mid); return; }
+    if (act === 'media-del') {
+      var mid = el.dataset.mid;
+      S.removeMedia(key, mid);
+      PT.MEDIA.del(mid);
+      PT.MEDIA.del(mid + '-p');
+      render({});
+      toast('删掉了');
+      return;
+    }
+
+    if (act === 'ob-species') {
+      harvestOb();
+      ob.species = id;
+      if (!PT.breedById(id, ob.breedId)) ob.breedId = (PT.BREEDS[id === 'dog' ? 'dog' : 'cat'][0] || {}).id || '';
+      render({});
+      document.querySelectorAll('.sp').forEach(function (b) { b.classList.toggle('on', b.dataset.id === id); });
+      return;
+    }
+    if (act === 'ob-breed') {
+      harvestOb();
+      ob.breedId = id;
+      var bd = breedOfSpecies(ob.species, id);
+      var artB = document.querySelector('.ob-art');
+      if (artB) artB.innerHTML = PT.ART.face(ob.species, 'calm', { tilt: -2, breed: bd });
+      document.querySelectorAll('.breed').forEach(function (b) { b.classList.toggle('on', b.dataset.id === id); });
+      return;
+    }
+    if (act === 'ob-person') {
+      harvestOb();
+      ob.personality = id;
+      render({});
+      return;
+    }
+    if (act === 'ob-start') {
+      var name = (document.getElementById('ob-name').value || '').trim() || '麻薯';
+      var home = document.getElementById('ob-home').value || '';
+      var bioEl = document.getElementById('ob-bio');
+      var bio = ((bioEl && bioEl.value) || '').trim().slice(0, 60);
+      var ptEl = document.getElementById('ob-ptext');
+      var ptext = ((ptEl && ptEl.value) || ob.ptext || '').trim().slice(0, 24);
+      var cur = S.active();
+      var bd2 = breedOfSpecies(ob.species, ob.breedId);
+      var patch = {
+        name: name,
+        species: ob.species,
+        breed: bd2 ? bd2.label : (ob.species === 'dog' ? '狗' : '猫'),
+        breedId: bd2 ? bd2.id : '',
+        personality: ob.personality === 'custom' ? 'custom' : ob.personality,
+        personalityText: ob.personality === 'custom' ? (ptext || '有点自己的脾气') : '',
+        bio: bio,
+        birthday: cur ? (cur.birthday || '') : '',
+        homeDate: home,
+        createdAt: cur && cur.createdAt ? cur.createdAt : new Date().toISOString()
+      };
+      ob.draft = null;
+      if (ob.editing && cur) {
+        S.updatePet(cur.id, patch);
+        ob.editing = false;
+        ob.mode = 'first';
+        go('pet');
+        setTimeout(function () { toast('改好了。'); }, 200);
+        return;
+      }
+      var added = S.addPet(patch);
+      ob.mode = 'first';
+      go(ob.editing ? 'pet' : 'today');
+      setTimeout(function () { toast(added.name + ' 来了。'); }, 200);
+      return;
+    }
+
+    if (act === 'composer') {
+      composer.open = !composer.open;
+      render({});
+      if (composer.open) {
+        var ci = document.getElementById('cp-name');
+        if (ci) ci.focus();
+      }
+      return;
+    }
+    if (act === 'cp-emoji') {
+      composer.icon = id;
+      document.querySelectorAll('.emoji-grid .eo').forEach(function (b) {
+        b.classList.toggle('on', b.dataset.id === id);
+      });
+      return;
+    }
+    if (act === 'cp-add') {
+      var nmEl = document.getElementById('cp-name');
+      var lbl = ((nmEl && nmEl.value) || '').trim();
+      if (!lbl) { toast('给它起个名字'); if (nmEl) nmEl.focus(); return; }
+      var nt = S.addCustomType(lbl, composer.icon);
+      if (!nt) { toast('这个名字不行，换一个'); return; }
+      var withNew = chipIds();
+    if (withNew.indexOf(nt.id) < 0) { withNew.push(nt.id); saveChips(withNew); }
+    S.addEvent(key || PT.todayKey(), nt.id, {});
+      composer.open = false;
+      render({});
+      toast('「' + nt.label + '」记下了');
+      return;
+    }
+    if (act === 'del-type') {
+      var dt = S.customType(id);
+      if (!dt) return;
+      if (!window.confirm('不再用「' + dt.label + '」了？已经记下的日子不受影响。')) return;
+      S.removeCustomType(id);
+      render({});
+      toast('删掉了');
+      return;
+    }
+
+    if (act === 'switch-pet') {
+      var pid = el.dataset.id;
+      var curPet = S.active();
+      if (pid && (!curPet || pid !== curPet.id)) {
+        S.setActive(pid);
+        writing = null;
+        ob.draft = null;
+        render({ top: true });
+      }
+      return;
+    }
+
+    if (act === 'new-pet') {
+      ob.editing = false;
+      ob.mode = 'new';
+      ob.species = 'cat';
+      ob.personality = 'tsundere';
+      ob.breedId = 'orange';
+      ob.ptext = '';
+      ob.draft = null;
+      go('onboard');
+      return;
+    }
+
+    if (act === 'open-archive') { go('archive'); return; }
+
+    if (act === 'ms-new') {
+      ms.open = true; ms.icon = '⭐️'; ms.label = ''; ms.date = '';
+      render();
+      return;
+    }
+
+    if (act === 'ms-icon') {
+      harvestMs();
+      ms.icon = el.dataset.id;
+      render();
+      return;
+    }
+
+    if (act === 'ms-add') {
+      var lb = ((document.getElementById('ms-label') || {}).value || '').trim();
+      var dt = (document.getElementById('ms-date') || {}).value || PT.todayKey();
+      if (!lb) { toast('先给它起个名字'); return; }
+      S.addMilestone(dt, lb, ms.icon);
+      ms.open = false; ms.label = ''; ms.date = '';
+      render();
+      toast('记下了');
+      return;
+    }
+
+    if (act === 'ms-del') {
+      if (!confirm('删掉这条节点？')) return;
+      S.removeMilestone(el.dataset.id);
+      render();
+      toast('删掉了');
+      return;
+    }
+
+    if (act === 'edit-profile') {
+      var pp = S.active();
+      if (!pp) return;
+      ob.editing = true;
+      ob.mode = 'first';
+      ob.species = pp.species;
+      ob.personality = pp.personality;
+      go('onboard');
+      return;
+    }
+
+    if (act === 'cancel-edit' || act === 'cancel-new') {
+      ob.editing = false;
+      ob.mode = 'first';
+      go('pet');
+      return;
+    }
+    if (act === 'demo') {
+      if (S.allDays().length && !confirm('这会清掉现在的记录、换成示例，确定吗？')) return;
+      S.seedDemo();
+      go('diary');
+      toast('这是一只叫麻薯的猫，一周的日记。');
+      return;
+    }
+
+    if (act === 'theme') {
+      S.setSetting('theme', id);
+      render({});
+      toast('换好了');
+      return;
+    }
+    if (act === 'chip-edit') {
+      chips.edit = !chips.edit;
+      composer.open = false;
+      render({});
+      return;
+    }
+    if (act === 'chip-hide') {
+      saveChips(chipIds().filter(function (x) { return x !== id; }));
+      render({});
+      return;
+    }
+    if (act === 'chip-show') {
+      var back = chipIds();
+      if (back.indexOf(id) < 0) back.push(id);
+      saveChips(back);
+      render({});
+      toast('加回来了');
+      return;
+    }
+
+    if (act === 'add') {
+      if (chips.edit) return;
+      S.addEvent(PT.todayKey(), id);
+      render();
+      var t = PT.TYPE[id];
+      toast('记下了 · ' + t.label);
+      return;
+    }
+    if (act === 'del') {
+      S.removeEvent(key, id);
+      render();
+      return;
+    }
+    if (act === 'gen') { startWriting(key); return; }
+    if (act === 'reroll') {
+      var d = S.day(key);
+      S.generate(key, ((d && d.diary && d.diary.seed) || 0) + 1);
+      render();
+      toast('换了一版。');
+      return;
+    }
+    if (act === 'share') { saveImage(key); return; }
+    if (act === 'cleardiary') { S.clearDiary(key); render(); toast('这篇没了。'); return; }
+    if (act === 'entry') { go('entry', key); return; }
+    if (act === 'export') { download('它眼里的世界-备份.json', S.exportJSON()); return; }
+    if (act === 'import') {
+      var inp = document.createElement('input');
+      inp.type = 'file';
+      inp.accept = '.json,application/json';
+      inp.onchange = function () {
+        var f = inp.files && inp.files[0];
+        if (!f) return;
+        var r = new FileReader();
+        r.onload = function () {
+          try {
+            S.importJSON(String(r.result));
+            go('today');
+            toast('导入好了。');
+          } catch (err) { toast('这个文件读不了。'); }
+        };
+        r.readAsText(f);
+      };
+      inp.click();
+      return;
+    }
+    if (act === 'redo') {
+      if (!confirm('清空所有记录，重新开始？导出过备份才建议这样做。')) return;
+      S.reset();
+      if (PT.MEDIA) PT.MEDIA.clear();
+      go('today');
+      return;
+    }
+  });
+
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (el.classList && el.classList.contains('mfile')) {
+      var kind = el.id === 'file-video' ? 'video' : 'photo';
+      var k = el.dataset.key || PT.todayKey();
+      /* 先拷成数组：清空 input 会把 FileList 一起清掉 */
+      var files = Array.prototype.slice.call(el.files || []);
+      el.value = '';
+      ingest(files, kind, k);
+      return;
+    }
+    if (!el.dataset || !el.dataset.act) return;
+    var key = el.dataset.key || PT.todayKey();
+    if (el.dataset.act === 'num') {
+      var v = el.value === '' ? null : Number(el.value);
+      S.updateEvent(key, el.dataset.id, { num: v });
+      render();
+    }
+    if (el.dataset.act === 'opt') {
+      S.updateEvent(key, el.dataset.id, { opt: el.value });
+      render();
+    }
+  });
+
+  var noteTimer = null;
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (el.id !== 'note') return;
+    var key = el.dataset.key;
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(function () { S.setNote(key, el.value); }, 350);
+  });
+
+  /* 启动 */
+  S.load();
+  var rawHash = location.hash || '';
+  if (rawHash.indexOf('#demo') === 0 && !S.pets().length) {
+    S.seedDemo();
+    var rest = rawHash.slice(5).replace(/^\//, '');
+    try { history.replaceState(null, '', rest ? '#/' + rest : '#/diary'); } catch (e) { }
+  }
+  var initView = parseHash();
+  if (initView) view = initView;
+  lastHash = location.hash;
+  render({ top: true });
+  window.PT_APP = { go: go, render: render, card: buildCard, store: S };
+})();
+
+</script>
+</body>
+</html>

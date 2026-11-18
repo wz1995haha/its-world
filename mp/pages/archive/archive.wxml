@@ -1,0 +1,52 @@
+<!-- archive.wxml -->
+<view class="app" style="{{themeStyle}}">
+  <block wx:if="{{hasPet}}">
+    <view class="head">
+      <face species="{{face.species}}" mood="{{face.mood}}" breed-id="{{face.breedId}}" photo="{{pet.photo}}" />
+      <view style="flex:1">
+        <view class="h2 serif">{{pet.name}}</view>
+        <view class="sub">{{breedLabel}}{{breedLabel ? ' · ' : ''}}{{personLabel}} · 陪伴 {{together}} 天</view>
+      </view>
+    </view>
+
+    <view class="sec-title"><text>档案表</text></view>
+    <view class="card">
+      <view class="kv" wx:for="{{rows}}" wx:key="k">
+        <text class="k">{{item.k}}</text>
+        <text class="v">{{item.v}}</text>
+      </view>
+    </view>
+
+    <view class="sec-title">
+      <text>重要节点</text>
+      <text class="link" bindtap="addNode">＋ 记一个</text>
+    </view>
+
+    <view class="card" wx:if="{{years.length}}">
+      <block wx:for="{{years}}" wx:for-item="y" wx:key="title">
+        <view class="yl">{{y.title}}</view>
+        <view class="li" wx:for="{{y.items}}" wx:key="dateText" >
+          <view class="ld">{{item.dateText}}</view>
+          <view class="lic">{{item.icon}}</view>
+          <view class="lt">{{item.label}}</view>
+          <view class="la">{{item.age}}</view>
+          <view class="lx" wx:if="{{item.mine}}" data-id="{{item.id}}" bindtap="delNode">×</view>
+        </view>
+      </block>
+    </view>
+    <view wx:else class="empty">还没有节点。\n日记里记的疫苗、看病、洗澡会自动出现在这里。</view>
+
+    <view class="sec-title"><text>体重走势</text></view>
+    <view class="card">
+      <view wx:if="{{weight}}">
+        <text class="wg serif">{{weight.kg}} kg</text>
+        <text class="sub" style="margin-left:14rpx">{{weight.date}} 记的</text>
+      </view>
+      <view wx:else class="sub">还没记过体重。在上面的「称重」点一下。</view>
+    </view>
+
+    <view class="sub" style="text-align:center;margin-top:28rpx">它的一生，按日期排好</view>
+  </block>
+  <view wx:else class="empty" style="margin-top:60rpx">还没有宠物。</view>
+</view>
+

@@ -1,0 +1,74 @@
+.avrow { display: flex; justify-content: center; gap: 26rpx; margin-bottom: 12rpx; }
+.avrow .dim { color: var(--muted, #8C8074); }
+/* pet.wxss */
+.st { flex: 1; text-align: center; }
+.sn { font-size: 44rpx; color: var(--ink, #3A322C); }
+.sl { font-size: 22rpx; color: var(--muted, #8C8074); margin-top: 4rpx; }
+.kv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid var(--line-soft, rgba(58, 50, 44, .07));
+  font-size: 26rpx;
+}
+.kv:last-child { border-bottom: 0; }
+.kv .k { color: var(--muted, #8C8074); }
+.kv .v { color: var(--ink, #3A322C); }
+.seg { display: flex; gap: 10rpx; }
+.sg {
+  padding: 6rpx 22rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--line, rgba(58, 50, 44, .12));
+  font-size: 24rpx;
+  color: var(--muted, #8C8074);
+}
+.sg.on {
+  border-color: var(--accent, #C2613F);
+  color: var(--accent, #C2613F);
+  background: var(--wash, #FDF1EA);
+}
+.themes { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.th {
+  width: calc((100% - 16rpx) / 2);
+  box-sizing: border-box;
+  padding: 20rpx 22rpx;
+  border-radius: 22rpx;
+  background: var(--paper-2, #FBF6EC);
+  border: 1rpx solid var(--line, rgba(58, 50, 44, .12));
+}
+.th.on { border-color: var(--accent, #C2613F); background: var(--wash, #FDF1EA); }
+.thn { font-size: 28rpx; color: var(--ink, #3A322C); }
+.thh { font-size: 20rpx; color: var(--muted, #8C8074); margin-top: 4rpx; }
+.cr {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--line-soft, rgba(58, 50, 44, .06));
+  font-size: 26rpx;
+}
+.cl { flex: 1; }
+.cm, .cx, .cd {
+  font-size: 22rpx;
+  color: var(--muted, #8C8074);
+  padding: 4rpx 10rpx;
+  border-radius: 10rpx;
+  border: 1rpx solid var(--line-soft, rgba(58, 50, 44, .1));
+}
+.cx { color: var(--accent, #C2613F); }
+.addrow {
+  padding: 22rpx 0 6rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--accent, #C2613F);
+}
+.yl { font-size: 22rpx; color: var(--muted, #8C8074); margin-top: 18rpx; }
+.btns { display: flex; gap: 14rpx; flex-wrap: wrap; }
+.avwrap { position: relative; display: inline-block; }
+.avadd {
+  position: absolute; right: 0; bottom: 6rpx; width: 54rpx; height: 54rpx;
+  border-radius: 50%; background: var(--accent, #C2613F); color: #fff;
+  font-size: 24rpx; line-height: 54rpx; text-align: center;
+  border: 3rpx solid var(--paper, #F5EEE3);
+}

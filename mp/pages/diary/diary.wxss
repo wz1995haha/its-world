@@ -1,0 +1,47 @@
+/* diary.wxss */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx 22rpx;
+  margin-bottom: 12rpx;
+  border-radius: 22rpx;
+  background: var(--paper-2, #FBF6EC);
+  border: 1rpx solid var(--line-soft, rgba(58, 50, 44, .07));
+}
+.d {
+  width: 64rpx;
+  text-align: center;
+  flex: none;
+}
+.dn {
+  font-size: 34rpx;
+  font-family: "Songti SC", serif;
+  color: var(--ink, #3A322C);
+}
+.dw {
+  font-size: 20rpx;
+  color: var(--muted, #8C8074);
+}
+.body {
+  flex: 1;
+  min-width: 0;
+}
+.t {
+  font-size: 30rpx;
+  color: var(--ink, #3A322C);
+  margin-bottom: 6rpx;
+}
+.te {
+  font-size: 22rpx;
+  color: var(--muted, #8C8074);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  flex: none;
+}

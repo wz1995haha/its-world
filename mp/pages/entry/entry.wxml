@@ -1,0 +1,27 @@
+<!-- entry.wxml -->
+<view class="app" style="{{themeStyle}}">
+  <block wx:if="{{ok}}">
+    <view class="sub">{{dateText}}</view>
+    <view class="h1 serif" style="margin-bottom:8rpx">第 <text class="accent">{{dayNo}}</text> 天</view>
+
+    <view class="card" style="margin-top:20rpx">
+      <view class="row">
+        <text class="dim" style="font-size:22rpx">{{dateText}} · 第 {{dayNo}} 天</text>
+        <text class="pill">{{moodEmoji}} {{moodLabel}}</text>
+      </view>
+      <view class="tt serif">{{title}}</view>
+      <view class="p" wx:for="{{paras}}" wx:key="*this">{{item}}</view>
+
+      <view class="tags" wx:if="{{tags.length}}">
+        <text class="tag" wx:for="{{tags}}" wx:key="*this">#{{item}}</text>
+      </view>
+
+      <view class="acts">
+        <view class="btn sm" bindtap="reroll">重写</view>
+        <view class="btn sm" bindtap="del">删掉这篇</view>
+        <view class="btn sm ghost" bindtap="back">回日记</view>
+      </view>
+    </view>
+  </block>
+  <view wx:else class="empty" style="margin-top:60rpx">这一天的日记找不到了。\n回日记列表看看？</view>
+</view>

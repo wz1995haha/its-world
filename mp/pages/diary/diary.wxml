@@ -1,0 +1,31 @@
+<!-- diary.wxml -->
+<view class="app" style="{{themeStyle}}">
+  <view class="sub">日记本</view>
+  <view class="h1 serif">它写的 {{count}} 篇</view>
+
+  <view wx:if="{{!hasPet}}" class="empty" style="margin-top:40rpx">还没有宠物。\n先去「今天」建一只。</view>
+  <view wx:elif="{{count === 0}}" class="empty" style="margin-top:40rpx">还没有日记。\n今天记几件事，让它写第一篇。</view>
+
+  <block wx:for="{{months}}" wx:for-item="m" wx:key="title">
+    <view class="sec-title">{{m.title}}</view>
+    <view
+      wx:for="{{m.items}}"
+      wx:key="key"
+      class="row"
+      data-key="{{item.key}}"
+      bindtap="open"
+    >
+      <view class="d">
+        <view class="dn">{{item.day}}</view>
+        <view class="dw">{{item.week}}</view>
+      </view>
+      <view class="body">
+        <view class="t serif">{{item.title}}</view>
+        <view class="te">{{item.teaser}}</view>
+      </view>
+      <view class="dot" style="background:{{item.color}}"></view>
+    </view>
+  </block>
+
+  <view wx:if="{{count}}" class="sub" style="text-align:center;margin-top:30rpx">它还在写</view>
+</view>

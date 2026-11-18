@@ -1,0 +1,94 @@
+<!-- pet.wxml -->
+<view class="app" style="{{themeStyle}}">
+  <block wx:if="{{hasPet}}">
+    <view style="display:flex;justify-content:center;margin:20rpx 0 12rpx">
+      <view class="avwrap" bindtap="choosePhoto">
+        <face species="{{face.species}}" mood="{{face.mood}}" breed-id="{{face.breedId}}" photo="{{pet.photo}}" size="lg" />
+        <view class="avadd">📷</view>
+      </view>
+    </view>
+    <view class="avrow">
+      <text class="link" bindtap="choosePhoto">{{pet.photo ? '换一张照片' : '用它的照片做头像'}}</text>
+      <text wx:if="{{pet.photo}}" class="link dim" bindtap="clearPhoto">用回画的</text>
+    </view>
+    <view class="h1 serif" style="text-align:center">{{pet.name}}</view>
+    <view class="sub" style="text-align:center;margin-top:8rpx">{{breedLabel}} · {{personLabel}}</view>
+
+    <view class="card" style="display:flex;margin-top:28rpx">
+      <view class="st"><view class="sn serif">{{stats.together}}</view><view class="sl">陪伴天数</view></view>
+      <view class="st"><view class="sn serif">{{stats.recordedDays}}</view><view class="sl">记录天数</view></view>
+      <view class="st"><view class="sn serif">{{stats.diaryCount}}</view><view class="sl">日记篇数</view></view>
+    </view>
+
+    <view class="sec-title"><text>资料</text><text class="link" bindtap="rename">改名</text></view>
+    <view class="card">
+      <view class="kv">
+        <text class="k">它是</text>
+        <view class="seg">
+          <text class="sg {{pet.species === 'cat' ? 'on' : ''}}" data-sp="cat" bindtap="onSpecies">猫</text>
+          <text class="sg {{pet.species === 'dog' ? 'on' : ''}}" data-sp="dog" bindtap="onSpecies">狗</text>
+        </view>
+      </view>
+      <picker mode="selector" range="{{breeds}}" range-key="label" value="{{ob.breedIndex}}" bindchange="onBreed">
+        <view class="kv"><text class="k">品种</text><text class="v">{{breedLabel}} ›</text></view>
+      </picker>
+      <picker mode="selector" range="{{['傲娇','黏人','高冷','贪吃','好奇']}}" value="{{ob.personIndex}}" bindchange="onPerson">
+        <view class="kv"><text class="k">性格</text><text class="v">{{personLabel}} ›</text></view>
+      </picker>
+      <view class="kv" bindtap="setBirthday">
+        <text class="k">生日</text>
+        <text class="v">{{pet.birthday || '填一下'}} ›</text>
+      </view>
+    </view>
+
+    <view class="sec-title"><text>换一层纸</text><text class="dim">不影响内容</text></view>
+    <view class="themes">
+      <view class="th {{item.on ? 'on' : ''}}" wx:for="{{themes}}" wx:key="id" data-id="{{item.id}}" bindtap="setTheme">
+        <view class="thn">{{item.label}}</view>
+        <view class="thh">{{item.hint}}</view>
+      </view>
+    </view>
+
+    <view class="sec-title">
+      <text>「发生了什么」的按钮</text>
+      <text class="link" bindtap="toggleEdit">{{chipsEdit ? '完成' : '调整'}}</text>
+    </view>
+    <view class="card">
+      <view class="cr" wx:for="{{chipShown}}" wx:key="id">
+        <text class="ci">{{item.icon}}</text>
+        <text class="cl">{{item.label}}</text>
+        <text class="cm" data-id="{{item.id}}" data-dir="-1" bindtap="moveChip">↑</text>
+        <text class="cm" data-id="{{item.id}}" data-dir="1" bindtap="moveChip">↓</text>
+        <text class="cx" data-id="{{item.id}}" bindtap="hideChip">收起</text>
+        <text class="cd" wx:if="{{item.mine}}" data-id="{{item.id}}" bindtap="delType">删</text>
+      </view>
+      <view class="addrow" bindtap="addType">＋ 加一个按钮</view>
+      <block wx:if="{{chipHidden.length}}">
+        <view class="yl">收起来的</view>
+        <view class="chips" style="margin-top:12rpx">
+          <view class="chip" wx:for="{{chipHidden}}" wx:key="id" data-id="{{item.id}}" bindtap="showChip">
+            <text class="ci">{{item.icon}}</text>
+            <text class="ct">{{item.label}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <view class="sec-title"><text>数据</text></view>
+    <view class="card">
+      <view class="btns">
+        <view class="btn sm" bindtap="copyBackup">导出备份</view>
+        <view class="btn sm" bindtap="demo">载入示例</view>
+        <view class="btn sm" bindtap="resetAll">重新开始</view>
+      </view>
+      <view class="sub" style="margin-top:16rpx">数据只存在这台设备的微信里（现在还没接云同步）。换手机前记得导出。</view>
+    </view>
+
+    <view class="sub" style="text-align:center;margin-top:30rpx">「它眼里的世界」· 一个只记事实、让它自己写的日记本</view>
+  </block>
+
+  <block wx:else>
+    <view class="empty" style="margin-top:80rpx">还没有宠物。\n去「今天」建一只，这里就会出现它的档案。</view>
+    <view class="btn" style="margin-top:24rpx" bindtap="demo">先看看示例</view>
+  </block>
+</view>

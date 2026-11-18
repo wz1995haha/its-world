@@ -1,0 +1,31 @@
+{
+  "pages": [
+    "pages/today/today",
+    "pages/diary/diary",
+    "pages/entry/entry",
+    "pages/archive/archive",
+    "pages/pet/pet"
+  ],
+  "window": {
+    "navigationBarTitleText": "它眼里的世界",
+    "navigationBarBackgroundColor": "#F5EEE3",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#E9DFCE",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8C8074",
+    "selectedColor": "#C2613F",
+    "backgroundColor": "#FBF6EC",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/today/today", "text": "今天" },
+      { "pagePath": "pages/diary/diary", "text": "日记" },
+      { "pagePath": "pages/archive/archive", "text": "档案" },
+      { "pagePath": "pages/pet/pet", "text": "它" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

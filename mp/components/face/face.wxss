@@ -1,0 +1,268 @@
+/* face.wxss — 头像：有照片就显示照片，没有就用 view 拼出来的脸
+ * 一个 face 是正方形盒子，内部全用百分比，改 size 只改外层宽高。
+ */
+.face {
+  position: relative;
+  width: 176rpx;
+  height: 176rpx;
+  flex: none;
+  --ew: 26rpx;
+  --eh: 40rpx;
+}
+.face.sm { width: 92rpx; height: 92rpx; --ew: 14rpx; --eh: 21rpx; }
+.face.lg { width: 280rpx; height: 280rpx; --ew: 42rpx; --eh: 64rpx; }
+
+/* ---------- 品种头像图（构建时生成的 PNG） ---------- */
+.face-pic {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform: scale(1.1);
+}
+
+/* ---------- 照片 ---------- */
+.face-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(58, 50, 44, .06);
+  box-shadow: 0 0 0 3rpx rgba(58, 50, 44, .14);
+}
+
+.face-body {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- 耳朵 ----------
+ * border 画三角能拿到尖，但画不出描边 → 用「深色三角 + 里面套一个毛色小三角」
+ */
+.ear {
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 0;
+}
+
+/* 立耳：三角 + 描边 + 内耳 */
+.ear.point, .ear.prick, .ear.semi, .ear.small {
+  border-left: var(--ew) solid transparent;
+  border-right: var(--ew) solid transparent;
+  border-bottom: var(--eh) solid rgba(58, 50, 44, .8);
+}
+.ear.point::after, .ear.prick::after, .ear.semi::after, .ear.small::after,
+.ear.point::before, .ear.prick::before, .ear.semi::before, .ear.small::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: calc(var(--ew) * .78) solid transparent;
+  border-right: calc(var(--ew) * .78) solid transparent;
+  margin-left: calc(var(--ew) * -.78);
+}
+/* 毛色内层 */
+.ear.point::after, .ear.prick::after, .ear.semi::after, .ear.small::after {
+  top: 5rpx;
+  border-bottom: calc(var(--eh) * .8) solid var(--fur);
+}
+/* 内耳（浅一点） */
+.ear.point::before, .ear.prick::before, .ear.semi::before, .ear.small::before {
+  top: calc(var(--eh) * .38);
+  border-left-width: calc(var(--ew) * .4);
+  border-right-width: calc(var(--ew) * .4);
+  margin-left: calc(var(--ew) * -.4);
+  border-bottom: calc(var(--eh) * .42) solid var(--furd);
+  opacity: .65;
+}
+
+.ear.point.l, .ear.prick.l { left: 8%; top: 5%; transform: rotate(-7deg); }
+.ear.point.r, .ear.prick.r { right: 8%; top: 5%; transform: rotate(7deg); }
+
+/* 半立耳：矮一点、往外斜 */
+.ear.semi.l { left: 4%; top: 8%; transform: rotate(-26deg); }
+.ear.semi.r { right: 4%; top: 8%; transform: rotate(26deg); }
+
+/* 小耳朵：博美、西高地 */
+.ear.small.l { left: 12%; top: 9%; transform: rotate(-10deg); }
+.ear.small.r { right: 12%; top: 9%; transform: rotate(10deg); }
+
+/* 垂耳 */
+.ear.flop {
+  width: 30%;
+  height: 46%;
+  border: 2.5rpx solid rgba(58, 50, 44, .7);
+  border-radius: 50% 50% 58% 58%;
+  background: var(--furd);
+  top: 26%;
+}
+.ear.flop.l { left: -4%; transform: rotate(-8deg); }
+.ear.flop.r { right: -4%; transform: rotate(8deg); }
+
+/* 长毛垂耳 */
+.ear.long {
+  width: 26%;
+  height: 62%;
+  border: 2.5rpx solid rgba(58, 50, 44, .7);
+  border-radius: 46% 46% 62% 62%;
+  background: var(--fur);
+  top: 14%;
+}
+.ear.long.l { left: 0; transform: rotate(-7deg); }
+.ear.long.r { right: 0; transform: rotate(7deg); }
+
+/* ---------- 头 ---------- */
+.head {
+  position: absolute;
+  left: 7%;
+  top: 16%;
+  width: 86%;
+  height: 74%;
+  border-radius: 50%;
+  background: var(--fur);
+  border: 2.5rpx solid rgba(58, 50, 44, .8);
+  box-shadow: inset -8rpx -10rpx 0 rgba(58, 50, 44, .05);
+  z-index: 1;
+}
+.head.cloud {
+  border-radius: 47% 53% 51% 49% / 53% 47% 51% 49%;
+}
+
+/* ---------- 眼睛 ---------- */
+.eye {
+  position: absolute;
+  top: 42%;
+  width: 15%;
+  height: 17%;
+  border-radius: 50%;
+  background: var(--eyec);
+  border: 2rpx solid rgba(58, 50, 44, .5);
+  z-index: 3;
+}
+.eye.l { left: 25%; }
+.eye.r { right: 25%; }
+.eye::after {
+  content: '';
+  position: absolute;
+  left: 16%;
+  top: 10%;
+  width: 44%;
+  height: 42%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+}
+.eye.squint { height: 8%; top: 49%; border-radius: 40%; }
+.eye.squint::after { display: none; }
+.eye.droop { height: 9%; top: 47%; border-radius: 0 0 50% 50%; }
+.eye.droop::after { display: none; }
+.eye.shut {
+  height: 4rpx;
+  border-radius: 0;
+  border: 0;
+  background: rgba(58, 50, 44, .75);
+  top: 52%;
+}
+.eye.shut::after { display: none; }
+
+/* ---------- 鼻子 / 嘴 ---------- */
+.nose {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  margin-left: -5%;
+  width: 10%;
+  height: 7%;
+  border-radius: 48% 48% 62% 62%;
+  background: rgba(58, 50, 44, .82);
+  z-index: 3;
+}
+.mouth {
+  position: absolute;
+  left: 41%;
+  top: 64%;
+  width: 18%;
+  height: 9%;
+  border-bottom: 3rpx solid rgba(58, 50, 44, .5);
+  border-radius: 0 0 70% 70%;
+  z-index: 3;
+}
+.mouth.wide { width: 26%; left: 37%; }
+
+/* 腮红 */
+.blush {
+  position: absolute;
+  top: 57%;
+  width: 17%;
+  height: 10%;
+  border-radius: 50%;
+  background: rgba(214, 120, 110, .2);
+  z-index: 2;
+}
+.blush.l { left: 11%; }
+.blush.r { right: 11%; }
+
+/* ---------- 花纹 ---------- */
+.mark { position: absolute; z-index: 2; }
+.mark.mask {
+  left: 19%;
+  top: 36%;
+  width: 20%;
+  height: 18%;
+  border-radius: 50%;
+  background: var(--furd);
+  opacity: .78;
+}
+.mark.blaze {
+  left: 43%;
+  top: 17%;
+  width: 14%;
+  height: 40%;
+  border-radius: 46%;
+  background: rgba(255, 255, 255, .9);
+}
+.mark.stripe {
+  left: 30%;
+  top: 20%;
+  width: 40%;
+  height: 6%;
+  border-radius: 6rpx;
+  background: var(--furd);
+  opacity: .5;
+  box-shadow: 0 20rpx 0 0 var(--furd), 0 40rpx 0 -1rpx var(--furd);
+}
+.mark.patch {
+  left: 50%;
+  top: 21%;
+  width: 32%;
+  height: 28%;
+  border-radius: 50% 40% 50% 40%;
+  background: var(--furd);
+  opacity: .88;
+}
+
+/* ---------- 装饰 ---------- */
+.bow {
+  position: absolute;
+  left: 37%;
+  top: -1%;
+  width: 26%;
+  height: 11%;
+  background: #C2596B;
+  border-radius: 44%;
+  border: 2rpx solid rgba(58, 50, 44, .45);
+  z-index: 4;
+}
+.topknot {
+  position: absolute;
+  left: 39%;
+  top: -3%;
+  width: 22%;
+  height: 15%;
+  border-radius: 50%;
+  background: var(--furd);
+  border: 2rpx solid rgba(58, 50, 44, .5);
+  z-index: 4;
+}

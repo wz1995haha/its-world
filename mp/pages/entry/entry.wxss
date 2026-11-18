@@ -1,0 +1,42 @@
+/* entry.wxss */
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pill {
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 999rpx;
+  background: var(--wash, #FDF1EA);
+  color: var(--accent, #C2613F);
+}
+.tt {
+  font-size: 40rpx;
+  line-height: 1.4;
+  margin: 24rpx 0 18rpx;
+  color: var(--ink, #3A322C);
+}
+.p {
+  font-size: 30rpx;
+  line-height: 1.9;
+  color: var(--ink-soft, #5C5148);
+  margin-bottom: 22rpx;
+  text-indent: 2rpx;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin: 10rpx 0 24rpx;
+}
+.tag {
+  font-size: 22rpx;
+  color: var(--muted, #8C8074);
+}
+.acts {
+  display: flex;
+  gap: 14rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx solid var(--line-soft, rgba(58, 50, 44, .07));
+}
