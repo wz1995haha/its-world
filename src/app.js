@@ -419,6 +419,14 @@
     return Promise.resolve(decodeURIComponent(escape(atob(plain))));
   }
 
+  function backupHint() {
+    var last = S.setting('lastBackup', '');
+    if (!last) return '';
+    var days = PT.daysBetween(last, PT.todayKey());
+    if (days <= 0) return '上次备份：今天。';
+    return '上次备份：' + days + ' 天前。';
+  }
+
   function openCodeSheet() {
     var ov = document.createElement('div');
     ov.className = 'sheetwrap';
@@ -436,6 +444,8 @@
       var go = t.closest ? t.closest('[data-code="go"]') : null;
       if (go) {
         if (!(ta.value || '').trim()) { toast('还没有粘贴'); return; }
+        var nPet = S.pets().length;
+        if (nPet && !confirm('会覆盖这台设备上的 ' + nPet + ' 只宠物和他们全部日记。继续？')) return;
         toast('正在恢复…');
         jsonFromCode(ta.value).then(function (json) {
           S.importJSON(json);
@@ -451,23 +461,49 @@
     ta.focus();
   }
 
-  function copyCode() {
-    codeFromJson(S.exportJSON()).then(function (code) {
-      var done = function (ok) {
-        toast(ok ? '备份码已复制（' + code.length + ' 个字），粘到新手机就能恢复'
-                 : '复制不了，码有 ' + code.length + ' 个字，可以手动全选复制');
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(code).then(function () { done(true); }, function () { done(false); });
+  function showCode(code) {
+    var ov = document.createElement('div');
+    ov.className = 'sheetwrap';
+    ov.innerHTML =
+      '<div class="sheetmask"></div>' +
+      '<div class="avsheet">' +
+      '<div class="avs-h"><b>备份码</b><button class="avs-x" aria-label="关闭">×</button></div>' +
+      '<p class="avs-tip">' + code.length + ' 个字。发到自己另一台设备上，在新设备里点「用备份码恢复」粘进去。</p>' +
+      '<textarea id="code-out" class="input note" rows="6" readonly></textarea>' +
+      '<div class="avs-btns" style="margin-top:14px">' +
+      '<button class="mini accent" data-code="copy">复制</button>' +
+      '<button class="mini ghost" data-code="all">全选</button>' +
+      '</div>' +
+      '</div>';
+    var ta = ov.querySelector('#code-out');
+    ta.value = code;
+    function markDone() { S.setSetting('lastBackup', PT.todayKey()); }
+    ov.addEventListener('click', function (ev) {
+      var t = ev.target;
+      var b = t.closest ? t.closest('[data-code]') : null;
+      if (b) {
+        var k = b.dataset.code;
+        if (k === 'all') { ta.focus(); ta.select(); return; }
+        var ok = false;
+        try { ta.select(); ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        if (!ok && navigator.clipboard) {
+          navigator.clipboard.writeText(code).then(function () { toast('已复制'); }, function () { toast('复制不了，手动全选吧'); });
+        } else {
+          toast(ok ? '已复制' : '复制不了，手动全选吧');
+        }
+        markDone();
         return;
       }
-      var ta = document.createElement('textarea');
-      ta.value = code;
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand('copy'); done(true); } catch (e) { done(false); }
-      ta.remove();
-    }).catch(function () { toast('这台设备上生成不了备份码'); });
+      if (t === ov || t.classList.contains('sheetmask') || t.classList.contains('avs-x')) ov.remove();
+    });
+    document.body.appendChild(ov);
+    ta.focus();
+    ta.select();
+    markDone();
+  }
+
+  function copyCode() {
+    codeFromJson(S.exportJSON()).then(showCode).catch(function () { toast('这台设备上生成不了备份码'); });
   }
 
   function openMedia(mid) {    PT.MEDIA.get(mid).then(function (blob) {
@@ -1001,7 +1037,7 @@
       '<button class="mini" data-act="code-paste">用备份码恢复</button>' +
       '<button class="mini ghost" data-act="redo">重新开始</button>' +
       '</div>' +
-      '<p class="dim small">日记存在这台设备的浏览器里。换手机时：复制备份码，发到新手机上粘进去就行。照片和视频不跟着走。</p>' +
+      '<p class="dim small">日记存在这台设备的浏览器里。换手机时：复制备份码，发到新手机上粘进去就行。照片和视频不跟着走。' + backupHint() + '</p>' +
       '</div></div>' +
 
       '<p class="foot">「它眼里的世界」 · 一个只记事实、让它自己写的日记本</p>';
@@ -1837,7 +1873,11 @@
     if (act === 'share') { saveImage(key); return; }
     if (act === 'cleardiary') { S.clearDiary(key); render(); toast('这篇没了。'); return; }
     if (act === 'entry') { go('entry', key); return; }
-    if (act === 'export') { download('它眼里的世界-备份.json', S.exportJSON()); return; }
+    if (act === 'export') {
+      download('它眼里的世界-备份.json', S.exportJSON());
+      S.setSetting('lastBackup', PT.todayKey());
+      return;
+    }
     if (act === 'code-copy') { copyCode(); return; }
     if (act === 'code-paste') { openCodeSheet(); return; }
     if (act === 'import') {
