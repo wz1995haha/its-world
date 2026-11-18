@@ -34,7 +34,10 @@
 ## 头像：照片优先
 
 「它」页点一下头像（右下角有相机小圆点）→ 从相册选一张 / 拍一张 → 存到本地
-（`wx.getFileSystemManager().saveFile` 到 `USER_DATA_PATH`，重启还在），
+（`wx.getFileSystemManager().saveFile` 到 `USER_DATA_PATH`，重启还在）。
+
+![档案页](../screenshots/mp-archive.png)
+
 **所有地方都会跟着换成这张照片**：今天页的问候、它页大头像、档案页抬头。
 
 - 「换一张照片」重选，「用回画的」删掉照片回到插画

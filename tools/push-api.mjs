@@ -47,8 +47,14 @@ if (remote.object.sha === head) {
   process.exit(0);
 }
 if (remote.object.sha !== parent) {
-  console.error('远端和本地父提交不一致，脚本不处理这种情况。');
-  process.exit(2);
+  /* 之前走过 API 推送时，远端 sha 会和本地不同但内容一致。比一下树再决定。 */
+  const rCommit = await api(`/repos/${repo}/git/commits/${remote.object.sha}`);
+  if (rCommit.tree.sha === baseTree) {
+    console.log('远端提交 sha 不同但树一致，按对齐处理。');
+  } else {
+    console.error('远端和本地父提交不一致，脚本不处理这种情况。');
+    process.exit(2);
+  }
 }
 
 /* 1. 把这次改动的文件做成 blob */
