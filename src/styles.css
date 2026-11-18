@@ -363,6 +363,17 @@ a { color: inherit; text-decoration: none; cursor: pointer; }
 .kv span { color: var(--muted); font-size: 12.5px; }
 .kv b { font-weight: 500; }
 
+/* 档案表的编辑行 */
+.kv.edit { gap: 8px; }
+.kv.edit > span { flex: 0 0 auto; min-width: 40px; }
+.kv.edit .input { height: 34px; padding: 0 10px; font-size: 13px; min-width: 0; }
+.kv.edit .fv { flex: 1 1 auto; }
+.kv.edit .fl { flex: 0 0 34%; }
+.kv.edit .tl-x { flex: 0 0 auto; }
+.arc-save { display: flex; gap: 8px; margin-top: 12px; }
+.arc-save .mini { flex: 1; height: 40px; }
+.kv input[type="date"], .kv select { text-align: right; }
+
 .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 
 /* ---------- 底部导航 ---------- */

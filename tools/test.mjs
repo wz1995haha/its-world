@@ -210,5 +210,33 @@ ok('手术那天心情是 sick', sd.mood === 'sick', sd.mood);
 ok('正文提到手术这件事', /醒来|肚子|没力气|病号/.test(sd.body), sd.body.slice(0, 40));
 ok('节点跟着宠物走', S.milestones(catP.id).length === 1 && S.milestones().length === 1);
 
+console.log('— 档案：自定义字段 —');
+var catP = S.active();
+ok('默认没有额外字段', S.fields().length === 0, S.fields().length);
+var f1 = S.addField(null, '芯片号', '900215000123456');
+ok('能加一个字段', !!f1 && f1.label === '芯片号' && f1.value === '900215000123456', JSON.stringify(f1));
+ok('字段记在宠物身上', (catP.fields || []).length === 1, (catP.fields || []).length);
+S.addField(null, '血型', 'A');
+ok('能加第二个字段', S.fields().length === 2, S.fields().length);
+ok('空名字不让加', S.addField(null, '   ', 'x') === null);
+S.updateField(null, f1.id, { value: '900215999' });
+ok('字段能改值', S.fields().filter(function (x) { return x.id === f1.id; })[0].value === '900215999');
+S.updateField(null, f1.id, { label: '芯片' });
+ok('字段能改名', S.fields().filter(function (x) { return x.id === f1.id; })[0].label === '芯片');
+ok('改完还是两条', S.fields().length === 2, S.fields().length);
+S.removeField(null, f1.id);
+ok('字段能删', S.fields().length === 1 && S.fields()[0].label === '血型', JSON.stringify(S.fields()));
+S.updatePet(catP.id, { fields: [{ id: 'fx', label: '过敏', value: '鸡肉' }] });
+ok('整组替换字段', S.fields().length === 1 && S.fields()[0].value === '鸡肉');
+ok('改成档案里的生日/到家', (function () {
+  S.updatePet(catP.id, { birthday: '2022-04-04', homeDate: '2023-06-06' });
+  var p = S.active();
+  return p.birthday === '2022-04-04' && p.homeDate === '2023-06-06';
+})());
+ok('字段跟着宠物走', (function () {
+  var other = S.pets().filter(function (p) { return p.id !== S.active().id; })[0];
+  return !other || S.fields(other.id).length === 0;
+})());
+
 console.log('\n' + (fail ? '✗ ' + fail + ' 项失败' : '✓ 全部通过') + '（' + pass + '/' + (pass + fail) + '）');
 process.exit(fail ? 1 : 0);

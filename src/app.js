@@ -683,6 +683,9 @@
   var ms = { open: false, icon: '⭐️', label: '', date: '' };
   var MS_EMOJI = ['🎂', '🏠', '💉', '🏥', '💊', '🛁', '✂️', '🦷', '🐾', '⭐️', '🎉', '🧴', '🚑', '📌'];
 
+  /* 档案表的编辑态：出生/到家/品种/体重 + 自定义字段 */
+  var arc = { edit: false, birth: '', home: '', breed: '', weight: '', rows: [] };
+
   /* 出生到现在：几岁几个月 */
   function ageText(b) {
     if (!b) return '';
@@ -768,15 +771,139 @@
       '</div>';
   }
 
+  /* ---------- 档案表的编辑 ---------- */
+
+  function arcEnter() {
+    var pet = S.active() || {};
+    var w = S.weights();
+    arc.edit = true;
+    arc.birth = pet.birthday || '';
+    arc.home = pet.homeDate || '';
+    arc.breed = pet.breedId || '';
+    arc.weight = w.length ? String(w[w.length - 1].kg) : '';
+    arc.rows = S.fields().map(function (f) { return { id: f.id, label: f.label, value: f.value }; });
+    render({});
+  }
+
+  function harvestArc() {
+    var b = document.getElementById('arc-birth');
+    var h = document.getElementById('arc-home');
+    var br = document.getElementById('arc-breed');
+    var wg = document.getElementById('arc-weight');
+    if (b) arc.birth = b.value;
+    if (h) arc.home = h.value;
+    if (br) arc.breed = br.value;
+    if (wg) arc.weight = wg.value;
+    arc.rows.forEach(function (r) {
+      var l = document.getElementById('arc-l-' + r.id);
+      var v = document.getElementById('arc-v-' + r.id);
+      if (l) r.label = l.value;
+      if (v) r.value = v.value;
+    });
+  }
+
+  function arcSave() {
+    var pet = S.active();
+    if (!pet) return;
+    harvestArc();
+    var patch = { birthday: arc.birth || '', homeDate: arc.home || '', breedId: arc.breed || '' };
+    S.updatePet(pet.id, patch);
+
+    /* 自定义字段：整组替换，空行丢掉；新行补 id */
+    var list = [];
+    arc.rows.forEach(function (r) {
+      var label = String(r.label || '').trim().slice(0, 12);
+      var value = String(r.value == null ? '' : r.value).trim().slice(0, 60);
+      if (!label && !value) return;
+      if (!label) label = '备注';
+      list.push({ id: r.id || ('f' + S.uid()), label: label, value: value });
+    });
+    S.updatePet(pet.id, { fields: list });
+
+    /* 体重：改了就当成今天又称了一次 */
+    var kg = parseFloat(arc.weight);
+    var w = S.weights();
+    var now = w.length ? w[w.length - 1].kg : null;
+    if (!isNaN(kg) && kg > 0 && kg !== now) {
+      var key = PT.todayKey();
+      var d = S.day(key);
+      var ev = d && (d.events || []).filter(function (e) { return e.type === 'weight'; })[0];
+      if (ev) S.updateEvent(key, ev.id, { num: kg });
+      else S.addEvent(key, 'weight', { num: kg });
+    }
+
+    arc.edit = false;
+    arc.rows = [];
+    render({});
+  }
+
+  function fieldsHTML(pet) {
+    var rows = S.fields(pet.id).map(function (f) {
+      return '<div class="kv"><span>' + esc(f.label) + '</span><b>' + esc(f.value || '—') + '</b></div>';
+    }).join('');
+
+    if (!arc.edit) {
+      return '<div class="sec-title row"><span>档案表</span>' +
+        '<button class="via" data-act="arc-edit">编辑</button></div>' +
+        '<div class="card pad">' +
+        '<div class="kv"><span>出生</span><b>' + (pet.birthday ? PT.fmtYMD(pet.birthday) : '没填') + '</b></div>' +
+        '<div class="kv"><span>到家</span><b>' + (pet.homeDate ? PT.fmtYMD(pet.homeDate) : '没填') + '</b></div>' +
+        '<div class="kv"><span>品种</span><b>' + esc(PT.breedLabel(pet) || '没填') + '</b></div>' +
+        '<div class="kv"><span>现在体重</span><b>' + weightText(pet) + '</b></div>' +
+        '<div class="kv"><span>疫苗</span><b>' + typeCountText(pet, 'vaccine') + '</b></div>' +
+        '<div class="kv"><span>驱虫</span><b>' + typeCountText(pet, 'deworm') + '</b></div>' +
+        rows +
+        (S.fields(pet.id).length ? '' : '<button class="mini full dash" data-act="arc-edit">＋ 加一项自己的</button>') +
+        '</div>';
+    }
+
+    var breeds = (PT.BREEDS[pet.species] || []).map(function (b) {
+      return '<option value="' + b.id + '"' + (arc.breed === b.id ? ' selected' : '') + '>' + esc(b.label) + '</option>';
+    }).join('');
+    var editRows = arc.rows.map(function (r) {
+      return '<div class="kv edit">' +
+        '<input id="arc-l-' + r.id + '" class="input fl" maxlength="12" placeholder="名称" value="' + esc(r.label) + '">' +
+        '<input id="arc-v-' + r.id + '" class="input fv" maxlength="60" placeholder="内容" value="' + esc(r.value) + '">' +
+        '<button class="tl-x" data-act="arc-del-field" data-id="' + r.id + '" aria-label="删掉">×</button>' +
+        '</div>';
+    }).join('');
+
+    return '<div class="sec-title row"><span>档案表</span><span class="dim small">填完点保存</span></div>' +
+      '<div class="card pad">' +
+      '<div class="kv edit"><span>出生</span><input id="arc-birth" class="input fv" type="date" value="' + esc(arc.birth) + '"></div>' +
+      '<div class="kv edit"><span>到家</span><input id="arc-home" class="input fv" type="date" value="' + esc(arc.home) + '"></div>' +
+      '<div class="kv edit"><span>品种</span><select id="arc-breed" class="input fv">' + breeds + '</select></div>' +
+      '<div class="kv edit"><span>体重</span><input id="arc-weight" class="input fv" type="number" step="0.1" min="0.2" max="60" placeholder="kg" value="' + esc(arc.weight) + '"></div>' +
+      '<div class="kv"><span>疫苗</span><b>' + typeCountText(pet, 'vaccine') + '</b></div>' +
+      '<div class="kv"><span>驱虫</span><b>' + typeCountText(pet, 'deworm') + '</b></div>' +
+      editRows +
+      '<button class="mini full dash" data-act="arc-add-field">＋ 加一项</button>' +
+      '<div class="arc-save">' +
+      '<button class="mini accent" data-act="arc-save">保存</button>' +
+      '<button class="mini ghost" data-act="arc-cancel">取消</button>' +
+      '</div>' +
+      '<div class="cp-tip">体重改了会当成今天又称了一次。疫苗和驱虫是从「今天」里的记录数出来的。</div>' +
+      '</div>';
+  }
+
+  function weightText(pet) {
+    var w = S.weights();
+    if (!w.length) return '还没称过';
+    var last = w[w.length - 1];
+    return last.kg + ' kg <i>' + PT.fmtShort(last.date) + '</i>';
+  }
+
+  function typeCountText(pet, type) {
+    var n = countType(pet, type);
+    if (!n) return '还没记';
+    return n + ' 次 <i>最近 ' + PT.fmtShort(lastType(pet, type)) + '</i>';
+  }
+
   function renderArchive() {
     var pet = S.active() || {};
     var items = archiveItems(pet);
     var w = S.weights();
     var st = S.stats();
-    var vacN = countType(pet, 'vaccine');
-    var vacLast = lastType(pet, 'vaccine');
-    var dewN = countType(pet, 'deworm');
-    var dewLast = lastType(pet, 'deworm');
 
     var byYear = {};
     items.forEach(function (it) {
@@ -800,8 +927,6 @@
       timeline = '<div class="dim small">还没有节点。第一次打疫苗、绝育、搬家，都可以记在这里。</div>';
     }
 
-    var wNow = w.length ? w[w.length - 1] : null;
-
     return '' +
       '<div class="arc-head">' +
       '<div class="arc-face">' + PT.ART.face(pet.species, 'calm', { tilt: -2, breed: PT.breedOf(pet) }) + '</div>' +
@@ -812,14 +937,7 @@
       ' · 陪伴 ' + st.together + ' 天</p>' +
       '</div></div>' +
 
-      '<div class="block"><div class="sec-title">档案表</div><div class="card pad">' +
-      '<div class="kv"><span>出生</span><b>' + (pet.birthday ? PT.fmtYMD(pet.birthday) : '没填') + '</b></div>' +
-      '<div class="kv"><span>到家</span><b>' + (pet.homeDate ? PT.fmtYMD(pet.homeDate) : '没填') + '</b></div>' +
-      '<div class="kv"><span>品种</span><b>' + esc(PT.breedLabel(pet) || '没填') + '</b></div>' +
-      '<div class="kv"><span>现在体重</span><b>' + (wNow ? wNow.kg + ' kg <i>' + PT.fmtShort(wNow.date) + '</i>' : '还没称过') + '</b></div>' +
-      '<div class="kv"><span>疫苗</span><b>' + (vacN ? vacN + ' 次 <i>最近 ' + PT.fmtShort(vacLast) + '</i>' : '还没记') + '</b></div>' +
-      '<div class="kv"><span>驱虫</span><b>' + (dewN ? dewN + ' 次 <i>最近 ' + PT.fmtShort(dewLast) + '</i>' : '还没记') + '</b></div>' +
-      '</div></div>' +
+      '<div class="block">' + fieldsHTML(pet) + '</div>' +
 
       '<div class="block"><div class="sec-title">重要节点 <span class="dim">按年份</span></div>' +
       '<div class="card pad">' + timeline +
@@ -1273,6 +1391,33 @@
       S.removeMilestone(el.dataset.id);
       render();
       toast('删掉了');
+      return;
+    }
+
+    if (act === 'arc-edit') { arcEnter(); return; }
+
+    if (act === 'arc-cancel') {
+      arc.edit = false;
+      arc.rows = [];
+      render();
+      return;
+    }
+
+    if (act === 'arc-save') { arcSave(); toast('档案已更新'); return; }
+
+    if (act === 'arc-add-field') {
+      harvestArc();
+      arc.rows.push({ id: 'n' + Date.now().toString(36), label: '', value: '' });
+      render();
+      var boxes = document.querySelectorAll('#arc-l-' + arc.rows[arc.rows.length - 1].id);
+      if (boxes[0]) boxes[0].focus();
+      return;
+    }
+
+    if (act === 'arc-del-field') {
+      harvestArc();
+      arc.rows = arc.rows.filter(function (r) { return r.id !== el.dataset.id; });
+      render();
       return;
     }
 
