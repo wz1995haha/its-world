@@ -799,12 +799,85 @@ body.no-tabs .tabs { display: none; }
   margin: 2px 0 12px; color: var(--muted); font-size: 11.5px; letter-spacing: .04em;
 }
 .avs-sep::before, .avs-sep::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.breed { position: relative; }
+.bdel {
+  position: absolute; right: -4px; top: -4px; z-index: 2;
+  width: 19px; height: 19px; border-radius: 50%;
+  background: var(--paper-3); border: 1px solid var(--line); color: var(--muted);
+  font-size: 11px; line-height: 17px; text-align: center;
+}
+.breed.addb { border-style: dashed; color: var(--muted); }
+.breed.addb .bd-face { display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--muted); }
+.brprev { display: flex; align-items: center; gap: 12px; margin: 4px 0 10px; }
+.brpv-face { width: 84px; height: 84px; display: block; flex: none; }
+.brpv-face svg { width: 100%; height: 100%; display: block; }
+.brpv-name { color: var(--muted); font-style: normal; font-size: 12.5px; }
+.sws { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.sw {
+  width: 34px; height: 34px; padding: 0; border-radius: 50%;
+  border: 1.5px solid transparent; background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.sw i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(var(--sh), .18); display: block; }
+.sw.on { border-color: var(--accent); }
+.segs { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg {
+  padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--paper-3); color: var(--ink);
+  font: inherit; font-size: 12.5px;
+}
+.seg.on { background: rgba(var(--accent-rgb), .1); border-color: rgba(var(--accent-rgb), .45); color: var(--accent); }
+
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-/* types.js — 事件类型与心情的词表（数据层共用） */(function () {  'use strict';  var PT = (window.PT = window.PT || {});  PT.TYPES = [    { id: 'meal',    label: '吃饭',  icon: '🍚', group: 'eat',  num: { unit: 'g',    def: 40, step: 10, min: 1, max: 999 } },    { id: 'water',   label: '喝水',  icon: '💧', group: 'eat',  num: { unit: '次',   def: 1,  step: 1,  min: 1, max: 20 } },    { id: 'poop',    label: '便便',  icon: '💩', group: 'body', opt: ['正常', '偏软', '偏硬', '拉稀'] },    { id: 'pee',     label: '尿尿',  icon: '🌊', group: 'body' },    { id: 'vomit',   label: '吐了',  icon: '🤢', group: 'body' },    { id: 'status',  label: '状态',  icon: '🌡️', group: 'body', opt: ['很好', '正常', '有点蔫', '不舒服'] },    { id: 'vaccine', label: '打疫苗', icon: '💉', group: 'body' },    { id: 'deworm',  label: '驱虫',  icon: '🐛', group: 'body' },    { id: 'med',     label: '吃药',  icon: '💊', group: 'body' },    { id: 'vet',     label: '看医生', icon: '🩺', group: 'body' },    { id: 'surgery', label: '手术',  icon: '🏥', group: 'body', opt: ['绝育手术', '其他手术', '体检'] },    { id: 'weight',  label: '称重',  icon: '⚖️', group: 'body', num: { unit: 'kg', def: 4.2, step: 0.1, min: 0.1, max: 99, float: true } },    { id: 'walk',    label: '出门',  icon: '🐾', group: 'act',  num: { unit: '分钟', def: 20, step: 5, min: 1, max: 600 } },    { id: 'play',    label: '玩耍',  icon: '🎾', group: 'act' },    { id: 'bath',    label: '洗澡',  icon: '🛁', group: 'act' },    { id: 'sleep',   label: '睡觉',  icon: '🌙', group: 'act' },    { id: 'cuddle',  label: '撒娇',  icon: '🫶', group: 'mood' },    { id: 'naughty', label: '捣蛋',  icon: '💥', group: 'mood' }  ];  PT.TYPE = {};  PT.TYPES.forEach(function (t) { PT.TYPE[t.id] = t; });  /* 需要出现在「健康档案」时间线里的事 */  PT.HEALTH = ['vaccine', 'deworm', 'vet', 'med', 'surgery', 'bath', 'vomit'];  /* 品种：不只是名字，还决定它长什么样（毛色 / 花纹 / 耳朵） */  PT.BREEDS = {    cat: [      { id: 'orange',  label: '橘猫',     fur: '#F0C48A', furD: '#DDA469', pattern: 'tabby' },      { id: 'lihua',   label: '狸花猫',   fur: '#C6B29A', furD: '#A28B72', pattern: 'tabby' },      { id: 'sanhua',  label: '三花猫',   fur: '#F2E7D8', furD: '#C79A6A', pattern: 'calico' },      { id: 'cow',     label: '奶牛猫',   fur: '#F6F1E7', furD: '#4E453D', pattern: 'patch' },      { id: 'white',   label: '白猫',     fur: '#FBF6ED', furD: '#EBE0CF' },      { id: 'black',   label: '黑猫',     fur: '#5F554E', furD: '#4A413A', eye: '#E0B04C' },      { id: 'ragdoll', label: '布偶猫',   fur: '#F4EBDF', furD: '#B9A08C', pattern: 'point', eye: '#6E8FB8' },      { id: 'siamese', label: '暹罗猫',   fur: '#EADFCE', furD: '#6B5748', pattern: 'point', eye: '#5E86B0' },      { id: 'blue',    label: '英短蓝猫', fur: '#BCC1C7', furD: '#A3A9B0', eye: '#C79A46' },      { id: 'silver',  label: '银渐层',   fur: '#E8E4DC', furD: '#BEB8AC', pattern: 'tabby' },      { id: 'tiger',   label: '美短虎斑', fur: '#D9D1C4', furD: '#8F857A', pattern: 'tabby' }    ],    dog: [      { id: 'shiba',   label: '柴犬',     fur: '#E0B072', furD: '#C68C4E', ears: 'point' },      { id: 'corgi',   label: '柯基',     fur: '#E2A55E', furD: '#C4803A', ears: 'point' },      { id: 'golden',  label: '金毛',     fur: '#E9C68F', furD: '#CFA468', ears: 'flop' },      { id: 'lab',     label: '拉布拉多', fur: '#E6D8C0', furD: '#CBB99B', ears: 'flop' },      { id: 'poodle',  label: '泰迪',     fur: '#CB9D70', furD: '#AC7F53', ears: 'flop' },      { id: 'border',  label: '边牧',     fur: '#413B36', furD: '#F1ECE2', pattern: 'patch', ears: 'semi', eye: '#7A9AAE' },      { id: 'husky',   label: '哈士奇',   fur: '#DEDAD4', furD: '#8A8680', pattern: 'mask', ears: 'point' },      { id: 'samoyed', label: '萨摩耶',   fur: '#FBF7EF', furD: '#E6DDCE', ears: 'point' },      { id: 'bichon',  label: '比熊',     fur: '#F9F4EA', furD: '#E3D9C8', ears: 'flop' },      { id: 'maltese', label: '马尔济斯', fur: '#FDFAF4', furD: '#E8DFCE', eye: '#4A3B31' },      { id: 'shihtzu', label: '西施',     fur: '#EFE2CB', furD: '#C7AC86', eye: '#4A3B31' },      { id: 'westie',  label: '西高地',   fur: '#FBF7EE', furD: '#E7DFCF', eye: '#463930' },      { id: 'schnauzer', label: '雪纳瑞', fur: '#8F959A', furD: '#EFEADE', eye: '#3B302A' },      { id: 'pomeranian', label: '博美',  fur: '#E9B36B', furD: '#F7E4C8', eye: '#4A3B31' },      { id: 'tianyuan', label: '中华田园犬', fur: '#D9BC8D', furD: '#B2936A', ears: 'point' }    ]  };  PT.breedById = function (species, id) {    var list = PT.BREEDS[species === 'dog' ? 'dog' : 'cat'] || [];    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];    return null;  };  PT.breedOf = function (pet) {    if (!pet) return null;    return PT.breedById(pet.species, pet.breedId);  };  PT.breedLabel = function (pet) {    var b = PT.breedOf(pet);    return b ? b.label : ((pet && pet.breed) || '');  };  /* 自定义事件可选的表情 */  PT.EMOJIS = [    '💉', '💊', '🩺', '🏥', '🩹', '🧪', '🌡️', '🧬',    '🛁', '🚿', '🪥', '🧴', '🧻', '🛏️', '🧸', '🎂',    '🎾', '🦴', '🧶', '🏃', '🚗', '✈️', '🌳', '🏖️',    '🥰', '😿', '😾', '🤩', '😴', '😷', '🥳', '😮',    '🍽️', '🍗', '🥩', '🥛', '🍬', '💧', '💩', '⭐️',    '📌', '📅', '✂️', '🧹', '🎵', '🌙', '☀️', '❄️'  ];  PT.MOODS = {    calm:    { key: 'calm',    label: '满足',   emoji: '😌', color: '#8FA07B' },    happy:   { key: 'happy',   label: '开心',   emoji: '😊', color: '#D89A4E' },    love:    { key: 'love',    label: '黏人',   emoji: '🥰', color: '#C9738A' },    proud:   { key: 'proud',   label: '神气',   emoji: '😼', color: '#C2613F' },    sick:    { key: 'sick',    label: '不舒服', emoji: '🤒', color: '#7E8CA8' },    sleepy:  { key: 'sleepy',  label: '懒',     emoji: '😴', color: '#9C8FA0' },    excited: { key: 'excited', label: '兴奋',   emoji: '🤩', color: '#D9803F' }  };  /* 中文日期 */  PT.weekday = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];  PT.weekShort = ['日', '一', '二', '三', '四', '五', '六'];  PT.parseDate = function (key) {    var p = String(key).split('-');    return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));  };  PT.todayKey = function () {    var d = new Date(), m = d.getMonth() + 1, day = d.getDate();    return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;  };  PT.keyOf = function (d) {    var m = d.getMonth() + 1, day = d.getDate();    return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;  };  PT.daysBetween = function (a, b) {    var d1 = PT.parseDate(a), d2 = PT.parseDate(b);    return Math.round((d2 - d1) / 86400000);  };  PT.fmtCN = function (key) {    var d = PT.parseDate(key);    return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + PT.weekday[d.getDay()];  };  PT.fmtShort = function (key) {    var d = PT.parseDate(key);    return (d.getMonth() + 1) + '月' + d.getDate() + '日';  };  PT.fmtYMD = function (key) {    var d = PT.parseDate(key);    return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';  };  PT.escape = function (s) {    return String(s == null ? '' : s)      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');  };})();
+/* types.js — 事件类型与心情的词表（数据层共用） */(function () {  'use strict';  var PT = (window.PT = window.PT || {});  PT.TYPES = [    { id: 'meal',    label: '吃饭',  icon: '🍚', group: 'eat',  num: { unit: 'g',    def: 40, step: 10, min: 1, max: 999 } },    { id: 'water',   label: '喝水',  icon: '💧', group: 'eat',  num: { unit: '次',   def: 1,  step: 1,  min: 1, max: 20 } },    { id: 'poop',    label: '便便',  icon: '💩', group: 'body', opt: ['正常', '偏软', '偏硬', '拉稀'] },    { id: 'pee',     label: '尿尿',  icon: '🌊', group: 'body' },    { id: 'vomit',   label: '吐了',  icon: '🤢', group: 'body' },    { id: 'status',  label: '状态',  icon: '🌡️', group: 'body', opt: ['很好', '正常', '有点蔫', '不舒服'] },    { id: 'vaccine', label: '打疫苗', icon: '💉', group: 'body' },    { id: 'deworm',  label: '驱虫',  icon: '🐛', group: 'body' },    { id: 'med',     label: '吃药',  icon: '💊', group: 'body' },    { id: 'vet',     label: '看医生', icon: '🩺', group: 'body' },    { id: 'surgery', label: '手术',  icon: '🏥', group: 'body', opt: ['绝育手术', '其他手术', '体检'] },    { id: 'weight',  label: '称重',  icon: '⚖️', group: 'body', num: { unit: 'kg', def: 4.2, step: 0.1, min: 0.1, max: 99, float: true } },    { id: 'walk',    label: '出门',  icon: '🐾', group: 'act',  num: { unit: '分钟', def: 20, step: 5, min: 1, max: 600 } },    { id: 'play',    label: '玩耍',  icon: '🎾', group: 'act' },    { id: 'bath',    label: '洗澡',  icon: '🛁', group: 'act' },    { id: 'sleep',   label: '睡觉',  icon: '🌙', group: 'act' },    { id: 'cuddle',  label: '撒娇',  icon: '🫶', group: 'mood' },    { id: 'naughty', label: '捣蛋',  icon: '💥', group: 'mood' }  ];  PT.TYPE = {};  PT.TYPES.forEach(function (t) { PT.TYPE[t.id] = t; });  /* 需要出现在「健康档案」时间线里的事 */  PT.HEALTH = ['vaccine', 'deworm', 'vet', 'med', 'surgery', 'bath', 'vomit'];  /* 品种：不只是名字，还决定它长什么样（毛色 / 花纹 / 耳朵） */  PT.BREEDS = {    cat: [      { id: 'orange',  label: '橘猫',     fur: '#F0C48A', furD: '#DDA469', pattern: 'tabby' },      { id: 'lihua',   label: '狸花猫',   fur: '#C6B29A', furD: '#A28B72', pattern: 'tabby' },      { id: 'sanhua',  label: '三花猫',   fur: '#F2E7D8', furD: '#C79A6A', pattern: 'calico' },      { id: 'cow',     label: '奶牛猫',   fur: '#F6F1E7', furD: '#4E453D', pattern: 'patch' },      { id: 'white',   label: '白猫',     fur: '#FBF6ED', furD: '#EBE0CF' },      { id: 'black',   label: '黑猫',     fur: '#5F554E', furD: '#4A413A', eye: '#E0B04C' },      { id: 'ragdoll', label: '布偶猫',   fur: '#F4EBDF', furD: '#B9A08C', pattern: 'point', eye: '#6E8FB8' },      { id: 'siamese', label: '暹罗猫',   fur: '#EADFCE', furD: '#6B5748', pattern: 'point', eye: '#5E86B0' },      { id: 'blue',    label: '英短蓝猫', fur: '#BCC1C7', furD: '#A3A9B0', eye: '#C79A46' },      { id: 'silver',  label: '银渐层',   fur: '#E8E4DC', furD: '#BEB8AC', pattern: 'tabby' },      { id: 'tiger',   label: '美短虎斑', fur: '#D9D1C4', furD: '#8F857A', pattern: 'tabby' }    ],    dog: [      { id: 'shiba',   label: '柴犬',     fur: '#E0B072', furD: '#C68C4E', ears: 'point' },      { id: 'corgi',   label: '柯基',     fur: '#E2A55E', furD: '#C4803A', ears: 'point' },      { id: 'golden',  label: '金毛',     fur: '#E9C68F', furD: '#CFA468', ears: 'flop' },      { id: 'lab',     label: '拉布拉多', fur: '#E6D8C0', furD: '#CBB99B', ears: 'flop' },      { id: 'poodle',  label: '泰迪',     fur: '#CB9D70', furD: '#AC7F53', ears: 'flop' },      { id: 'border',  label: '边牧',     fur: '#413B36', furD: '#F1ECE2', pattern: 'patch', ears: 'semi', eye: '#7A9AAE' },      { id: 'husky',   label: '哈士奇',   fur: '#DEDAD4', furD: '#8A8680', pattern: 'mask', ears: 'point' },      { id: 'samoyed', label: '萨摩耶',   fur: '#FBF7EF', furD: '#E6DDCE', ears: 'point' },      { id: 'bichon',  label: '比熊',     fur: '#F9F4EA', furD: '#E3D9C8', ears: 'flop' },      { id: 'maltese', label: '马尔济斯', fur: '#FDFAF4', furD: '#E8DFCE', eye: '#4A3B31' },      { id: 'shihtzu', label: '西施',     fur: '#EFE2CB', furD: '#C7AC86', eye: '#4A3B31' },      { id: 'westie',  label: '西高地',   fur: '#FBF7EE', furD: '#E7DFCF', eye: '#463930' },      { id: 'schnauzer', label: '雪纳瑞', fur: '#8F959A', furD: '#EFEADE', eye: '#3B302A' },      { id: 'pomeranian', label: '博美',  fur: '#E9B36B', furD: '#F7E4C8', eye: '#4A3B31' },      { id: 'tianyuan', label: '中华田园犬', fur: '#D9BC8D', furD: '#B2936A', ears: 'point' }    ]  };  PT.breedById = function (species, id) {    var list = PT.BREEDS[species === 'dog' ? 'dog' : 'cat'] || [];    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];    return null;  };  PT.breedOf = function (pet) {    if (!pet) return null;    return PT.breedById(pet.species, pet.breedId);  };  PT.breedLabel = function (pet) {    var b = PT.breedOf(pet);    return b ? b.label : ((pet && pet.breed) || '');  };  /* 自定义事件可选的表情 */  PT.EMOJIS = [    '💉', '💊', '🩺', '🏥', '🩹', '🧪', '🌡️', '🧬',    '🛁', '🚿', '🪥', '🧴', '🧻', '🛏️', '🧸', '🎂',    '🎾', '🦴', '🧶', '🏃', '🚗', '✈️', '🌳', '🏖️',    '🥰', '😿', '😾', '🤩', '😴', '😷', '🥳', '😮',    '🍽️', '🍗', '🥩', '🥛', '🍬', '💧', '💩', '⭐️',    '📌', '📅', '✂️', '🧹', '🎵', '🌙', '☀️', '❄️'  ];  PT.MOODS = {    calm:    { key: 'calm',    label: '满足',   emoji: '😌', color: '#8FA07B' },    happy:   { key: 'happy',   label: '开心',   emoji: '😊', color: '#D89A4E' },    love:    { key: 'love',    label: '黏人',   emoji: '🥰', color: '#C9738A' },    proud:   { key: 'proud',   label: '神气',   emoji: '😼', color: '#C2613F' },    sick:    { key: 'sick',    label: '不舒服', emoji: '🤒', color: '#7E8CA8' },    sleepy:  { key: 'sleepy',  label: '懒',     emoji: '😴', color: '#9C8FA0' },    excited: { key: 'excited', label: '兴奋',   emoji: '🤩', color: '#D9803F' }  };  /* 中文日期 */  PT.weekday = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];  PT.weekShort = ['日', '一', '二', '三', '四', '五', '六'];  PT.parseDate = function (key) {    var p = String(key).split('-');    return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));  };  PT.todayKey = function () {    var d = new Date(), m = d.getMonth() + 1, day = d.getDate();    return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;  };  PT.keyOf = function (d) {    var m = d.getMonth() + 1, day = d.getDate();    return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;  };  PT.daysBetween = function (a, b) {    var d1 = PT.parseDate(a), d2 = PT.parseDate(b);    return Math.round((d2 - d1) / 86400000);  };  PT.fmtCN = function (key) {    var d = PT.parseDate(key);    return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + PT.weekday[d.getDay()];  };  PT.fmtShort = function (key) {    var d = PT.parseDate(key);    return (d.getMonth() + 1) + '月' + d.getDate() + '日';  };  PT.fmtYMD = function (key) {    var d = PT.parseDate(key);    return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';  };  PT.escape = function (s) {    return String(s == null ? '' : s)      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');  };
+  /* ---------- 自己加的品种（存在 store 里，运行时注册进来） ---------- */
+  PT.BREED_EXTRA = [];
+  PT.setExtraBreeds = function (list) { PT.BREED_EXTRA = (list || []).slice(); };
+  PT.breedList = function (species) {
+    var sp = species === 'dog' ? 'dog' : 'cat';
+    var extra = PT.BREED_EXTRA.filter(function (b) { return b.species === sp; }).map(function (b) {
+      var c = {};
+      Object.keys(b).forEach(function (k) { c[k] = b[k]; });
+      c.custom = true;
+      return c;
+    });
+    return (PT.BREEDS[sp] || []).concat(extra);
+  };
+  var breedByIdBase = PT.breedById;
+  PT.breedById = function (species, id) {
+    var b = breedByIdBase(species, id);
+    if (b) return b;
+    var sp = species === 'dog' ? 'dog' : 'cat';
+    for (var i = 0; i < PT.BREED_EXTRA.length; i++) {
+      var x = PT.BREED_EXTRA[i];
+      if (x.id === id && x.species === sp) return x;
+    }
+    return null;
+  };
+  /* 加品种时可选：毛色 / 花纹 / 耳朵 */
+  PT.BREED_PALETTE = [
+    { fur: '#F0C48A', furD: '#DDA469', eye: '' },
+    { fur: '#D9BC8D', furD: '#B2936A', eye: '' },
+    { fur: '#FBF6ED', furD: '#E6DCCB', eye: '' },
+    { fur: '#6B6058', furD: '#544B44', eye: '#E0B04C' },
+    { fur: '#BCC1C7', furD: '#A3A9B0', eye: '#C79A46' },
+    { fur: '#E9D2B0', furD: '#8B7156', eye: '#5E86B0' },
+    { fur: '#C99A6E', furD: '#9C7048', eye: '' },
+    { fur: '#EADFCE', furD: '#6B5748', eye: '#6E8FB8' }
+  ];
+  PT.CAT_PATTERNS = [
+    { id: '', label: '纯色' }, { id: 'tabby', label: '条纹' },
+    { id: 'patch', label: '色块' }, { id: 'point', label: '重点色' }
+  ];
+  PT.DOG_PATTERNS = [
+    { id: '', label: '纯色' }, { id: 'patch', label: '色块' }, { id: 'mask', label: '眼罩' }
+  ];
+  PT.DOG_EARS = [{ id: 'point', label: '尖耳' }, { id: 'flop', label: '垂耳' }, { id: 'puff', label: '圆耳' }];
+})();
 </script>
 <script>
 /* theme.js — 主题：换一层纸的颜色，字和卡片都跟着走 */
@@ -2236,6 +2309,7 @@ body.no-tabs .tabs { display: none; }
 
   function get() {
     if (!state) load();
+    if (PT.setExtraBreeds) PT.setExtraBreeds(state.customBreeds || []);
     return state;
   }
 
@@ -2329,6 +2403,54 @@ body.no-tabs .tabs { display: none; }
     if (p.milestones.length === n) return false;
     save();
     return true;
+  }
+
+  /* ---------------- 自己加的品种 ---------------- */
+
+  function customBreeds(species) {
+    var list = (get().customBreeds || []).slice();
+    if (!species) return list;
+    var sp = species === 'dog' ? 'dog' : 'cat';
+    return list.filter(function (b) { return b.species === sp; });
+  }
+
+  function addBreed(patch) {
+    var p = patch || {};
+    var sp = p.species === 'dog' ? 'dog' : 'cat';
+    var label = String(p.label || '').trim().slice(0, 8);
+    if (!label) return null;
+    var s = get();
+    if (!s.customBreeds) s.customBreeds = [];
+    if (s.customBreeds.some(function (x) { return x.species === sp && x.label === label; })) return null;
+    var b = {
+      id: 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      species: sp,
+      label: label,
+      fur: p.fur || '#E9D2B0',
+      furD: p.furD || '#B2936A',
+      eye: p.eye || '',
+      pattern: p.pattern || '',
+      ears: sp === 'dog' ? (p.ears || 'flop') : ''
+    };
+    s.customBreeds.push(b);
+    save();
+    syncExtras();
+    return b;
+  }
+
+  function removeBreed(id) {
+    var s = get();
+    if (!s.customBreeds) return false;
+    var n = s.customBreeds.length;
+    s.customBreeds = s.customBreeds.filter(function (b) { return b.id !== id; });
+    if (s.customBreeds.length === n) return false;
+    save();
+    syncExtras();
+    return true;
+  }
+
+  function syncExtras() {
+    if (PT.setExtraBreeds) PT.setExtraBreeds(get().customBreeds || []);
   }
 
   /* ---------------- 档案里的自定义字段（芯片号、血型…） ---------------- */
@@ -2694,6 +2816,7 @@ body.no-tabs .tabs { display: none; }
   }
 
   PT.STORE = {
+    customBreeds: customBreeds, addBreed: addBreed, removeBreed: removeBreed,
     setting: setting, setSetting: setSetting,
     load: load, save: save, get: get,
     pets: pets, active: active, setActive: setActive, addPet: addPet, updatePet: updatePet,
@@ -2902,7 +3025,7 @@ body.no-tabs .tabs { display: none; }
     var sp = isDraft ? ob.species : pet.species;
     var curBreed = isDraft ? ob.breedId : pet.breedId;
     var hasPhoto = !!(isDraft ? ob.photo : pet.photo);
-    var breeds = PT.BREEDS[sp] || [];
+    var breeds = PT.breedList(sp);
 
     var ov = document.createElement('div');
     ov.className = 'sheetwrap';
@@ -2920,9 +3043,11 @@ body.no-tabs .tabs { display: none; }
       '<div class="breeds avs-grid">' +
       breeds.map(function (b) {
         return '<button class="breed' + (b.id === curBreed ? ' on' : '') + '" data-b="' + b.id + '">' +
+          (b.custom ? '<span class="bdel" data-db="' + b.id + '" aria-label="删掉">×</span>' : '') +
           '<span class="bd-face">' + PT.ART.face(sp, 'calm', { tilt: 0, breed: b }) + '</span>' +
           '<span class="bd-name">' + esc(b.label) + '</span></button>';
       }).join('') +
+      '<button class="breed addb" data-ab="1"><span class="bd-face">＋</span><span class="bd-name">自己加</span></button>' +
       '</div>' +
       '<input type="file" id="file-avatar" accept="image/*" hidden>' +
       '</div>';
@@ -2949,6 +3074,14 @@ body.no-tabs .tabs { display: none; }
 
     ov.addEventListener('click', function (ev) {
       var t = ev.target;
+      var dBtn = t.closest ? t.closest('[data-db]') : null;
+      if (dBtn) {
+        if (!confirm('删掉这个品种？已经用它建的宠物头像不会变。')) return;
+        S.removeBreed(dBtn.dataset.db);
+        close(); render({}); return;
+      }
+      var abBtn = t.closest ? t.closest('[data-ab]') : null;
+      if (abBtn) { close(); openBreedSheet(isDraft); return; }
       var bBtn = t.closest ? t.closest('[data-b]') : null;
       if (bBtn) { applyBreed(bBtn.dataset.b); return; }
       var aBtn = t.closest ? t.closest('[data-a]') : null;
@@ -2973,6 +3106,118 @@ body.no-tabs .tabs { display: none; }
     function close() { ov.remove(); }
     document.body.appendChild(ov);
   }
+  /* 加一个自己的品种：起名字、挑毛色花纹耳朵，实时预览 */
+  var brState = null;
+
+  function openBreedSheet(isDraft) {
+    brState = { draft: !!isDraft, pal: 0, pattern: '', ears: 'flop' };
+    var sp = isDraft ? ob.species : ((S.active() || {}).species || 'cat');
+    brState.species = sp;
+    var isDog = sp === 'dog';
+    var pals = PT.BREED_PALETTE;
+    var pats = isDog ? PT.DOG_PATTERNS : PT.CAT_PATTERNS;
+    var ears = PT.DOG_EARS;
+
+    function breedNow() {
+      var pl = pals[brState.pal];
+      return {
+        id: 'preview', species: sp, label: '',
+        fur: pl.fur, furD: pl.furD, eye: pl.eye,
+        pattern: brState.pattern, ears: isDog ? brState.ears : ''
+      };
+    }
+
+    var ov = document.createElement('div');
+    ov.className = 'sheetwrap';
+    ov.innerHTML =
+      '<div class="sheetmask"></div>' +
+      '<div class="avsheet">' +
+      '<div class="avs-h"><b>加一个自己的品种</b><button class="avs-x" aria-label="关闭">×</button></div>' +
+      '<p class="avs-tip">起个名字、挑个毛色，它就会出现在品种里，以后随时能选。</p>' +
+      '<div class="brprev"><span class="brpv-face">' + PT.ART.face(sp, 'calm', { tilt: 0, breed: breedNow() }) + '</span>' +
+      '<i class="brpv-name">还没起名字</i></div>' +
+      '<input id="br-name" class="input" maxlength="8" autocomplete="off" placeholder="比如：小土狗、布偶串串">' +
+      '<div class="avs-sep"><span>毛色</span></div>' +
+      '<div class="sws">' +
+      pals.map(function (x, i) {
+        return '<button class="sw' + (i === 0 ? ' on' : '') + '" data-pal="' + i + '" aria-label="毛色 ' + (i + 1) + '">' +
+          '<i style="background:' + x.fur + ';border-color:' + x.furD + '"></i></button>';
+      }).join('') +
+      '</div>' +
+      '<div class="avs-sep"><span>花纹</span></div>' +
+      '<div class="segs">' +
+      pats.map(function (x) {
+        return '<button class="seg' + (x.id === '' ? ' on' : '') + '" data-pat="' + x.id + '">' + x.label + '</button>';
+      }).join('') +
+      '</div>' +
+      (isDog
+        ? '<div class="avs-sep"><span>耳朵</span></div>' +
+          '<div class="segs">' +
+          ears.map(function (x) {
+            return '<button class="seg' + (x.id === 'flop' ? ' on' : '') + '" data-ear="' + x.id + '">' + x.label + '</button>';
+          }).join('') +
+          '</div>'
+        : '') +
+      '<div class="avs-btns" style="margin-top:16px">' +
+      '<button class="mini accent" data-br="save">加进去</button></div>' +
+      '</div>';
+
+    var nameEl = ov.querySelector('#br-name');
+    var prevEl = ov.querySelector('.brpv-face');
+    var prevName = ov.querySelector('.brpv-name');
+
+    function repaint() {
+      prevEl.innerHTML = PT.ART.face(sp, 'calm', { tilt: 0, breed: breedNow() });
+      var v = (nameEl.value || '').trim();
+      prevName.textContent = v || '还没起名字';
+    }
+
+    ov.addEventListener('input', repaint);
+
+    ov.addEventListener('click', function (ev) {
+      var t = ev.target;
+      var pel = t.closest ? t.closest('[data-pal]') : null;
+      if (pel) {
+        brState.pal = Number(pel.dataset.pal) || 0;
+        ov.querySelectorAll('.sw').forEach(function (x) { x.classList.toggle('on', x === pel); });
+        repaint(); return;
+      }
+      var pat = t.closest ? t.closest('[data-pat]') : null;
+      if (pat) {
+        brState.pattern = pat.dataset.pat || '';
+        ov.querySelectorAll('[data-pat]').forEach(function (x) { x.classList.toggle('on', x === pat); });
+        repaint(); return;
+      }
+      var ear = t.closest ? t.closest('[data-ear]') : null;
+      if (ear) {
+        brState.ears = ear.dataset.ear || 'flop';
+        ov.querySelectorAll('[data-ear]').forEach(function (x) { x.classList.toggle('on', x === ear); });
+        repaint(); return;
+      }
+      var save = t.closest ? t.closest('[data-br="save"]') : null;
+      if (save) {
+        var label = (nameEl.value || '').trim();
+        if (!label) { toast('先给它起个名字'); nameEl.focus(); return; }
+        var pl = PT.BREED_PALETTE[brState.pal];
+        var made = S.addBreed({
+          species: sp, label: label,
+          fur: pl.fur, furD: pl.furD, eye: pl.eye,
+          pattern: brState.pattern, ears: isDog ? brState.ears : ''
+        });
+        if (!made) { toast('这个名字已经有了'); return; }
+        if (brState.draft) { harvestOb(); ob.breedId = made.id; ob.photo = ''; }
+        else { var pet = S.active(); if (pet) S.updatePet(pet.id, { breedId: made.id, breed: made.id, photo: '' }); }
+        close(); render({}); toast('加好了：' + made.label);
+        return;
+      }
+      if (t === ov || t.classList.contains('sheetmask') || t.classList.contains('avs-x')) close();
+    });
+
+    function close() { ov.remove(); }
+    document.body.appendChild(ov);
+    nameEl.focus();
+  }
+
   function openMedia(mid) {    PT.MEDIA.get(mid).then(function (blob) {
       if (!blob) { toast('这个文件已经找不到了'); return; }
       var url = URL.createObjectURL(blob);
@@ -3086,11 +3331,14 @@ body.no-tabs .tabs { display: none; }
       return fallback || '';
     };
 
-    var breeds = (PT.BREEDS[ob.species] || []).map(function (b) {
+    var breeds = PT.breedList(ob.species).map(function (b) {
       return '<button class="breed' + (ob.breedId === b.id ? ' on' : '') + '" data-act="ob-breed" data-id="' + b.id + '">' +
+        (b.custom ? '<span class="bdel" data-act="breed-del" data-id="' + b.id + '" aria-label="删掉">×</span>' : '') +
         '<span class="bd-face">' + PT.ART.face(ob.species, 'calm', { tilt: 0, breed: b }) + '</span>' +
-        '<span class="bd-name">' + b.label + '</span></button>';
-    }).join('');
+        '<span class="bd-name">' + esc(b.label) + '</span></button>';
+    }).join('') +
+      '<button class="breed addb" data-act="breed-new"><span class="bd-face">＋</span><span class="bd-name">自己加</span></button>' +
+      '<button class="breed addb" data-act="avatar"><span class="bd-face"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12.5" rx="3"/><circle cx="12" cy="14" r="3.3"/><path d="M8.6 7.5l1.3-2.1h4.2l1.3 2.1"/></svg></span><span class="bd-name">用照片</span></button>';
 
     var isCustom = ob.personality === 'custom';
     var person = PERSON.map(function (p) {
@@ -3684,7 +3932,7 @@ body.no-tabs .tabs { display: none; }
         '</div>';
     }
 
-    var breeds = (PT.BREEDS[pet.species] || []).map(function (b) {
+    var breeds = PT.breedList(pet.species).map(function (b) {
       return '<option value="' + b.id + '"' + (arc.breed === b.id ? ' selected' : '') + '>' + esc(b.label) + '</option>';
     }).join('');
     var editRows = arc.rows.map(function (r) {
@@ -4066,7 +4314,7 @@ body.no-tabs .tabs { display: none; }
     if (act === 'ob-species') {
       harvestOb();
       ob.species = id;
-      if (!PT.breedById(id, ob.breedId)) ob.breedId = (PT.BREEDS[id === 'dog' ? 'dog' : 'cat'][0] || {}).id || '';
+      if (!PT.breedById(id, ob.breedId)) ob.breedId = (PT.breedList(id)[0] || {}).id || '';
       render({});
       document.querySelectorAll('.sp').forEach(function (b) { b.classList.toggle('on', b.dataset.id === id); });
       return;
@@ -4250,6 +4498,15 @@ body.no-tabs .tabs { display: none; }
     }
 
     if (act === 'avatar') { openAvatar(!S.pets().length || view.name === 'onboard'); return; }
+    if (act === 'breed-new') { openBreedSheet(!S.pets().length || view.name === 'onboard'); return; }
+    if (act === 'breed-del') {
+      if (!confirm('删掉这个品种？已经用它建的宠物头像不会变。')) return;
+      S.removeBreed(el.dataset.id);
+      harvestOb();
+      if (!PT.breedById(ob.species, ob.breedId)) ob.breedId = (PT.breedList(ob.species)[0] || {}).id || '';
+      render({});
+      return;
+    }
 
     if (act === 'edit-profile') {
       var pp = S.active();

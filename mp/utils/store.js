@@ -69,6 +69,7 @@
 
   function get() {
     if (!state) load();
+    if (PT.setExtraBreeds) PT.setExtraBreeds(state.customBreeds || []);
     return state;
   }
 
@@ -162,6 +163,54 @@
     if (p.milestones.length === n) return false;
     save();
     return true;
+  }
+
+  /* ---------------- 自己加的品种 ---------------- */
+
+  function customBreeds(species) {
+    var list = (get().customBreeds || []).slice();
+    if (!species) return list;
+    var sp = species === 'dog' ? 'dog' : 'cat';
+    return list.filter(function (b) { return b.species === sp; });
+  }
+
+  function addBreed(patch) {
+    var p = patch || {};
+    var sp = p.species === 'dog' ? 'dog' : 'cat';
+    var label = String(p.label || '').trim().slice(0, 8);
+    if (!label) return null;
+    var s = get();
+    if (!s.customBreeds) s.customBreeds = [];
+    if (s.customBreeds.some(function (x) { return x.species === sp && x.label === label; })) return null;
+    var b = {
+      id: 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      species: sp,
+      label: label,
+      fur: p.fur || '#E9D2B0',
+      furD: p.furD || '#B2936A',
+      eye: p.eye || '',
+      pattern: p.pattern || '',
+      ears: sp === 'dog' ? (p.ears || 'flop') : ''
+    };
+    s.customBreeds.push(b);
+    save();
+    syncExtras();
+    return b;
+  }
+
+  function removeBreed(id) {
+    var s = get();
+    if (!s.customBreeds) return false;
+    var n = s.customBreeds.length;
+    s.customBreeds = s.customBreeds.filter(function (b) { return b.id !== id; });
+    if (s.customBreeds.length === n) return false;
+    save();
+    syncExtras();
+    return true;
+  }
+
+  function syncExtras() {
+    if (PT.setExtraBreeds) PT.setExtraBreeds(get().customBreeds || []);
   }
 
   /* ---------------- 档案里的自定义字段（芯片号、血型…） ---------------- */
@@ -527,6 +576,7 @@
   }
 
   PT.STORE = {
+    customBreeds: customBreeds, addBreed: addBreed, removeBreed: removeBreed,
     setting: setting, setSetting: setSetting,
     load: load, save: save, get: get,
     pets: pets, active: active, setActive: setActive, addPet: addPet, updatePet: updatePet,

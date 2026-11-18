@@ -783,3 +783,31 @@ body.no-tabs .tabs { display: none; }
   margin: 2px 0 12px; color: var(--muted); font-size: 11.5px; letter-spacing: .04em;
 }
 .avs-sep::before, .avs-sep::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.breed { position: relative; }
+.bdel {
+  position: absolute; right: -4px; top: -4px; z-index: 2;
+  width: 19px; height: 19px; border-radius: 50%;
+  background: var(--paper-3); border: 1px solid var(--line); color: var(--muted);
+  font-size: 11px; line-height: 17px; text-align: center;
+}
+.breed.addb { border-style: dashed; color: var(--muted); }
+.breed.addb .bd-face { display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--muted); }
+.brprev { display: flex; align-items: center; gap: 12px; margin: 4px 0 10px; }
+.brpv-face { width: 84px; height: 84px; display: block; flex: none; }
+.brpv-face svg { width: 100%; height: 100%; display: block; }
+.brpv-name { color: var(--muted); font-style: normal; font-size: 12.5px; }
+.sws { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.sw {
+  width: 34px; height: 34px; padding: 0; border-radius: 50%;
+  border: 1.5px solid transparent; background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.sw i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(var(--sh), .18); display: block; }
+.sw.on { border-color: var(--accent); }
+.segs { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg {
+  padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--paper-3); color: var(--ink);
+  font: inherit; font-size: 12.5px;
+}
+.seg.on { background: rgba(var(--accent-rgb), .1); border-color: rgba(var(--accent-rgb), .45); color: var(--accent); }

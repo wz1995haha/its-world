@@ -173,9 +173,11 @@ Page({
   editOpen: function () {
     var pet = S.active();
     if (!pet) return;
-    var breeds = PT.BREEDS[pet.species] || [];
+    var breeds = PT.breedList(pet.species);
     var labels = breeds.map(function (b) { return b.label; });
     var ids = breeds.map(function (b) { return b.id; });
+    labels.push('＋ 自己加一个品种…');
+    ids.push('__new__');
     var wi = ids.indexOf(pet.breedId || '');
     var ws = S.weights();
     var lastW = ws.length ? ws[ws.length - 1] : null;
@@ -209,7 +211,36 @@ Page({
   },
 
   pickBreed: function (e) {
-    this.setData({ 'edit.breedIndex': +e.detail.value });
+    var self = this;
+    var i = +e.detail.value;
+    var id = this.data.breedIds[i];
+    if (id !== '__new__') { this.setData({ 'edit.breedIndex': i }); return; }
+    var pet = S.active();
+    if (!pet) return;
+    wx.showModal({
+      title: '加一个品种',
+      editable: true,
+      placeholderText: '比如：小土狗、布偶串串',
+      success: function (r) {
+        if (!r.confirm) return;
+        var label = (r.content || '').trim();
+        if (!label) { wx.showToast({ title: '先起个名字', icon: 'none' }); return; }
+        var pal = PT.BREED_PALETTE[(S.customBreeds(pet.species).length + 2) % PT.BREED_PALETTE.length];
+        var made = S.addBreed({
+          species: pet.species, label: label,
+          fur: pal.fur, furD: pal.furD, eye: pal.eye,
+          pattern: '', ears: pet.species === 'dog' ? 'flop' : ''
+        });
+        if (!made) { wx.showToast({ title: '这个名字已经有了', icon: 'none' }); return; }
+        var list = PT.breedList(pet.species);
+        var labels = list.map(function (b) { return b.label; });
+        var ids = list.map(function (b) { return b.id; });
+        labels.push('＋ 自己加一个品种…');
+        ids.push('__new__');
+        self.setData({ breedLabels: labels, breedIds: ids, 'edit.breedIndex': ids.indexOf(made.id) });
+        wx.showToast({ title: '加好了', icon: 'none' });
+      }
+    });
   },
 
   onInput: function (e) {
@@ -241,7 +272,7 @@ Page({
     var pet = S.active();
     if (!pet) return;
     var E = this.data.edit;
-    var breeds = PT.BREEDS[pet.species] || [];
+    var breeds = PT.breedList(pet.species);
     var breedId = breeds[E.breedIndex] ? breeds[E.breedIndex].id : pet.breedId;
 
     S.updatePet(pet.id, {

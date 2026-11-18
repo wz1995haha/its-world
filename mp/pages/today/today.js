@@ -59,7 +59,7 @@ Page({
     var pet = S.active();
 
     if (!pet) {
-      var breeds = PT.BREEDS.cat;
+      var breeds = PT.breedList('cat');
       this.setData({
         themeStyle: t.themeStyle,
         hasPet: false,
@@ -115,7 +115,7 @@ Page({
     this.setData({
       'ob.species': sp,
       'ob.breedIndex': 0,
-      breeds: PT.BREEDS[sp]
+      breeds: PT.breedList(sp)
     });
   },
 
@@ -151,7 +151,7 @@ Page({
       wx.showToast({ title: '先给它起个名字', icon: 'none' });
       return;
     }
-    var breeds = PT.BREEDS[ob.species];
+    var breeds = PT.breedList(ob.species);
     var b = breeds[ob.breedIndex] || breeds[0];
     var p = PERSONALITIES[ob.personIndex] || PERSONALITIES[0];
     S.addPet({

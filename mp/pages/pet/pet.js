@@ -53,7 +53,7 @@ Page({
       return;
     }
 
-    var breeds = PT.BREEDS[pet.species] || PT.BREEDS.cat;
+    var breeds = PT.breedList(pet.species);
     var bi = 0;
     breeds.forEach(function (b, i) { if (b.id === pet.breedId) bi = i; });
     var pi = 0;
@@ -122,7 +122,7 @@ Page({
 
   onSpecies: function (e) {
     var sp = e.currentTarget.dataset.sp;
-    var breeds = PT.BREEDS[sp];
+    var breeds = PT.breedList(sp);
     S.updatePet(this.data.pet.id, { species: sp, breedId: breeds[0].id });
     this.refresh();
   },

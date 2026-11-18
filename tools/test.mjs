@@ -238,5 +238,25 @@ ok('字段跟着宠物走', (function () {
   return !other || S.fields(other.id).length === 0;
 })());
 
+console.log('— 自己加的品种 —');
+ok('一开始是空的', S.customBreeds().length === 0, S.customBreeds().length);
+var nb = S.addBreed({ species: 'cat', label: '小土猫', fur: '#6B6058', furD: '#544B44', eye: '#E0B04C', pattern: 'patch' });
+ok('能加一个', !!nb && nb.label === '小土猫', JSON.stringify(nb));
+ok('记在 state 里', S.customBreeds().length === 1);
+ok('breedById 查得到', (PT.breedById('cat', nb.id) || {}).label === '小土猫');
+ok('breedList 里带 custom 标记', PT.breedList('cat').some(function (b) { return b.id === nb.id && b.custom; }));
+ok('狗里没有它', !PT.breedById('dog', nb.id));
+ok('同名不能再加', S.addBreed({ species: 'cat', label: '小土猫' }) === null);
+ok('名字空的不能加', S.addBreed({ species: 'cat', label: '   ' }) === null);
+ok('狗也能加', (function () {
+  var d = S.addBreed({ species: 'dog', label: '小土狗', ears: 'flop', pattern: 'mask' });
+  return d && d.ears === 'flop' && S.customBreeds('dog').length === 1;
+})());
+ok('能删掉', (function () {
+  var del = S.removeBreed(nb.id);
+  return del && S.customBreeds('cat').length === 0 && !PT.breedById('cat', nb.id);
+})());
+ok('删不存在的返回 false', S.removeBreed('nope') === false);
+
 console.log('\n' + (fail ? '✗ ' + fail + ' 项失败' : '✓ 全部通过') + '（' + pass + '/' + (pass + fail) + '）');
 process.exit(fail ? 1 : 0);

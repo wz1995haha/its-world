@@ -187,7 +187,7 @@
     var sp = isDraft ? ob.species : pet.species;
     var curBreed = isDraft ? ob.breedId : pet.breedId;
     var hasPhoto = !!(isDraft ? ob.photo : pet.photo);
-    var breeds = PT.BREEDS[sp] || [];
+    var breeds = PT.breedList(sp);
 
     var ov = document.createElement('div');
     ov.className = 'sheetwrap';
@@ -205,9 +205,11 @@
       '<div class="breeds avs-grid">' +
       breeds.map(function (b) {
         return '<button class="breed' + (b.id === curBreed ? ' on' : '') + '" data-b="' + b.id + '">' +
+          (b.custom ? '<span class="bdel" data-db="' + b.id + '" aria-label="删掉">×</span>' : '') +
           '<span class="bd-face">' + PT.ART.face(sp, 'calm', { tilt: 0, breed: b }) + '</span>' +
           '<span class="bd-name">' + esc(b.label) + '</span></button>';
       }).join('') +
+      '<button class="breed addb" data-ab="1"><span class="bd-face">＋</span><span class="bd-name">自己加</span></button>' +
       '</div>' +
       '<input type="file" id="file-avatar" accept="image/*" hidden>' +
       '</div>';
@@ -234,6 +236,14 @@
 
     ov.addEventListener('click', function (ev) {
       var t = ev.target;
+      var dBtn = t.closest ? t.closest('[data-db]') : null;
+      if (dBtn) {
+        if (!confirm('删掉这个品种？已经用它建的宠物头像不会变。')) return;
+        S.removeBreed(dBtn.dataset.db);
+        close(); render({}); return;
+      }
+      var abBtn = t.closest ? t.closest('[data-ab]') : null;
+      if (abBtn) { close(); openBreedSheet(isDraft); return; }
       var bBtn = t.closest ? t.closest('[data-b]') : null;
       if (bBtn) { applyBreed(bBtn.dataset.b); return; }
       var aBtn = t.closest ? t.closest('[data-a]') : null;
@@ -258,6 +268,118 @@
     function close() { ov.remove(); }
     document.body.appendChild(ov);
   }
+  /* 加一个自己的品种：起名字、挑毛色花纹耳朵，实时预览 */
+  var brState = null;
+
+  function openBreedSheet(isDraft) {
+    brState = { draft: !!isDraft, pal: 0, pattern: '', ears: 'flop' };
+    var sp = isDraft ? ob.species : ((S.active() || {}).species || 'cat');
+    brState.species = sp;
+    var isDog = sp === 'dog';
+    var pals = PT.BREED_PALETTE;
+    var pats = isDog ? PT.DOG_PATTERNS : PT.CAT_PATTERNS;
+    var ears = PT.DOG_EARS;
+
+    function breedNow() {
+      var pl = pals[brState.pal];
+      return {
+        id: 'preview', species: sp, label: '',
+        fur: pl.fur, furD: pl.furD, eye: pl.eye,
+        pattern: brState.pattern, ears: isDog ? brState.ears : ''
+      };
+    }
+
+    var ov = document.createElement('div');
+    ov.className = 'sheetwrap';
+    ov.innerHTML =
+      '<div class="sheetmask"></div>' +
+      '<div class="avsheet">' +
+      '<div class="avs-h"><b>加一个自己的品种</b><button class="avs-x" aria-label="关闭">×</button></div>' +
+      '<p class="avs-tip">起个名字、挑个毛色，它就会出现在品种里，以后随时能选。</p>' +
+      '<div class="brprev"><span class="brpv-face">' + PT.ART.face(sp, 'calm', { tilt: 0, breed: breedNow() }) + '</span>' +
+      '<i class="brpv-name">还没起名字</i></div>' +
+      '<input id="br-name" class="input" maxlength="8" autocomplete="off" placeholder="比如：小土狗、布偶串串">' +
+      '<div class="avs-sep"><span>毛色</span></div>' +
+      '<div class="sws">' +
+      pals.map(function (x, i) {
+        return '<button class="sw' + (i === 0 ? ' on' : '') + '" data-pal="' + i + '" aria-label="毛色 ' + (i + 1) + '">' +
+          '<i style="background:' + x.fur + ';border-color:' + x.furD + '"></i></button>';
+      }).join('') +
+      '</div>' +
+      '<div class="avs-sep"><span>花纹</span></div>' +
+      '<div class="segs">' +
+      pats.map(function (x) {
+        return '<button class="seg' + (x.id === '' ? ' on' : '') + '" data-pat="' + x.id + '">' + x.label + '</button>';
+      }).join('') +
+      '</div>' +
+      (isDog
+        ? '<div class="avs-sep"><span>耳朵</span></div>' +
+          '<div class="segs">' +
+          ears.map(function (x) {
+            return '<button class="seg' + (x.id === 'flop' ? ' on' : '') + '" data-ear="' + x.id + '">' + x.label + '</button>';
+          }).join('') +
+          '</div>'
+        : '') +
+      '<div class="avs-btns" style="margin-top:16px">' +
+      '<button class="mini accent" data-br="save">加进去</button></div>' +
+      '</div>';
+
+    var nameEl = ov.querySelector('#br-name');
+    var prevEl = ov.querySelector('.brpv-face');
+    var prevName = ov.querySelector('.brpv-name');
+
+    function repaint() {
+      prevEl.innerHTML = PT.ART.face(sp, 'calm', { tilt: 0, breed: breedNow() });
+      var v = (nameEl.value || '').trim();
+      prevName.textContent = v || '还没起名字';
+    }
+
+    ov.addEventListener('input', repaint);
+
+    ov.addEventListener('click', function (ev) {
+      var t = ev.target;
+      var pel = t.closest ? t.closest('[data-pal]') : null;
+      if (pel) {
+        brState.pal = Number(pel.dataset.pal) || 0;
+        ov.querySelectorAll('.sw').forEach(function (x) { x.classList.toggle('on', x === pel); });
+        repaint(); return;
+      }
+      var pat = t.closest ? t.closest('[data-pat]') : null;
+      if (pat) {
+        brState.pattern = pat.dataset.pat || '';
+        ov.querySelectorAll('[data-pat]').forEach(function (x) { x.classList.toggle('on', x === pat); });
+        repaint(); return;
+      }
+      var ear = t.closest ? t.closest('[data-ear]') : null;
+      if (ear) {
+        brState.ears = ear.dataset.ear || 'flop';
+        ov.querySelectorAll('[data-ear]').forEach(function (x) { x.classList.toggle('on', x === ear); });
+        repaint(); return;
+      }
+      var save = t.closest ? t.closest('[data-br="save"]') : null;
+      if (save) {
+        var label = (nameEl.value || '').trim();
+        if (!label) { toast('先给它起个名字'); nameEl.focus(); return; }
+        var pl = PT.BREED_PALETTE[brState.pal];
+        var made = S.addBreed({
+          species: sp, label: label,
+          fur: pl.fur, furD: pl.furD, eye: pl.eye,
+          pattern: brState.pattern, ears: isDog ? brState.ears : ''
+        });
+        if (!made) { toast('这个名字已经有了'); return; }
+        if (brState.draft) { harvestOb(); ob.breedId = made.id; ob.photo = ''; }
+        else { var pet = S.active(); if (pet) S.updatePet(pet.id, { breedId: made.id, breed: made.id, photo: '' }); }
+        close(); render({}); toast('加好了：' + made.label);
+        return;
+      }
+      if (t === ov || t.classList.contains('sheetmask') || t.classList.contains('avs-x')) close();
+    });
+
+    function close() { ov.remove(); }
+    document.body.appendChild(ov);
+    nameEl.focus();
+  }
+
   function openMedia(mid) {    PT.MEDIA.get(mid).then(function (blob) {
       if (!blob) { toast('这个文件已经找不到了'); return; }
       var url = URL.createObjectURL(blob);
@@ -371,11 +493,14 @@
       return fallback || '';
     };
 
-    var breeds = (PT.BREEDS[ob.species] || []).map(function (b) {
+    var breeds = PT.breedList(ob.species).map(function (b) {
       return '<button class="breed' + (ob.breedId === b.id ? ' on' : '') + '" data-act="ob-breed" data-id="' + b.id + '">' +
+        (b.custom ? '<span class="bdel" data-act="breed-del" data-id="' + b.id + '" aria-label="删掉">×</span>' : '') +
         '<span class="bd-face">' + PT.ART.face(ob.species, 'calm', { tilt: 0, breed: b }) + '</span>' +
-        '<span class="bd-name">' + b.label + '</span></button>';
-    }).join('');
+        '<span class="bd-name">' + esc(b.label) + '</span></button>';
+    }).join('') +
+      '<button class="breed addb" data-act="breed-new"><span class="bd-face">＋</span><span class="bd-name">自己加</span></button>' +
+      '<button class="breed addb" data-act="avatar"><span class="bd-face"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12.5" rx="3"/><circle cx="12" cy="14" r="3.3"/><path d="M8.6 7.5l1.3-2.1h4.2l1.3 2.1"/></svg></span><span class="bd-name">用照片</span></button>';
 
     var isCustom = ob.personality === 'custom';
     var person = PERSON.map(function (p) {
@@ -969,7 +1094,7 @@
         '</div>';
     }
 
-    var breeds = (PT.BREEDS[pet.species] || []).map(function (b) {
+    var breeds = PT.breedList(pet.species).map(function (b) {
       return '<option value="' + b.id + '"' + (arc.breed === b.id ? ' selected' : '') + '>' + esc(b.label) + '</option>';
     }).join('');
     var editRows = arc.rows.map(function (r) {
@@ -1351,7 +1476,7 @@
     if (act === 'ob-species') {
       harvestOb();
       ob.species = id;
-      if (!PT.breedById(id, ob.breedId)) ob.breedId = (PT.BREEDS[id === 'dog' ? 'dog' : 'cat'][0] || {}).id || '';
+      if (!PT.breedById(id, ob.breedId)) ob.breedId = (PT.breedList(id)[0] || {}).id || '';
       render({});
       document.querySelectorAll('.sp').forEach(function (b) { b.classList.toggle('on', b.dataset.id === id); });
       return;
@@ -1535,6 +1660,15 @@
     }
 
     if (act === 'avatar') { openAvatar(!S.pets().length || view.name === 'onboard'); return; }
+    if (act === 'breed-new') { openBreedSheet(!S.pets().length || view.name === 'onboard'); return; }
+    if (act === 'breed-del') {
+      if (!confirm('删掉这个品种？已经用它建的宠物头像不会变。')) return;
+      S.removeBreed(el.dataset.id);
+      harvestOb();
+      if (!PT.breedById(ob.species, ob.breedId)) ob.breedId = (PT.breedList(ob.species)[0] || {}).id || '';
+      render({});
+      return;
+    }
 
     if (act === 'edit-profile') {
       var pp = S.active();
