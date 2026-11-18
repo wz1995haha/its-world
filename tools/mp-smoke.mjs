@@ -89,6 +89,20 @@ const st = S.stats();
 ok('统计有数', st.together > 0 && st.diaryCount >= 1, JSON.stringify(st));
 ok('体重能取出来', S.weights().length === 0 || true);
 
+console.log('— 档案表能改 —');
+const pid = S.active().id;
+ok('一开始没有自定义字段', S.fields(pid).length === 0);
+const chip = S.addField(pid, '芯片号', '900215000123456');
+ok('能加一项', S.fields(pid).length === 1 && S.fields(pid)[0].label === '芯片号');
+ok('值也存住了', S.fields(pid)[0].value === '900215000123456', S.fields(pid)[0].value);
+ok('空名字加不进去', S.addField(pid, '   ', 'x') === null && S.fields(pid).length === 1);
+S.updateField(pid, chip.id, { value: '900215000999' });
+ok('能改值', S.fields(pid)[0].value === '900215000999', S.fields(pid)[0].value);
+S.updatePet(pid, { birthday: '2023-05-18', homeDate: '2025-05-07' });
+ok('生日到家能改', S.active().birthday === '2023-05-18' && S.active().homeDate === '2025-05-07');
+S.removeField(pid, chip.id);
+ok('能删', S.fields(pid).length === 0);
+
 console.log('— 头像 —');
 const fs = face.styleOf('cat', 'calm', 'orange');
 ok('橘猫有狸花纹', fs.stripe === true && fs.ear === 'point');

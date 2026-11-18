@@ -37,7 +37,11 @@ Page({
     face: { species: 'cat', mood: 'calm', breedId: '' },
     rows: [],
     years: [],
-    weight: null
+    weight: null,
+    editing: false,
+    breedLabels: [],
+    breedIds: [],
+    edit: { birth: '', home: '', breedIndex: 0, weight: '', fields: [] }
   },
 
   onShow: function () {
@@ -124,6 +128,120 @@ Page({
       weight: lastW ? { kg: lastW.kg, dateText: PT.fmtYMD(lastW.date) } : null,
       together: stats.together
     });
+  },
+
+  /* ---------- 档案表：编辑 ---------- */
+
+  editOpen: function () {
+    var pet = S.active();
+    if (!pet) return;
+    var breeds = PT.BREEDS[pet.species] || [];
+    var labels = breeds.map(function (b) { return b.label; });
+    var ids = breeds.map(function (b) { return b.id; });
+    var wi = ids.indexOf(pet.breedId || '');
+    var ws = S.weights();
+    var lastW = ws.length ? ws[ws.length - 1] : null;
+
+    this.setData({
+      editing: true,
+      breedLabels: labels,
+      breedIds: ids,
+      edit: {
+        birth: pet.birthday || '',
+        home: pet.homeDate || '',
+        breedIndex: wi < 0 ? 0 : wi,
+        weight: lastW ? String(lastW.kg) : '',
+        fields: (S.fields(pet.id) || []).map(function (f, i) {
+          return { key: f.id || ('n' + i), id: f.id, label: f.label, value: f.value };
+        })
+      }
+    });
+  },
+
+  editCancel: function () {
+    this.setData({ editing: false });
+  },
+
+  pickBirth: function (e) {
+    this.setData({ 'edit.birth': e.detail.value });
+  },
+
+  pickHome: function (e) {
+    this.setData({ 'edit.home': e.detail.value });
+  },
+
+  pickBreed: function (e) {
+    this.setData({ 'edit.breedIndex': +e.detail.value });
+  },
+
+  onInput: function (e) {
+    this.setData({ 'edit.weight': e.detail.value });
+  },
+
+  onField: function (e) {
+    var idx = +e.currentTarget.dataset.idx;
+    var k = e.currentTarget.dataset.k;
+    var patch = {};
+    patch['edit.fields[' + idx + '].' + k] = e.detail.value;
+    this.setData(patch);
+  },
+
+  addField: function () {
+    var list = this.data.edit.fields.slice();
+    list.push({ key: 'n' + Date.now(), id: '', label: '', value: '' });
+    this.setData({ 'edit.fields': list });
+  },
+
+  delField: function (e) {
+    var idx = +e.currentTarget.dataset.idx;
+    var list = this.data.edit.fields.slice();
+    list.splice(idx, 1);
+    this.setData({ 'edit.fields': list });
+  },
+
+  editSave: function () {
+    var pet = S.active();
+    if (!pet) return;
+    var E = this.data.edit;
+    var breeds = PT.BREEDS[pet.species] || [];
+    var breedId = breeds[E.breedIndex] ? breeds[E.breedIndex].id : pet.breedId;
+
+    S.updatePet(pet.id, {
+      birthday: E.birth || '',
+      homeDate: E.home || '',
+      breedId: breedId,
+      breed: breedId
+    });
+
+    /* 自定义字段：先清空再按当前行写回（空行丢弃） */
+    S.fields(pet.id).forEach(function (f) {
+      S.removeField(pet.id, f.id);
+    });
+    E.fields.forEach(function (f) {
+      var label = String(f.label || '').trim();
+      var value = String(f.value || '').trim();
+      if (!label) return;
+      S.addField(pet.id, label, value);
+    });
+
+    /* 体重：变了就当成今天又称了一次 */
+    var w = parseFloat(String(E.weight).replace(/[^\d.]/g, ''));
+    var ws = S.weights();
+    var lastW = ws.length ? ws[ws.length - 1] : null;
+    if (!isNaN(w) && w > 0 && (!lastW || Math.abs(lastW.kg - w) > 0.001)) {
+      var key = PT.todayKey();
+      var day = S.day(key) || { events: [] };
+      var ev = null;
+      (day.events || []).forEach(function (x) {
+        if (x.type === 'weight') ev = x;
+      });
+      if (ev) S.updateEvent(key, ev.id, { num: w });
+      else S.addEvent(key, 'weight', { num: w });
+    }
+
+    this.setData({ editing: false });
+    this.refresh();
+    wx.showToast({ title: '档案已更新', icon: 'none' });
   },
 
   addNode: function () {

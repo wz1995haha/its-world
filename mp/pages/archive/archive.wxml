@@ -9,12 +9,55 @@
       </view>
     </view>
 
-    <view class="sec-title"><text>档案表</text></view>
-    <view class="card">
+    <view class="sec-title">
+      <text>档案表</text>
+      <text class="link" bindtap="{{editing ? 'editCancel' : 'editOpen'}}">{{editing ? '取消' : '编辑'}}</text>
+    </view>
+
+    <view class="card" wx:if="{{!editing}}">
       <view class="kv" wx:for="{{rows}}" wx:key="k">
         <text class="k">{{item.k}}</text>
         <text class="v">{{item.v}}</text>
       </view>
+      <view class="addrow" bindtap="editOpen">＋ 加一项自己的</view>
+    </view>
+
+    <view class="card" wx:if="{{editing}}">
+      <view class="kv edit">
+        <text class="k">出生</text>
+        <picker mode="date" value="{{edit.birth}}" bindchange="pickBirth">
+          <view class="pk">{{edit.birth || '选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="kv edit">
+        <text class="k">到家</text>
+        <picker mode="date" value="{{edit.home}}" bindchange="pickHome">
+          <view class="pk">{{edit.home || '选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="kv edit">
+        <text class="k">品种</text>
+        <picker mode="selector" range="{{breedLabels}}" value="{{edit.breedIndex}}" bindchange="pickBreed">
+          <view class="pk">{{breedLabels[edit.breedIndex]}}</view>
+        </picker>
+      </view>
+      <view class="kv edit">
+        <text class="k">体重</text>
+        <input class="inp" type="digit" value="{{edit.weight}}" data-k="weight" bindinput="onInput" placeholder="kg" />
+      </view>
+
+      <view class="kv edit fld" wx:for="{{edit.fields}}" wx:key="key">
+        <input class="inp fl" value="{{item.label}}" data-idx="{{index}}" data-k="label" bindinput="onField" placeholder="名称" maxlength="12" />
+        <input class="inp fv" value="{{item.value}}" data-idx="{{index}}" data-k="value" bindinput="onField" placeholder="内容" maxlength="60" />
+        <text class="del" data-idx="{{index}}" bindtap="delField">×</text>
+      </view>
+
+      <view class="addrow" bindtap="addField">＋ 加一项</view>
+      <view class="btnrow">
+        <view class="btn primary" bindtap="editSave">保存</view>
+        <view class="btn ghost" bindtap="editCancel">取消</view>
+      </view>
+      <view class="tip">体重改了会当成今天又称了一次。疫苗和驱虫是从「今天」里的记录数出来的。</view>
     </view>
 
     <view class="sec-title">

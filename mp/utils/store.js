@@ -164,6 +164,49 @@
     return true;
   }
 
+  /* ---------------- 档案里的自定义字段（芯片号、血型…） ---------------- */
+
+  function fields(petId) {
+    var p = petById(petId || activeId());
+    return p && p.fields ? p.fields.slice() : [];
+  }
+
+  function addField(petId, label, value) {
+    var p = petById(petId || activeId());
+    if (!p) return null;
+    if (!p.fields) p.fields = [];
+    var f = {
+      id: 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      label: String(label || '').trim().slice(0, 12),
+      value: String(value == null ? '' : value).trim().slice(0, 60)
+    };
+    if (!f.label) return null;
+    p.fields.push(f);
+    save();
+    return f;
+  }
+
+  function updateField(petId, id, patch) {
+    var p = petById(petId || activeId());
+    if (!p || !p.fields) return null;
+    var f = p.fields.filter(function (x) { return x.id === id; })[0];
+    if (!f) return null;
+    if (patch.label != null) f.label = String(patch.label).trim().slice(0, 12);
+    if (patch.value != null) f.value = String(patch.value).trim().slice(0, 60);
+    save();
+    return f;
+  }
+
+  function removeField(petId, id) {
+    var p = petById(petId || activeId());
+    if (!p || !p.fields) return false;
+    var n = p.fields.length;
+    p.fields = p.fields.filter(function (x) { return x.id !== id; });
+    if (p.fields.length === n) return false;
+    save();
+    return true;
+  }
+
   /* ---------------- 每天 ---------------- */
 
   function bucket(petId) {
@@ -492,6 +535,7 @@
     addEvent: addEvent, updateEvent: updateEvent, removeEvent: removeEvent, setNote: setNote,
     customTypes: customTypes, customType: customType, addCustomType: addCustomType, removeCustomType: removeCustomType,
     milestones: milestones, addMilestone: addMilestone, removeMilestone: removeMilestone,
+    fields: fields, addField: addField, updateField: updateField, removeField: removeField,
     addMedia: addMedia, removeMedia: removeMedia, mediaOf: mediaOf,
     generate: generate, generateFor: generateFor, clearDiary: clearDiary, historyHashes: historyHashes,
     allDays: allDays, stats: stats, weights: weights,
