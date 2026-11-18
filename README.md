@@ -15,6 +15,7 @@
 
 - 作者：[@wz1995haha](https://github.com/wz1995haha)
 - 项目地址：https://github.com/wz1995haha/its-world
+- 在线试用（手机上也能开，可直接加到桌面）：https://wz1995haha.github.io/its-world/
 - 许可：MIT（见 [LICENSE](LICENSE)），可自由使用、修改、再发布
 - 制作方式：这个小项目的设计、文案、插画和代码，是和 AI 编程助手
   （DeepSeek Harness）一起反复迭代出来的——从「记录会反过来影响一个活物」这个想法开始，

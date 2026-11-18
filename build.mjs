@@ -28,5 +28,15 @@ if (!html.includes('<style>')) throw new Error('样式没有内联成功');
 mkdirSync(dist, { recursive: true });
 writeFileSync(join(dist, 'index.html'), html, 'utf8');
 
+/* docs/ = 给 GitHub Pages 用的同一份产物（Pages 只认 / 或 /docs） */
+const docs = join(root, 'docs');
+mkdirSync(docs, { recursive: true });
+writeFileSync(join(docs, 'index.html'), html, 'utf8');
+for (const f of ['manifest.json', 'icon-192.png', 'icon-512.png']) {
+  try {
+    writeFileSync(join(docs, f), readFileSync(join(dist, f)));
+  } catch { /* 图标还没生成，跳过 */ }
+}
+
 const kb = (Buffer.byteLength(html, 'utf8') / 1024).toFixed(1);
 console.log(`✓ dist/index.html  ${kb} KB  （单文件，可直接双击打开）`);
