@@ -3218,6 +3218,96 @@ body.no-tabs .tabs { display: none; }
     nameEl.focus();
   }
 
+  /* 备份码：整份数据压缩 + base64，方便复制粘贴到另一台设备
+     1: 开头是 deflate 压缩过的，0: 开头是没压缩的老格式 */
+  function b64FromBytes(bytes) {
+    var bin = '', step = 0x8000;
+    for (var i = 0; i < bytes.length; i += step) {
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + step));
+    }
+    return btoa(bin);
+  }
+
+  function bytesFromB64(b64) {
+    var bin = atob(b64), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  function codeFromJson(json) {
+    var bytes = new TextEncoder().encode(json);
+    if (window.CompressionStream) {
+      return new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw')))
+        .arrayBuffer()
+        .then(function (buf) { return '1:' + b64FromBytes(new Uint8Array(buf)); });
+    }
+    return Promise.resolve('0:' + btoa(unescape(encodeURIComponent(json))));
+  }
+
+  function jsonFromCode(code) {
+    var raw = String(code || '').trim().replace(/\s+/g, '');
+    if (raw.indexOf('1:') === 0) {
+      if (!window.DecompressionStream) return Promise.reject(new Error('这个浏览器不支持'));
+      var bytes = bytesFromB64(raw.slice(2));
+      return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')))
+        .arrayBuffer()
+        .then(function (buf) { return new TextDecoder().decode(new Uint8Array(buf)); });
+    }
+    var plain = raw.indexOf('0:') === 0 ? raw.slice(2) : raw;
+    return Promise.resolve(decodeURIComponent(escape(atob(plain))));
+  }
+
+  function openCodeSheet() {
+    var ov = document.createElement('div');
+    ov.className = 'sheetwrap';
+    ov.innerHTML =
+      '<div class="sheetmask"></div>' +
+      '<div class="avsheet">' +
+      '<div class="avs-h"><b>用备份码恢复</b><button class="avs-x" aria-label="关闭">×</button></div>' +
+      '<p class="avs-tip">把旧手机上「复制备份码」得到的那串字符粘进来。会覆盖这台设备现在的记录。</p>' +
+      '<textarea id="code-in" class="input note" rows="6" placeholder="粘贴备份码…"></textarea>' +
+      '<div class="avs-btns" style="margin-top:14px"><button class="mini accent" data-code="go">恢复</button></div>' +
+      '</div>';
+    var ta = ov.querySelector('#code-in');
+    ov.addEventListener('click', function (ev) {
+      var t = ev.target;
+      var go = t.closest ? t.closest('[data-code="go"]') : null;
+      if (go) {
+        if (!(ta.value || '').trim()) { toast('还没有粘贴'); return; }
+        toast('正在恢复…');
+        jsonFromCode(ta.value).then(function (json) {
+          S.importJSON(json);
+          ov.remove();
+          render({});
+          toast('恢复了 ' + S.pets().length + ' 只');
+        }).catch(function () { toast('这串码读不出来'); });
+        return;
+      }
+      if (t === ov || t.classList.contains('sheetmask') || t.classList.contains('avs-x')) ov.remove();
+    });
+    document.body.appendChild(ov);
+    ta.focus();
+  }
+
+  function copyCode() {
+    codeFromJson(S.exportJSON()).then(function (code) {
+      var done = function (ok) {
+        toast(ok ? '备份码已复制（' + code.length + ' 个字），粘到新手机就能恢复'
+                 : '复制不了，码有 ' + code.length + ' 个字，可以手动全选复制');
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(function () { done(true); }, function () { done(false); });
+        return;
+      }
+      var ta = document.createElement('textarea');
+      ta.value = code;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(true); } catch (e) { done(false); }
+      ta.remove();
+    }).catch(function () { toast('这台设备上生成不了备份码'); });
+  }
+
   function openMedia(mid) {    PT.MEDIA.get(mid).then(function (blob) {
       if (!blob) { toast('这个文件已经找不到了'); return; }
       var url = URL.createObjectURL(blob);
@@ -3745,9 +3835,11 @@ body.no-tabs .tabs { display: none; }
       '<div class="actions">' +
       '<button class="mini" data-act="export">导出备份</button>' +
       '<button class="mini" data-act="import">导入</button>' +
+      '<button class="mini" data-act="code-copy">复制备份码</button>' +
+      '<button class="mini" data-act="code-paste">用备份码恢复</button>' +
       '<button class="mini ghost" data-act="redo">重新开始</button>' +
       '</div>' +
-      '<p class="dim small">日记存在这台设备的浏览器里。导出只带走文字，照片和视频留在原机。</p>' +
+      '<p class="dim small">日记存在这台设备的浏览器里。换手机时：复制备份码，发到新手机上粘进去就行。照片和视频不跟着走。</p>' +
       '</div></div>' +
 
       '<p class="foot">「它眼里的世界」 · 一个只记事实、让它自己写的日记本</p>';
@@ -4584,6 +4676,8 @@ body.no-tabs .tabs { display: none; }
     if (act === 'cleardiary') { S.clearDiary(key); render(); toast('这篇没了。'); return; }
     if (act === 'entry') { go('entry', key); return; }
     if (act === 'export') { download('它眼里的世界-备份.json', S.exportJSON()); return; }
+    if (act === 'code-copy') { copyCode(); return; }
+    if (act === 'code-paste') { openCodeSheet(); return; }
     if (act === 'import') {
       var inp = document.createElement('input');
       inp.type = 'file';
