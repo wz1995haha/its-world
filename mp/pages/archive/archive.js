@@ -1,6 +1,7 @@
 /* archive.js — 档案：一张表 + 一条时间线 */
 var PT = require('../../utils/all.js');
 var themeStyle = require('../../utils/theme-style.js');
+var photo = require('../../utils/photo.js');
 var S = PT.STORE;
 
 function ageText(birthday, dateKey) {
@@ -128,6 +129,43 @@ Page({
       weight: lastW ? { kg: lastW.kg, dateText: PT.fmtYMD(lastW.date) } : null,
       together: stats.together
     });
+  },
+
+  /* ---------- 头像：点一下换 ---------- */
+
+  tapFace: function () {
+    var self = this;
+    var pet = S.active();
+    if (!pet) return;
+    var list = ['上传它的照片', '选一个画的品种'];
+    if (pet.photo) list.push('用回画的');
+    wx.showActionSheet({
+      itemList: list,
+      success: function (r) {
+        if (r.tapIndex === 0) self.choosePhoto();
+        else if (r.tapIndex === 1) self.editOpen();
+        else self.clearPhoto();
+      }
+    });
+  },
+
+  choosePhoto: function () {
+    var self = this;
+    photo.pick(function (path) {
+      if (!path) return;
+      var old = self.data.pet.photo;
+      S.updatePet(self.data.pet.id, { photo: path });
+      photo.drop(old);
+      self.refresh();
+      wx.showToast({ title: '换好了', icon: 'none' });
+    });
+  },
+
+  clearPhoto: function () {
+    photo.drop(this.data.pet.photo);
+    S.updatePet(this.data.pet.id, { photo: '' });
+    this.refresh();
+    wx.showToast({ title: '用回画的了', icon: 'none' });
   },
 
   /* ---------- 档案表：编辑 ---------- */

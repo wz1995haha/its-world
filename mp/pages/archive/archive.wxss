@@ -5,6 +5,13 @@
   gap: 22rpx;
   margin-bottom: 8rpx;
 }
+.avhit { position: relative; flex: none; }
+.avdot {
+  position: absolute; right: -4rpx; bottom: -4rpx;
+  width: 34rpx; height: 34rpx; border-radius: 50%;
+  background: var(--paper-3, #FFFDF8); border: 1rpx solid var(--line, rgba(58, 50, 44, .12));
+  color: var(--muted, #8C8074); font-size: 18rpx; line-height: 32rpx; text-align: center;
+}
 .kv {
   display: flex;
   justify-content: space-between;

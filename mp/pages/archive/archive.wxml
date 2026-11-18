@@ -2,7 +2,10 @@
 <view class="app" style="{{themeStyle}}">
   <block wx:if="{{hasPet}}">
     <view class="head">
-      <face species="{{face.species}}" mood="{{face.mood}}" breed-id="{{face.breedId}}" photo="{{pet.photo}}" />
+      <view class="avhit" bindtap="tapFace">
+        <face species="{{face.species}}" mood="{{face.mood}}" breed-id="{{face.breedId}}" photo="{{pet.photo}}" />
+        <view class="avdot">✎</view>
+      </view>
       <view style="flex:1">
         <view class="h2 serif">{{pet.name}}</view>
         <view class="sub">{{breedLabel}}{{breedLabel ? ' · ' : ''}}{{personLabel}} · 陪伴 {{together}} 天</view>

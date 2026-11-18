@@ -90,7 +90,8 @@ const created = await api(`/repos/${repo}/git/commits`, {
   body: JSON.stringify({
     message,
     tree: newTree.sha,
-    parents: [parent],
+    /* 远端 sha 与本地不同（但树一致）时，新提交必须挂在远端那个 sha 下面 */
+    parents: [remote.object.sha],
     author: { name: an, email: ae, date: aI },
     committer: { name: cn, email: ce, date: cI }
   })

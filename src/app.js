@@ -149,8 +149,105 @@
     });
   }
 
-  function openMedia(mid) {
-    PT.MEDIA.get(mid).then(function (blob) {
+  /* 头像：有照片用照片，没有就用画的那张 */
+  function faceOf(pet, mood, opts) {
+    if (pet && pet.photo) {
+      return '<img class="face-photo" src="' + pet.photo + '" alt="">';
+    }
+    return PT.ART.face(pet.species, mood, opts || {});
+  }
+
+  /* 把选中的图片缩成 320×320 的方图，存成 dataURL（不放 IndexedDB，换设备导出时一起带走） */
+  function shrinkAvatar(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var S0 = 320;
+          var w = img.naturalWidth, h = img.naturalHeight;
+          var side = Math.min(w, h);
+          var cv = document.createElement('canvas');
+          cv.width = S0; cv.height = S0;
+          var g = cv.getContext('2d');
+          g.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, S0, S0);
+          URL.revokeObjectURL(url);
+          resolve(cv.toDataURL('image/jpeg', 0.84));
+        } catch (e) { URL.revokeObjectURL(url); reject(e); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('这张图打不开')); };
+      img.src = url;
+    });
+  }
+
+  /* 换头像的浮层：画的那 11/15 张任选，或者传一张自己的照片 */
+  function openAvatar() {
+    var pet = S.active();
+    if (!pet) return;
+    var breeds = PT.BREEDS[pet.species] || [];
+    var ov = document.createElement('div');
+    ov.className = 'sheetwrap';
+    ov.innerHTML =
+      '<div class="sheetmask"></div>' +
+      '<div class="avsheet">' +
+      '<div class="avs-h"><b>换它的头像</b><button class="avs-x" aria-label="关闭">×</button></div>' +
+      '<p class="avs-tip">照片会裁成正方形 320×320 存下来，跟着「导出备份」一起走。</p>' +
+      '<div class="avs-btns">' +
+      '<button class="mini accent" data-a="photo">上传一张照片</button>' +
+      (pet.photo ? '<button class="mini ghost" data-a="drawn">用回画的</button>' : '') +
+      '</div>' +
+      '<div class="avs-sep"><span>或者，选一张画的</span></div>' +
+      '<div class="breeds avs-grid">' +
+      breeds.map(function (b) {
+        return '<button class="breed' + (b.id === pet.breedId ? ' on' : '') + '" data-b="' + b.id + '">' +
+          '<span class="bd-face">' + PT.ART.face(pet.species, 'calm', { tilt: 0, breed: b }) + '</span>' +
+          '<span class="bd-name">' + esc(b.label) + '</span></button>';
+      }).join('') +
+      '</div>' +
+      '<input type="file" id="file-avatar" accept="image/*" hidden>' +
+      '</div>';
+
+    var inp = ov.querySelector('#file-avatar');
+    ov.addEventListener('click', function (ev) {
+      var t = ev.target;
+      var bBtn = t.closest ? t.closest('[data-b]') : null;
+      if (bBtn) {
+        var id = bBtn.dataset.b;
+        S.updatePet(pet.id, { breedId: id, breed: id, photo: '' });
+        close(); render({});
+        toast('换好了');
+        return;
+      }
+      var aBtn = t.closest ? t.closest('[data-a]') : null;
+      if (aBtn) {
+        if (aBtn.dataset.a === 'photo') { inp.click(); return; }
+        S.updatePet(pet.id, { photo: '' });
+        close(); render({});
+        toast('用回画的了');
+        return;
+      }
+      if (t === ov || t.classList.contains('sheetmask') || t.classList.contains('avs-x')) close();
+    });
+
+    inp.addEventListener('change', function () {
+      var f = inp.files && inp.files[0];
+      if (!f) return;
+      toast('正在处理照片…');
+      shrinkAvatar(f).then(function (dataUrl) {
+        S.updatePet(pet.id, { photo: dataUrl });
+        close(); render({});
+        toast('换好了');
+      }).catch(function (e) {
+        toast(e && e.message ? e.message : '这张图用不了');
+      });
+      inp.value = '';
+    });
+
+    function close() { ov.remove(); }
+    document.body.appendChild(ov);
+  }
+
+  function openMedia(mid) {    PT.MEDIA.get(mid).then(function (blob) {
       if (!blob) { toast('这个文件已经找不到了'); return; }
       var url = URL.createObjectURL(blob);
       var meta = null;
@@ -326,7 +423,7 @@
     return '<div class="petswitch">' + pets.map(function (p) {
       var on = p.id === cur.id;
       return '<button class="psw' + (on ? ' on' : '') + '" data-act="switch-pet" data-id="' + p.id + '">' +
-        '<span class="psw-face">' + PT.ART.face(p.species, on ? 'happy' : 'calm', { tilt: 0, breed: PT.breedOf(p) }) + '</span>' +
+        '<span class="psw-face">' + faceOf(p, on ? 'happy' : 'calm', { tilt: 0, breed: PT.breedOf(p) }) + '</span>' +
         '<span class="psw-name">' + esc(p.name) + '</span></button>';
     }).join('') + '</div>';
   }
@@ -469,7 +566,7 @@
       '</header>' +
 
       '<section class="hero card">' +
-      '<div class="hero-face" style="color:' + mo.color + '">' + PT.ART.face(pet.species, (d && d.diary ? d.diary.mood : 'calm'), { tilt: -2, breed: PT.breedOf(pet) }) + '</div>' +
+      '<div class="hero-face" style="color:' + mo.color + '">' + faceOf(pet, (d && d.diary ? d.diary.mood : 'calm'), { tilt: -2, breed: PT.breedOf(pet) }) + '</div>' +
       '<div class="hero-say">' +
       '<div class="bubble">' + esc(PT.WRITER.flavor(pet, key)) + '</div>' +
       '<div class="hero-meta">' + esc(pet.name) + (d && d.events.length ? ' · 今天记了 ' + d.events.length + ' 件事' : ' · 今天还没有记录') + '</div>' +
@@ -558,7 +655,7 @@
       '<h1 class="page-title">第 <em>' + dayNo(key) + '</em> 天</h1>' +
       '</header>' +
       '<div class="entry-hero">' +
-      '<div class="eh-face" style="color:' + mo.color + '">' + PT.ART.face(pet.species, d.diary.mood, { tilt: -3, breed: PT.breedOf(pet) }) + '</div>' +
+      '<div class="eh-face" style="color:' + mo.color + '">' + faceOf(pet, d.diary.mood, { tilt: -3, breed: PT.breedOf(pet) }) + '</div>' +
       '<div class="eh-meta"><span class="mood" style="color:' + mo.color + ';border-color:' + mo.color + '33">' + mo.emoji + ' ' + mo.label + '</span>' +
       '<div class="eh-tags">' + (d.diary.tags || []).map(function (t) { return '<span>#' + esc(t) + '</span>'; }).join('') + '</div></div>' +
       '</div>' +
@@ -590,7 +687,7 @@
 
   function petRow(p, isOn) {
     return '<button class="petrow' + (isOn ? ' on' : '') + '" data-act="switch-pet" data-id="' + p.id + '">' +
-      '<span class="pr-face">' + PT.ART.face(p.species, isOn ? 'happy' : 'calm', { tilt: 0, breed: PT.breedOf(p) }) + '</span>' +
+      '<span class="pr-face">' + faceOf(p, isOn ? 'happy' : 'calm', { tilt: 0, breed: PT.breedOf(p) }) + '</span>' +
       '<span class="pr-main"><b>' + esc(p.name) + '</b><i>' + esc(p.bio || (p.species === 'dog' ? '一只狗' : '一只猫')) + '</i></span>' +
       (isOn ? '<span class="pr-on">现在看的是它</span>' : '') +
       '</button>';
@@ -631,7 +728,7 @@
     else if (pet.personalityText) pLabel = pLabel + ' · ' + pet.personalityText;
     return '' +
       '<div class="pet-hero">' +
-      '<div class="ph-face">' + PT.ART.face(pet.species, 'calm', { tilt: -2, breed: PT.breedOf(pet) }) + '</div>' +
+      '<button class="ph-face" data-act="avatar" aria-label="换头像">' + faceOf(pet, 'calm', { tilt: -2, breed: PT.breedOf(pet) }) + '</button>' +
       '<h1 class="ph-name">' + esc(pet.name) + '</h1>' +
       '<p class="ph-sub">' + esc(PT.breedLabel(pet) || (pet.species === 'dog' ? '狗' : '猫')) + (pLabel ? ' · ' + esc(pLabel) : '') + '</p>' +
       (pet.bio ? '<p class="ph-bio">' + esc(pet.bio) + '</p>' : '') +
@@ -929,7 +1026,7 @@
 
     return '' +
       '<div class="arc-head">' +
-      '<div class="arc-face">' + PT.ART.face(pet.species, 'calm', { tilt: -2, breed: PT.breedOf(pet) }) + '</div>' +
+      '<button class="arc-face" data-act="avatar" aria-label="换头像">' + faceOf(pet, 'calm', { tilt: -2, breed: PT.breedOf(pet) }) + '</button>' +
       '<div class="arc-id">' +
       '<h1>' + esc(pet.name) + '</h1>' +
       '<p>' + esc(PT.breedLabel(pet) || (pet.species === 'dog' ? '狗' : '猫')) +
@@ -1420,6 +1517,8 @@
       render();
       return;
     }
+
+    if (act === 'avatar') { openAvatar(); return; }
 
     if (act === 'edit-profile') {
       var pp = S.active();
