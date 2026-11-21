@@ -66,6 +66,14 @@ Page({
 
   onShow: function () {
     this.refresh();
+    /* 一分钟最多拉一次：别的设备改了这边能看到 */
+    if (cloud.enabled()) {
+      var now = Date.now();
+      if (!this._lastPull || now - this._lastPull > 60000) {
+        this._lastPull = now;
+        this.pull();
+      }
+    }
   },
 
   /* ---------------- 云同步 ---------------- */
