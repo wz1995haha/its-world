@@ -705,7 +705,7 @@
 
   /* ---------------- 「发生了什么」的按钮：排序 / 收起 / 加回来 ---------------- */
 
-  var chips = { edit: false };
+  var chips = { edit: false, open: false };
 
   function allChipIds() {
     return PT.TYPES.map(function (t) { return t.id; })
@@ -854,22 +854,24 @@
 
       '<section class="block">' +
       '<div class="sec-title row"><span>发生了什么</span><button class="via" data-act="chip-edit">' + (chips.edit ? '完成' : '编辑') + '</button></div>' +
-      '<div class="chips' + (chips.edit ? ' editing' : '') + '">' + chipRow + '</div>' +
+      '<div class="chips' + (chips.edit ? ' editing' : (chips.open ? ' opened' : ' collapsed')) + '">' + chipRow + '</div>' +
+      (!chips.edit && !chips.open && chipIds().length > 8 ? '<button class="chip-more" data-act="chip-more">展开全部 ' + chipIds().length + ' 个</button>' : '') +
+      (!chips.edit && chips.open ? '<button class="chip-more up" data-act="chip-more">收起来</button>' : '') +
       (chips.edit ? chipPalette() : '') +
       (composer.open && !chips.edit ? composerPanel(key) : '') +
       '</section>' +
 
       '<section class="block">' +
-      '<div class="sec-title">今天的事实 <span class="dim">' + (hasEvents ? d.events.length + ' 条' : '') + '</span></div>' +
-      '<div class="evs">' + evs + '</div>' +
-      '<textarea class="note" id="note" data-key="' + key + '" rows="2" maxlength="120" placeholder="今天它干了什么？一句话就够，比如「它偷了一根胡萝卜」">' + esc(d ? d.note : '') + '</textarea>' +
+      '<div class="sec-title row"><span>写今天的日记</span><span class="dim">选填</span></div>' +
+      '<textarea class="note" id="note" data-key="' + key + '" rows="3" maxlength="120" placeholder="今天它干了什么？一句话就够，比如「它偷了一根胡萝卜」">' + esc(d ? d.note : '') + '</textarea>' +
       '<p class="dim small notehint">' + ((d && (d.note || '').trim()) ? '它今天的日记会围绕这一句写。' : '写了这一句，日记就围着它展开；不写就按上面点的事件写。') + '</p>' +
+      '<div class="media-row"><span class="mr-label">拍到的</span>' + mediaStrip(key) + '</div>' +
       '</section>' +
 
-      '<section class="block">' +
-      '<div class="sec-title">今天拍到的 <span class="dim">' + S.mediaOf(key).length + '</span></div>' +
-      mediaStrip(key) +
-      '</section>' +
+      (hasEvents ? '<section class="block">' +
+      '<div class="sec-title">这次记的数值 <span class="dim">' + d.events.length + ' 条</span></div>' +
+      '<div class="evs">' + evs + '</div>' +
+      '</section>' : '') +
 
       '<button class="primary big' + (canWrite ? '' : ' disabled') + '" data-act="gen" data-key="' + key + '"' + (canWrite ? '' : ' disabled') + '>' + genLabel + '</button>' +
 
@@ -1844,6 +1846,7 @@
       toast('换好了');
       return;
     }
+    if (act === 'chip-more') { chips.open = !chips.open; render({ keep: true }); return; }
     if (act === 'chip-edit') {
       chips.edit = !chips.edit;
       composer.open = false;
