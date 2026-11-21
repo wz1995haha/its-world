@@ -277,5 +277,19 @@ ok('长句也能取到主题', nb.title.indexOf('当场抓住') >= 0 || nb.body.
 S.setNote(nk, '');
 var nn = S.generate(nk, 2);
 ok('没写那句话时还是模板', nn.body.split('\n')[0].indexOf('偷了一根胡萝卜') < 0);
+
+/* — 日记：一天记了好几条 — */
+var mk = '2026-04-04';
+var mb = new Date(mk + 'T00:00:00').getTime();
+[['meal', 8, 45], ['poop', 9, null], ['walk', 14, 30], ['play', 15, null], ['sleep', 22, null]].forEach(function (p) {
+  var ev = S.addEvent(mk, p[0], p[2] != null ? { num: p[2] } : {});
+  if (ev) ev.at = mb + p[1] * 3600e3;
+});
+var md = S.generate(mk, 0);
+var mlines = md.body.split('\n').filter(Boolean);
+ok('几条都写进去了', mlines.length >= 6 && mlines.length <= 10);
+ok('按早上/白天/晚上排', /早上|天刚亮|白天|傍晚|晚上|天黑/.test(md.body));
+ok('事实都留了痕', md.tags.length >= 1);
+ok('没有重复的句子', (function () { var seen = {}; return mlines.every(function (l) { if (seen[l]) return false; seen[l] = 1; return true; }); })());
 console.log('\n' + (fail ? '✗ ' + fail + ' 项失败' : '✓ 全部通过') + '（' + pass + '/' + (pass + fail) + '）');
 process.exit(fail ? 1 : 0);

@@ -76,7 +76,7 @@
       '<div class="entry-body">' + body + '</div>' +
       mediaGrid(key) +
       (d.diary.stale ? '<div class="stale">这一天的事实后来改过，这篇是当时的版本。</div>' : '') +
-      '<details class="facts"><summary>那天的事实</summary>' + factsHTML(d) + '</details>' +
+      factChips(d) +
       (opts.hideActions ? '' :
         '<div class="entry-actions">' +
         '<button class="mini" data-act="reroll" data-key="' + key + '">重写</button>' +
@@ -782,6 +782,19 @@
     return { id: e.type, label: e.label || '自定义', icon: e.icon || '⭐️', custom: true };
   }
 
+  /* 日记下面那排「那天的事实」：把选过的几条都摆出来，能看见日记是从哪儿来的 */
+  function factChips(d) {
+    if (!d || !d.events || !d.events.length) return '';
+    var items = d.events.map(function (e) {
+      var t = typeInfo(e);
+      var val = '';
+      if (e.num != null && e.num !== '') val = ' ' + e.num;
+      else if (e.opt) val = ' ' + e.opt;
+      return '<span class="fchip">' + t.icon + ' ' + esc(t.label) + esc(val) + '</span>';
+    });
+    return '<div class="facts-line"><span class="fl-label">那天的事实</span>' +
+      '<div class="fchips">' + items.join('') + '</div></div>';
+  }
   function renderToday() {
     var key = PT.todayKey();
     var pet = S.active() || {};

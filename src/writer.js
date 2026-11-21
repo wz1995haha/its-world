@@ -350,6 +350,12 @@
       status: ['今天状态很好', '一切都在位上', '满格的一天', '状态：好']
     },
 
+    bridge: {
+      morning: ['早上先说。', '天刚亮的时候就这些。', '早上，一切照旧。'],
+      day: ['白天就这样过去了。', '到了白天。', '后来。'],
+      evening: ['天黑了以后。', '晚上。', '入夜了。'],
+      solo: ['一天就这么几件事，我按顺序说。', '不多，就这些。', '事情不多，但都记住了。']
+    },
     focusOpen: [
       '你说{n}。就这一句，够我想一整天了。',
       '{n}——这件事我本来不打算承认的。',
@@ -625,14 +631,32 @@
     }
 
     if (!note) {
-      var opener = pick(rng, LEX.open.concat(species === 'dog' ? LEX.openDog : LEX.openCat), used);
-      if (lead && LEX.openBig[lead.type] && rng() < 0.72) {
-        opener = pick(rng, LEX.openBig[lead.type], used, {}) || opener;
+      var big = lead && LEX.openBig[lead.type] ? pick(rng, LEX.openBig[lead.type], used, {}) : '';
+      if (big) {
+        paras.push(big);
+      } else if (!beats.length) {
+        paras.push(pick(rng, LEX.open.concat(species === 'dog' ? LEX.openDog : LEX.openCat), used));
       }
-      paras.push(opener);
     }
 
-    if (!note) beats.forEach(function (b) {
+    var bridgeDone = {};
+    var slot = function (b) {
+      if (!b.at) return 'solo';
+      var h = new Date(b.at).getHours();
+      return h < 12 ? 'morning' : (h < 18 ? 'day' : 'evening');
+    };
+    /* 只有跨时段才需要「早上/白天/晚上」这种过场，同一天同一时段的几条不用 */
+    var slotSet = {};
+    beats.forEach(function (b) { slotSet[slot(b)] = 1; });
+    var multiAct = Object.keys(slotSet).length > 1;
+    if (!note) beats.forEach(function (b, bi) {
+      if (multiAct) {
+        var k = slot(b);
+        if (!bridgeDone[k]) {
+          bridgeDone[k] = 1;
+          paras.push(pick(rng, LEX.bridge[k] || LEX.bridge.solo, used, {}));
+        }
+      }
       var line = pick(rng, beatLines(b, pet), used, { num: b.num != null && b.num !== '' });
       if (!line) return;
       if (line.indexOf('{n}') >= 0) line = line.replace(/\{n\}/g, fmtNum(b.num));
@@ -652,10 +676,10 @@
         } else if (rng() < 0.4) {
           paras.push(pick(rng, LEX.personCustom, used));
         }
-      } else if (rng() < 0.62) {
+      } else if (rng() < (beats.length > 3 ? 0.3 : 0.62)) {
         paras.push(pick(rng, LEX.person[pet.personality] || LEX.person.aloof, used));
       }
-      paras.push(pick(rng, LEX.observe, used));
+      if (beats.length < 4) paras.push(pick(rng, LEX.observe, used));
       paras.push(pick(rng, LEX.close, used));
     }
 
