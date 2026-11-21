@@ -258,5 +258,24 @@ ok('能删掉', (function () {
 })());
 ok('删不存在的返回 false', S.removeBreed('nope') === false);
 
+
+/* — 日记：围绕你写的那句话 — */
+var nk = '2026-03-03';
+var notePet = S.active();
+S.addEvent(nk, 'meal', { num: 45 });
+S.addEvent(nk, 'walk', { num: 30 });
+S.setNote(nk, '它偷了一根胡萝卜');
+S.addMedia(nk, { kind: 'video', id: 'v1', w: 320, h: 176 });
+var nd = S.generate(nk, 0);
+ok('有那句话时开头就是它', nd.body.split('\n')[0].includes('偷了一根胡萝卜'));
+ok('正文反复提到关键词', (nd.body.match(/胡萝卜/g) || []).length >= 2);
+ok('标题也围着它', nd.title.includes('胡萝卜'));
+ok('不再套旧模板', nd.body.indexOf('你写下') < 0);
+S.setNote(nk, '今天偷了一根胡萝卜，被当场抓住');
+var nb = S.generate(nk, 1);
+ok('长句也能取到主题', nb.title.indexOf('当场抓住') >= 0 || nb.body.indexOf('当场抓住') >= 0);
+S.setNote(nk, '');
+var nn = S.generate(nk, 2);
+ok('没写那句话时还是模板', nn.body.split('\n')[0].indexOf('偷了一根胡萝卜') < 0);
 console.log('\n' + (fail ? '✗ ' + fail + ' 项失败' : '✓ 全部通过') + '（' + pass + '/' + (pass + fail) + '）');
 process.exit(fail ? 1 : 0);

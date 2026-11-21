@@ -814,6 +814,7 @@
     }
 
     var hasEvents = d && d.events.length > 0;
+    var canWrite = hasEvents || !!(d && (d.note || '').trim()) || !!(d && d.media && d.media.length);
     var genLabel = d && d.diary ? '重新写今天的日记' : '让它写今天的日记';
 
     var entry = '';
@@ -848,7 +849,8 @@
       '<section class="block">' +
       '<div class="sec-title">今天的事实 <span class="dim">' + (hasEvents ? d.events.length + ' 条' : '') + '</span></div>' +
       '<div class="evs">' + evs + '</div>' +
-      '<textarea class="note" id="note" data-key="' + key + '" rows="2" maxlength="60" placeholder="想补一句就写在这儿（选填）">' + esc(d ? d.note : '') + '</textarea>' +
+      '<textarea class="note" id="note" data-key="' + key + '" rows="2" maxlength="120" placeholder="今天它干了什么？一句话就够，比如「它偷了一根胡萝卜」">' + esc(d ? d.note : '') + '</textarea>' +
+      '<p class="dim small notehint">' + ((d && (d.note || '').trim()) ? '它今天的日记会围绕这一句写。' : '写了这一句，日记就围着它展开；不写就按上面点的事件写。') + '</p>' +
       '</section>' +
 
       '<section class="block">' +
@@ -856,7 +858,7 @@
       mediaStrip(key) +
       '</section>' +
 
-      '<button class="primary big' + (hasEvents ? '' : ' disabled') + '" data-act="gen" data-key="' + key + '"' + (hasEvents ? '' : ' disabled') + '>' + genLabel + '</button>' +
+      '<button class="primary big' + (canWrite ? '' : ' disabled') + '" data-act="gen" data-key="' + key + '"' + (canWrite ? '' : ' disabled') + '>' + genLabel + '</button>' +
 
       entry +
       '<p class="foot">事实是给你看的，日记是它写的。同一个日子，两种记忆。</p>';

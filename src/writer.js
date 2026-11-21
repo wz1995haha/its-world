@@ -350,6 +350,34 @@
       status: ['今天状态很好', '一切都在位上', '满格的一天', '状态：好']
     },
 
+    focusOpen: [
+      '你说{n}。就这一句，够我想一整天了。',
+      '{n}——这件事我本来不打算承认的。',
+      '只发生了一件事：{n}。别的都不算数。',
+      '{n}。你写下来的时候，我就在旁边看着。',
+      '{n}。我没觉得自己做错了什么。',
+      '你记的是：{n}。我记的是你写它时候的表情。'
+    ],
+    focusRiff: [
+      '「{k}」这件事，我有我的道理。',
+      '你看见「{k}」的时候笑了一下。那我就当没事了。',
+      '关于「{k}」，我没什么要解释的。',
+      '「{k}」本来就在那儿，我只是刚好经过。',
+      '你后来一直提「{k}」。我就当你在夸我。',
+      '我现在还记得「{k}」当时是什么样子。'
+    ],
+    focusShot: [
+      '你举着那个小方块对着我。我假装没看见。',
+      '拍的是「{k}」——那我不躲了。',
+      '那个小方块一直跟着我，我只好把「{k}」又演了一遍。'
+    ],
+    focusClose: [
+      '这件事就到这儿。剩下的明天再说。',
+      '反正你记住了。我也记住了。',
+      '别的都可以忘，「{k}」不行。',
+      '我把今天折好，放在「{k}」旁边。'
+    ],
+    focusTitle: ['关于「{k}」', '今天的主角是「{k}」', '「{k}」这件事', '我记住的是「{k}」', '{k}'],
     noteTpl: [      '你写下：「{n}」。我不识字，但我猜那里面有我。',
       '你在手机上记了一笔：「{n}」。字很小，可我知道你在说我。',
       '你说了一句「{n}」，语气很轻。我记下了。'
@@ -508,6 +536,24 @@
     return lines;
   }
 
+  /* 从「你写的那句话」里挑一个像样的词，用来当标题和线索 */
+  var NOTE_STOP = ['我', '你', '它', '他', '她', '们', '的', '了', '着', '过', '得', '地', '是', '在', '和', '跟', '把', '被', '给', '就', '都', '也', '又', '还', '很', '太', '不', '没', '有', '这', '那', '个', '只', '次', '今天', '然后', '后来', '一下', '一个', '一根', '一只', '一块', '说', '看', '去', '来', '上', '下', '里', '吗', '呢', '啊', '吧', '呀', '哦', '嗯'];
+
+  function noteTopic(note) {
+    var s = String(note || '')
+      .replace(/[「」“”"'’]/g, ' ')
+      .replace(/[，。！？、,.!?;；:：…—~～]/g, ' ');
+    var best = '';
+    s.split(/\s+/).forEach(function (part) {
+      var t = part;
+      NOTE_STOP.forEach(function (w) { t = t.split(w).join(' '); });
+      t.split(/\s+/).forEach(function (w) {
+        if (w.length >= 2 && w.length > best.length) best = w;
+      });
+    });
+    return best;
+  }
+
   /* ---------------- 主函数 ---------------- */
 
   function generate(opt) {
@@ -537,13 +583,56 @@
       return pa - pb;
     })[0];
 
-    var opener = pick(rng, LEX.open.concat(species === 'dog' ? LEX.openDog : LEX.openCat), used);
-    if (lead && LEX.openBig[lead.type] && rng() < 0.72) {
-      opener = pick(rng, LEX.openBig[lead.type], used, {}) || opener;
-    }
-    paras.push(opener);
+    var media = opt.media || [];
+    var hasPhoto = false, hasVideo = false;
+    media.forEach(function (m) {
+      if (m && m.kind === 'photo') hasPhoto = true;
+      if (m && m.kind === 'video') hasVideo = true;
+    });
 
-    beats.forEach(function (b) {
+    /* 有「你写的那句话」时，整篇围着它写，不再走模板 */
+    var topic = note ? noteTopic(note) : '';
+    if (note) {
+      var plain = note.replace(/[「」]/g, '');
+      var filled = function (list) {
+        var t = pick(rng, list, used);
+        if (!t) return '';
+        return t.replace(/\{n\}/g, plain).replace(/\{k\}/g, topic || plain);
+      };
+      paras.push(filled(LEX.focusOpen));
+      paras.push(filled(LEX.focusRiff));
+      if (hasPhoto || hasVideo) {
+        var shot = topic ? pick(rng, LEX.focusShot, used) : '';
+        if (shot) paras.push(shot.replace(/\{k\}/g, topic));
+      }
+      if (beats.length) {
+        var bl = pick(rng, beatLines(beats[0], pet), used, { num: beats[0].num != null && beats[0].num !== '' });
+        if (bl) {
+          if (bl.indexOf('{n}') >= 0) bl = bl.replace(/\{n\}/g, fmtNum(beats[0].num));
+          if (bl.indexOf('{x}') >= 0) bl = bl.replace(/\{x\}/g, (beats[0].label || labelOf(beats[0])).replace(/[「」]/g, ''));
+          paras.push(bl);
+        }
+      }
+      /* 性格那一句照旧，气口要一致 */
+      var ptxtF = (pet.personalityText || '').trim();
+      if (pet.personality === 'custom' || (!LEX.person[pet.personality] && !!ptxtF)) {
+        if (ptxtF && rng() < 0.75) paras.push(pick(rng, LEX.personQuote, used).replace(/\{x\}/g, ptxtF.replace(/[「」]/g, '')));
+      } else {
+        paras.push(pick(rng, LEX.person[pet.personality] || LEX.person.aloof, used));
+      }
+      var cl = pick(rng, LEX.focusClose, used, {});
+      paras.push(cl ? cl.replace(/\{k\}/g, topic || plain) : pick(rng, LEX.close, used));
+    }
+
+    if (!note) {
+      var opener = pick(rng, LEX.open.concat(species === 'dog' ? LEX.openDog : LEX.openCat), used);
+      if (lead && LEX.openBig[lead.type] && rng() < 0.72) {
+        opener = pick(rng, LEX.openBig[lead.type], used, {}) || opener;
+      }
+      paras.push(opener);
+    }
+
+    if (!note) beats.forEach(function (b) {
       var line = pick(rng, beatLines(b, pet), used, { num: b.num != null && b.num !== '' });
       if (!line) return;
       if (line.indexOf('{n}') >= 0) line = line.replace(/\{n\}/g, fmtNum(b.num));
@@ -551,40 +640,31 @@
       paras.push(line);
     });
 
-    var ptxt = (pet.personalityText || '').trim();
-    var isCustom = pet.personality === 'custom' || (!LEX.person[pet.personality] && !!ptxt);
-    var media = opt.media || [];
-    var hasPhoto = false, hasVideo = false;
-    media.forEach(function (m) {
-      if (m && m.kind === 'photo') hasPhoto = true;
-      if (m && m.kind === 'video') hasVideo = true;
-    });
-    if (hasPhoto || hasVideo) {
-      paras.push(pick(rng, LEX.photo.concat(hasVideo ? LEX.videoShot : []), used));
-    }
-
-    if (isCustom) {
-      if (ptxt && rng() < 0.8) {
-        paras.push(pick(rng, LEX.personQuote, used).replace(/\{x\}/g, ptxt.replace(/[「」]/g, '')));
-      } else if (rng() < 0.4) {
-        paras.push(pick(rng, LEX.personCustom, used));
+    if (!note) {
+      var ptxt = (pet.personalityText || '').trim();
+      var isCustom = pet.personality === 'custom' || (!LEX.person[pet.personality] && !!ptxt);
+      if (hasPhoto || hasVideo) {
+        paras.push(pick(rng, LEX.photo.concat(hasVideo ? LEX.videoShot : []), used));
       }
-    } else if (rng() < 0.62) {
-      paras.push(pick(rng, LEX.person[pet.personality] || LEX.person.aloof, used));
+      if (isCustom) {
+        if (ptxt && rng() < 0.8) {
+          paras.push(pick(rng, LEX.personQuote, used).replace(/\{x\}/g, ptxt.replace(/[「」]/g, '')));
+        } else if (rng() < 0.4) {
+          paras.push(pick(rng, LEX.personCustom, used));
+        }
+      } else if (rng() < 0.62) {
+        paras.push(pick(rng, LEX.person[pet.personality] || LEX.person.aloof, used));
+      }
+      paras.push(pick(rng, LEX.observe, used));
+      paras.push(pick(rng, LEX.close, used));
     }
-
-    paras.push(pick(rng, LEX.observe, used));
-
-    if (note) {
-      var tpl = pick(rng, LEX.noteTpl, used);
-      paras.push(tpl.replace(/\{n\}/g, note.replace(/[「」]/g, '')));
-    }
-
-    paras.push(pick(rng, LEX.close, used));
 
     var titles = LEX.title[mood] || LEX.title.calm;
     var title = '';
-    if (lead && LEX.titleBig[lead.type] && rng() < 0.8) {
+    if (note && topic) {
+      title = pick(rng, LEX.focusTitle, used, {}).replace(/\{k\}/g, topic);
+    }
+    if (!title && lead && LEX.titleBig[lead.type] && !note && rng() < 0.8) {
       title = pick(rng, LEX.titleBig[lead.type], used, {});
     }
     if (!title) title = pick(rng, titles, used);
