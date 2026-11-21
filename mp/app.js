@@ -1,15 +1,18 @@
 /* app.js — 小程序入口
  *
- * 云开发这一段现在只是「能开就开」：
+ * 云开发是「能开就开」：
  * 没填环境 ID 就安静地跳过，本地的记录功能完全不依赖它。
+ * 填法：把下面的 ENV_ID 换成自己的云开发环境 ID（形如 itsworld-3gxxxxx）。
  */
 var PT = require('./utils/all.js');
+
+var ENV_ID = ''; /* ← 在这里填你的环境 ID */
 
 App({
   globalData: {
     openid: '',
     cloudReady: false,
-    envId: '' /* 填上自己的云开发环境 ID 就会自动登录 */
+    envId: ENV_ID
   },
 
   onLaunch: function () {
@@ -19,7 +22,7 @@ App({
       return;
     }
     if (!this.globalData.envId) {
-      console.info('[mp] 没填云开发环境 ID，先用本地存储');
+      console.info('[mp] 没填云开发环境 ID，先用本地存储（填了就会自动登录并同步）');
       return;
     }
     try {

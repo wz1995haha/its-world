@@ -52,6 +52,7 @@
       </view>
     </view>
 
+    <!-- 发生了什么：平时只露两行 -->
     <view class="sec-title">
       <text>发生了什么</text>
       <text class="link" bindtap="toggleChipsEdit">{{chipsEdit ? '完成' : '编辑'}}</text>
@@ -60,7 +61,7 @@
     <view class="chips">
       <view
         class="chip {{item.mine ? 'mine' : ''}} {{chipsEdit ? 'editing' : ''}}"
-        wx:for="{{chipsShown}}"
+        wx:for="{{chipsEdit || chipsOpen ? chipsShown : chipsTop}}"
         wx:key="id"
         data-id="{{item.id}}"
         bindtap="tapChip"
@@ -75,6 +76,16 @@
       </view>
     </view>
 
+    <view wx:if="{{!chipsEdit && chipsShown.length > chipsTop.length}}" class="chip-more" bindtap="toggleChipsOpen">
+      {{chipsOpen ? '收起来' : '展开全部 ' + chipsShown.length + ' 个'}}
+    </view>
+    <view wx:if="{{chipsOpen && chipsHidden.length && !chipsEdit}}" class="chips" style="margin-top:14rpx">
+      <view class="chip" wx:for="{{chipsHidden}}" wx:key="id" data-id="{{item.id}}" bindtap="showChip">
+        <text class="ci">{{item.icon}}</text>
+        <text class="ct">{{item.label}}</text>
+      </view>
+    </view>
+
     <block wx:if="{{chipsEdit && chipsHidden.length}}">
       <view class="sec-title"><text>收起来了 · 点一下加回来</text></view>
       <view class="chips">
@@ -85,11 +96,47 @@
       </view>
     </block>
 
+    <!-- 写今天的日记 -->
     <view class="sec-title">
-      <text>今天的事实</text>
+      <text>写今天的日记</text>
+      <text class="dim">选填</text>
+    </view>
+
+    <textarea
+      class="note"
+      placeholder="今天它干了什么？一句话就够，比如「它偷了一根胡萝卜」"
+      value="{{note}}"
+      bindinput="onNote"
+      bindblur="blurNote"
+      maxlength="120"
+      auto-height
+    />
+    <view class="notehint">{{note ? '它今天的日记会围绕这一句写。' : '写了这一句，日记就围着它展开；不写就按上面点的事件写。'}}</view>
+
+    <view class="media-row">
+      <text class="mr-label">拍到的</text>
+      <view class="mbtn" bindtap="pickPhotoDay"><text class="mi">📷</text><text>照片</text></view>
+      <view class="mbtn" bindtap="pickVideoDay"><text class="mi">🎬</text><text>视频</text></view>
+      <text wx:if="{{mediaCount}}" class="dim" style="margin-left:auto">{{mediaCount}}</text>
+    </view>
+
+    <view wx:if="{{mediaCount}}" class="mstrip">
+      <view class="mthumb" wx:for="{{media}}" wx:key="id" data-item="{{item}}" bindtap="previewMedia">
+        <image wx:if="{{item.kind === 'photo'}}" class="mimg" src="{{item.url || item.path}}" mode="aspectFill" />
+        <view wx:else class="mvideo">
+          <image wx:if="{{item.url || item.path}}" class="mimg" src="{{item.url || item.path}}" mode="aspectFill" />
+          <text class="mplay">▶</text>
+        </view>
+        <text class="mdel" data-id="{{item.id}}" catchtap="delMedia">×</text>
+      </view>
+    </view>
+
+    <!-- 这次记的数值 -->
+    <view class="sec-title">
+      <text>这次记的数值</text>
       <text class="dim">{{eventCount}} 条</text>
     </view>
-    <view wx:if="{{eventCount === 0}}" class="empty">今天还是空白。\n上面点几下就行，不用写句子。</view>
+    <view wx:if="{{eventCount === 0}}" class="empty">今天还是空白。上面点几下，或者写一句话都行。</view>
     <view wx:for="{{events}}" wx:key="id" class="ev">
       <text>{{item.icon}}</text>
       <text>{{item.label}}</text>
@@ -97,11 +144,7 @@
       <text class="link" data-id="{{item.id}}" bindtap="delEvent" style="margin-left:16rpx">删</text>
     </view>
 
-    <view class="field" style="margin-top:16rpx">
-      <input placeholder="想补一句就写在这儿（选填）" value="{{note}}" bindinput="onNote" bindblur="saveNote" maxlength="60" />
-    </view>
-
-    <view class="btn primary" style="margin-top:28rpx" bindtap="write">
+    <view class="btn primary {{canGenerate ? '' : 'disabled'}}" style="margin-top:28rpx" bindtap="write">
       {{hasDiary ? '重写今天的日记' : '让它写今天的日记'}}
     </view>
     <view class="sub" style="text-align:center;margin-top:18rpx">事实是给你看的，日记是它写的。同一个日子，两种记忆。</view>

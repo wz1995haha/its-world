@@ -346,6 +346,19 @@
     save();
   }
 
+  /* 把一整天（云上下来的）整段写回本地，用于多设备同步 */
+  function importDay(petId, key, box) {
+    if (!petId || !key || !box) return null;
+    var b = bucket(petId);
+    var d = box;
+    d.date = key;
+    if (!d.events) d.events = [];
+    if (d.note == null) d.note = '';
+    b[key] = d;
+    save();
+    return d;
+  }
+
   function setNote(key, note) {
     var d = ensureDay(key);
     d.note = note || '';
@@ -581,7 +594,7 @@
     load: load, save: save, get: get,
     pets: pets, active: active, setActive: setActive, addPet: addPet, updatePet: updatePet,
     removePet: removePet, petById: petById, setPet: setPet,
-    day: day, ensureDay: ensureDay,
+    day: day, ensureDay: ensureDay, importDay: importDay,
     addEvent: addEvent, updateEvent: updateEvent, removeEvent: removeEvent, setNote: setNote,
     customTypes: customTypes, customType: customType, addCustomType: addCustomType, removeCustomType: removeCustomType,
     milestones: milestones, addMilestone: addMilestone, removeMilestone: removeMilestone,

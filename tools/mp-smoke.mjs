@@ -122,6 +122,37 @@ S.setActive(pet2.id);
 ok('年糕这边是空的', S.allDays().length === 0);
 S.setActive(pet.id);
 
-console.log('');
-console.log(fail === 0 ? `✓ 全部通过（${pass}/${pass}）` : `✗ 失败 ${fail} 项，通过 ${pass}`);
-process.exit(fail === 0 ? 0 : 1);
+console.log('— 云同步用的 importDay / cloud 模块 —');
+const importDay = S.importDay;
+ok('store 导出了 importDay', typeof importDay === 'function');
+S.setActive(pet.id);
+const box = { events: [{ id: 'e1', type: 'meal', num: 30, at: Date.now() }], note: '从云上下来的一段', diary: null };
+importDay(pet.id, '2026-11-20', box);
+const back = S.day('2026-11-20', pet.id);
+ok('整天能写回本地', !!back && back.note === '从云上下来的一段');
+ok('事件的也回来了', back.events.length === 1 && back.events[0].num === 30);
+ok('date 字段补齐了', back.date === '2026-11-20');
+
+const cloud = require('../mp/utils/cloud.js');
+ok('cloud 模块能加载', typeof cloud.enabled === 'function');
+ok('没填环境时是关的', cloud.enabled() === false);
+wx.cloud = { init() {}, callFunction: () => Promise.resolve({ result: { openid: 'u1' } }), database() { return { collection() { return { where() { return { limit() { return { get: () => Promise.resolve({ data: [] }) }; } }; } }; } }; } };
+cloud.setEnv('demo-env-1');
+ok('填了环境就打开', cloud.enabled() === true);
+let gotUid = null;
+cloud.login(function (uid) { gotUid = uid; });
+setTimeout(() => {
+  ok('登录拿到 openid', gotUid === 'u1', gotUid);
+  printResult();
+}, 30);
+cloud.setEnv('');
+
+let printed = false;
+function printResult() {
+  if (printed) return;
+  printed = true;
+  console.log('');
+  console.log(fail === 0 ? `✓ 全部通过（${pass}/${pass}）` : `✗ 失败 ${fail} 项，通过 ${pass}`);
+  process.exit(fail === 0 ? 0 : 1);
+}
+setTimeout(printResult, 200);

@@ -54,4 +54,4 @@ function drop(path) {
   try { wx.getFileSystemManager().unlink({ filePath: path }); } catch (e) {}
 }
 
-module.exports = { pick: pick, persist: persist, drop: drop };
+module.exports = { pick: pick, pickTemp: pickTemp, persist: persist, drop: drop };
