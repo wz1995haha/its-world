@@ -10,7 +10,7 @@ if (!repo) {
   process.exit(1);
 }
 
-const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+const git = (...args) => execFileSync('git', ['-c', 'core.quotepath=false', ...args], { encoding: 'utf8' }).trim();
 const token = execFileSync('gh', ['auth', 'token'], { encoding: 'utf8' }).trim();
 
 async function api(path, init = {}) {
@@ -58,9 +58,13 @@ if (remote.object.sha !== parent) {
 }
 
 /* 1. 把这次改动的文件做成 blob */
-const changed = git('diff-tree', '-r', '--name-status', '--no-commit-id', parent, head)
-  .split('\n').filter(Boolean)
-  .map((line) => line.split('\t'));
+const rawDiff = git('diff-tree', '-r', '--name-status', '-z', '--no-commit-id', parent, head);
+const changed = rawDiff.split('\0').filter(Boolean).reduce((acc, cur, i, arr) => {
+  if (/^[A-Z]/.test(cur) && cur.length <= 2) {
+    acc.push([cur, arr[i + 1]]);
+  }
+  return acc;
+}, []);
 const entries = [];
 for (const [status, path] of changed) {
   if (status.startsWith('D')) {

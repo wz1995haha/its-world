@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="爪记一生">
+  <title>爪记一生 · 标记</title>
+  <!-- 一条不闭合的弧：像一天一天绕过来的一年 -->
+  <path d="M120 44a76 76 0 1 1-53.7 22.2" fill="none" stroke="currentColor"
+        stroke-width="12" stroke-linecap="round"/>
+  <!-- 起点的圆点：第一天，从这里开始记 -->
+  <circle cx="66.3" cy="66.2" r="12" fill="#C2613F"/>
+  <!-- 爪印：弧里面踩下的那一脚 -->
+  <g fill="currentColor">
+    <ellipse cx="93" cy="100" rx="10.5" ry="14" transform="rotate(-18 93 100)"/>
+    <ellipse cx="112" cy="85" rx="9.5" ry="13" transform="rotate(-6 112 85)"/>
+    <ellipse cx="131" cy="85" rx="9.5" ry="13" transform="rotate(6 131 85)"/>
+    <ellipse cx="150" cy="100" rx="10.5" ry="14" transform="rotate(18 150 100)"/>
+    <path d="M121.5 110.5c13.5 0 23 7.8 25.5 18 3.5 11.2-3.4 20.3-13 24.2-8.2 3.4-16.4 3.4-24.6 0-9.6-3.9-16.5-13-13-24.2 2.4-10.2 11.6-18 25.1-18z"/>
+  </g>
+</svg>
