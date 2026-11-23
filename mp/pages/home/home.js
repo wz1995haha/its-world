@@ -43,6 +43,8 @@ function cycleText(months) {
 
 Page({
   data: {
+    ob: { name: '', species: 'cat', breedIndex: 0 },
+    breeds: [],
     themeStyle: '',
     hasPet: false,
     pets: [],
@@ -127,7 +129,13 @@ Page({
     var pet = S.active();
 
     if (!pet) {
-      this.setData({ themeStyle: t.themeStyle, hasPet: false, pets: [] });
+      var ob = this.data.ob || { name: '', species: 'cat', breedIndex: 0 };
+      this.setData({
+        themeStyle: t.themeStyle,
+        hasPet: false,
+        pets: [],
+        breeds: PT.breedList(ob.species)
+      });
       return;
     }
 
@@ -224,7 +232,38 @@ Page({
   goPet: function () { wx.switchTab({ url: '/pages/pet/pet' }); },
   goDiary: function () { wx.navigateTo({ url: '/pages/today/today' }); },
 
-  start: function () {
-    wx.navigateTo({ url: '/pages/today/today?new=1' });
+  /* ---- 建档（就在首页做，不跳页，避免 navigateTo 的各种坑）---- */
+  onName: function (e) {
+    this.setData({ 'ob.name': e.detail.value });
+  },
+
+  pickSpecies: function (e) {
+    var sp = e.currentTarget.dataset.sp;
+    this.setData({ 'ob.species': sp, 'ob.breedIndex': 0, breeds: PT.breedList(sp) });
+  },
+
+  onBreed: function (e) {
+    this.setData({ 'ob.breedIndex': Number(e.detail.value) });
+  },
+
+  create: function () {
+    var ob = this.data.ob;
+    var name = String(ob.name || '').trim();
+    if (!name) { wx.showToast({ title: '先给它起个名字', icon: 'none' }); return; }
+    var breeds = PT.breedList(ob.species);
+    var b = breeds[ob.breedIndex] || breeds[0];
+    var pet = S.addPet({
+      name: name.slice(0, 10),
+      species: ob.species,
+      breedId: b.id,
+      personality: 'tsundere',
+      personalityText: '',
+      bio: '',
+      photo: '',
+      createdAt: new Date().toISOString()
+    });
+    wx.showToast({ title: '建好了', icon: 'none' });
+    this.refresh();
+    cloud.push(pet.id);
   }
 });

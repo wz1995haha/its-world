@@ -2,10 +2,25 @@
 <view class="app" style="{{themeStyle}}">
 
   <block wx:if="{{!hasPet}}">
-    <view class="card" style="margin-top:80rpx;text-align:center">
-      <view class="h1 serif" style="margin-bottom:16rpx">先建一只</view>
-      <view class="sub" style="margin-bottom:32rpx">建好之后，疫苗、驱虫这些它会帮你记着日子。</view>
-      <view class="btn primary" bindtap="start">去建档</view>
+    <view class="card" style="margin-top:32rpx">
+      <view class="h1 serif" style="margin-bottom:10rpx">先建一只</view>
+      <view class="sub" style="margin-bottom:28rpx">建好之后，疫苗、驱虫这些它会帮你记着日子。</view>
+
+      <view class="field" style="margin-bottom:20rpx">
+        <input placeholder="它叫什么" value="{{ob.name}}" bindinput="onName" maxlength="10" />
+      </view>
+
+      <view style="display:flex;gap:16rpx;margin-bottom:24rpx">
+        <view class="btn {{ob.species === 'cat' ? 'primary' : ''}}" style="flex:1" data-sp="cat" bindtap="pickSpecies">猫</view>
+        <view class="btn {{ob.species === 'dog' ? 'primary' : ''}}" style="flex:1" data-sp="dog" bindtap="pickSpecies">狗</view>
+      </view>
+
+      <view class="sec-title">品种 · 决定它长什么样</view>
+      <picker mode="selector" range="{{breeds}}" range-key="label" value="{{ob.breedIndex}}" bindchange="onBreed">
+        <view class="field">{{breeds[ob.breedIndex].label}}</view>
+      </picker>
+
+      <view class="btn primary" style="margin-top:36rpx" bindtap="create">开始记录</view>
     </view>
   </block>
 
