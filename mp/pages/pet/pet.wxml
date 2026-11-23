@@ -55,9 +55,9 @@
     <view class="space" bindtap="goSpace">
       <view class="sp-head">
         <text class="sp-title serif">它的空间</text>
-        <text class="sp-count">{{storyCount}} 条 ›</text>
+        <text class="sp-count">{{storyCount}} 条</text>
+        <text class="sp-go">进去 ›</text>
       </view>
-      <view class="sp-sub">从到家的第一天开始，照片、视频、第一次，都留在这儿</view>
 
       <view wx:if="{{spaceRecent.length}}" class="sp-body">
         <view class="sp-row" wx:for="{{spaceRecent}}" wx:key="id">
@@ -65,9 +65,7 @@
           <text class="sp-text">{{item.title}}</text>
         </view>
       </view>
-      <view wx:else class="sp-none">还没有记录。第一次回家、第一次洗澡、第一次学会坐下——都值得留一条。</view>
-
-      <view class="sp-btn" catchtap="goSpace">进去看看 / 记一条 ›</view>
+      <view wx:else class="sp-none">还没有记录，第一次回家、第一次洗澡都值得留一条</view>
     </view>
 
     <view class="sec-title"><text>家里有 {{petCount}} 只</text><text class="dim">点一下切过去</text></view>

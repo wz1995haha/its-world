@@ -132,8 +132,8 @@
 /* ---- 它的空间 ---- */
 .space {
   margin-top: 26rpx;
-  padding: 26rpx 26rpx 22rpx;
-  border-radius: 26rpx;
+  padding: 24rpx 26rpx;
+  border-radius: 24rpx;
   background: var(--paper-2, #FBF6EC);
   border: 1rpx solid var(--line, rgba(58, 50, 44, .10));
 }
@@ -141,31 +141,29 @@
 .sp-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
 }
-.sp-title { font-size: 32rpx; color: var(--ink, #3A322C); }
-.sp-count { font-size: 22rpx; color: var(--accent, #C2613F); }
-
-.sp-sub {
-  margin-top: 8rpx;
-  font-size: 22rpx;
+.sp-title { font-size: 30rpx; color: var(--ink, #3A322C); }
+.sp-count {
+  margin-left: 12rpx;
+  font-size: 21rpx;
   color: var(--muted, #9A8F84);
 }
-
-.sp-body {
-  margin-top: 18rpx;
-  border-top: 1rpx solid var(--line, rgba(58, 50, 44, .08));
+.sp-go {
+  margin-left: auto;
+  font-size: 22rpx;
+  color: var(--accent, #C2613F);
 }
+
+.sp-body { margin-top: 14rpx; }
 .sp-row {
   display: flex;
   align-items: baseline;
-  gap: 16rpx;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid var(--line, rgba(58, 50, 44, .08));
+  padding: 14rpx 0;
+  border-top: 1rpx solid var(--line, rgba(58, 50, 44, .08));
 }
 .sp-date {
   flex: none;
-  width: 120rpx;
+  width: 132rpx;
   font-size: 21rpx;
   color: var(--muted, #9A8F84);
 }
@@ -178,22 +176,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .sp-none {
-  margin-top: 16rpx;
+  margin-top: 12rpx;
   font-size: 22rpx;
   color: var(--muted, #9A8F84);
   line-height: 1.6;
-}
-
-.sp-btn {
-  margin-top: 20rpx;
-  padding: 16rpx 0;
-  border-radius: 18rpx;
-  background: rgba(var(--accent-rgb, 194, 97, 63), .10);
-  color: var(--accent, #C2613F);
-  font-size: 24rpx;
-  text-align: center;
 }
 
 /* ---- 家里的几只 ---- */
