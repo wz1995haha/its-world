@@ -2,6 +2,7 @@
 var PT = require('../../utils/all.js');
 var themeStyle = require('../../utils/theme-style.js');
 var S = PT.STORE;
+var nav = require('../../utils/nav.js');
 
 var FILTERS = [
   { id: 'all', label: '全部' },
@@ -17,6 +18,7 @@ var FILTERS = [
 
 Page({
   data: {
+    padTop: 60,
     themeStyle: '',
     filters: FILTERS,
     filter: 'all',

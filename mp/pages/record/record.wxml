@@ -1,6 +1,7 @@
 <!-- record.wxml — 记一次 -->
 <view class="app" style="{{themeStyle}}">
 
+  <view style="height:{{padTop}}px"></view>
   <view class="h1 serif" style="margin-bottom:26rpx">{{editing ? '改这条记录' : '记一次'}}</view>
 
   <!-- 类型 -->

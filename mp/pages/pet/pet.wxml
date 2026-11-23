@@ -39,9 +39,23 @@
         <text class="k">生日</text>
         <text class="v">{{pet.birthday || '填一下'}} ›</text>
       </view>
+      <view class="kv" bindtap="setHome">
+        <text class="k">到家</text>
+        <text class="v">{{pet.homeDate || '填一下'}} ›</text>
+      </view>
     </view>
 
-    <view class="sec-title"><text>换一层纸</text><text class="dim">不影响内容</text></view>
+    <view class="sec-title"><text>关于它</text><text class="dim">{{ageLine}}</text></view>
+    <view class="card">
+      <view class="kv"><text class="k">出生</text><text class="v">{{pet.birthday ? (pet.birthday + ' · ' + birthAge) : '还没填'}}</text></view>
+      <view class="kv"><text class="k">来家里</text><text class="v">{{pet.homeDate ? (pet.homeDate + ' · 第 ' + homeDays + ' 天') : '还没填'}}</text></view>
+      <view class="kv"><text class="k">第一针疫苗</text><text class="v">{{firstVaccine}}</text></view>
+      <view class="kv"><text class="k">疫苗共</text><text class="v">{{vaccineCount ? (vaccineCount + ' 次') : '还没记'}}</text></view>
+      <view class="kv"><text class="k">上次体内驱虫</text><text class="v">{{lastIn}}</text></view>
+      <view class="kv"><text class="k">上次体外驱虫</text><text class="v">{{lastOut}}</text></view>
+    </view>
+
+    <view class="sec-title"><text>切换主题</text><text class="dim">只换样子，不影响内容</text></view>
     <view class="themes">
       <view class="th {{item.on ? 'on' : ''}}" wx:for="{{themes}}" wx:key="id" data-id="{{item.id}}" bindtap="setTheme">
         <view class="thn">{{item.label}}</view>

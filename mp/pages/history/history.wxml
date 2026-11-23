@@ -1,7 +1,7 @@
 <!-- history.wxml — 病史 -->
 <view class="app" style="{{themeStyle}}">
 
-  <view class="htop">
+  <view class="htop" style="padding-top:{{padTop}}px">
     <view class="htitle serif">病史</view>
     <view class="hsum" wx:if="{{list.length}}">
       {{petName}} · {{list.length}} 次<text wx:if="{{openCount}}" class="hopen"> · 还在 {{openCount}} 次</text><text wx:if="{{totalCost}}" class="hcost"> · ¥{{totalCost}}</text>

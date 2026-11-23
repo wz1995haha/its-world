@@ -5,9 +5,11 @@ var cloud = require('../../utils/cloud.js');
 var photo = require('../../utils/photo.js');
 
 var S = PT.STORE;
+var nav = require('../../utils/nav.js');
 
 Page({
   data: {
+    padTop: 60,
     themeStyle: '',
     editing: false,
     id: '',
@@ -42,6 +44,7 @@ Page({
   },
 
   onLoad: function (q) {
+    this.setData({ padTop: nav.info().padTop });
     var t = themeStyle.styleNow();
     var self = this;
     this.setData({ themeStyle: t.themeStyle });

@@ -5,6 +5,34 @@ var photo = require('../../utils/photo.js');
 var themeStyle = require('../../utils/theme-style.js');
 var S = PT.STORE;
 
+function cn(key) {
+  if (!key) return '';
+  var d = PT.parseDate(key);
+  return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+}
+
+function agoText(key) {
+  if (!key) return '';
+  var n = PT.daysBetween(key, PT.todayKey());
+  if (n <= 0) return '今天';
+  if (n === 1) return '昨天';
+  if (n < 30) return n + ' 天前';
+  if (n < 365) return Math.floor(n / 30) + ' 个月前';
+  return Math.floor(n / 365) + ' 年前';
+}
+
+function ageOf(birth) {
+  if (!birth) return '';
+  var b = PT.parseDate(birth);
+  var now = PT.parseDate(PT.todayKey());
+  var m = (now.getFullYear() - b.getFullYear()) * 12 + (now.getMonth() - b.getMonth());
+  if (now.getDate() < b.getDate()) m--;
+  if (m < 0) return '';
+  if (m < 12) return m + ' 个月';
+  var y = Math.floor(m / 12), r = m % 12;
+  return y + ' 岁' + (r ? ' ' + r + ' 个月' : '');
+}
+
 var PERSONALITIES = [
   { id: 'tsundere', label: '傲娇' },
   { id: 'clingy', label: '黏人' },
@@ -13,6 +41,32 @@ var PERSONALITIES = [
   { id: 'curious', label: '好奇' }
 ];
 
+
+function vaccineRecs(pet) {
+  return (S.records(pet.id) || []).filter(function (r) { return r.kind === 'vaccine'; });
+}
+
+function firstVaccineText(pet) {
+  var list = vaccineRecs(pet);
+  if (!list.length) return '还没记';
+  var first = list[list.length - 1];
+  return cn(first.date) + ' · ' + agoText(first.date);
+}
+
+function vaccineCountOf(pet) {
+  return vaccineRecs(pet).length;
+}
+
+function lastDewormText(pet, route) {
+  var hit = null;
+  (S.records(pet.id) || []).forEach(function (r) {
+    if (r.kind !== 'deworm') return;
+    if (String(r.route || '') !== route) return;
+    if (!hit || hit.date < r.date) hit = r;
+  });
+  if (!hit) return '还没记';
+  return cn(hit.date) + ' · ' + agoText(hit.date);
+}
 Page({
   data: {
     themeStyle: '',
@@ -72,7 +126,14 @@ Page({
       chipShown: ch.shown,
       chipHidden: ch.hidden,
       breeds: breeds,
-      ob: { species: pet.species, breedIndex: bi, personIndex: pi }
+      ob: { species: pet.species, breedIndex: bi, personIndex: pi },
+      ageLine: ageOf(pet.birthday),
+      birthAge: ageOf(pet.birthday),
+      homeDays: pet.homeDate ? (PT.daysBetween(pet.homeDate, PT.todayKey()) + 1) : 0,
+      firstVaccine: firstVaccineText(pet),
+      vaccineCount: vaccineCountOf(pet),
+      lastIn: lastDewormText(pet, '体内'),
+      lastOut: lastDewormText(pet, '体外')
     });
   },
 
@@ -137,6 +198,37 @@ Page({
     var p = PERSONALITIES[Number(e.detail.value)];
     S.updatePet(this.data.pet.id, { personality: p.id, personalityText: '' });
     this.refresh();
+  },
+
+  setHome: function () {
+    var self = this;
+    var pet = this.data.pet;
+    wx.showActionSheet({
+      itemList: ['选一个日期', '清除'],
+      success: function (r) {
+        if (r.tapIndex === 1) {
+          S.updatePet(pet.id, { homeDate: '' });
+          self.refresh();
+          return;
+        }
+        wx.showModal({
+          title: '到家的日期',
+          editable: true,
+          placeholderText: '2024-05-18',
+          content: pet.homeDate || '',
+          success: function (m) {
+            if (!m.confirm) return;
+            var v = String(m.content || '').trim();
+            if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(v)) {
+              wx.showToast({ title: '写成 2024-05-18 这样', icon: 'none' });
+              return;
+            }
+            S.updatePet(pet.id, { homeDate: v });
+            self.refresh();
+          }
+        });
+      }
+    });
   },
 
   setBirthday: function () {

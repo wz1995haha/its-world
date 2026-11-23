@@ -2,9 +2,11 @@
 var PT = require('../../utils/all.js');
 var themeStyle = require('../../utils/theme-style.js');
 var S = PT.STORE;
+var nav = require('../../utils/nav.js');
 
 Page({
   data: {
+    padTop: 60,
     themeStyle: '',
     petName: '',
     list: [],
