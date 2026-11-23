@@ -143,7 +143,64 @@ let gotUid = null;
 cloud.login(function (uid) { gotUid = uid; });
 setTimeout(() => {
   ok('登录拿到 openid', gotUid === 'u1', gotUid);
-  printResult();
+  
+/* ---------- 健康档案（记录 / 到期 / 病史 / 花费） ---------- */
+console.log('— 健康档案：记录与到期 —');
+{
+  const pets = S.pets();
+  const pet = pets[0];
+  const cat = pet.species === "cat" ? pet : pets.filter((x) => x.species === "cat")[0] || pet;
+
+  S.addRecord({ kind: "vaccine", name: "狂犬疫苗", date: "2026-11-01" }, cat.id);
+  const recs1 = S.records(cat.id);
+  ok("记了一条疫苗", recs1.length === 1, "len=" + recs1.length);
+  ok("自动算出下次（12 个月后）", recs1[0].next === "2027-11-01", recs1[0].next);
+
+  S.addRecord({ kind: "deworm", route: "体外", drug: "大宠爱", date: "2026-10-01" }, cat.id);
+  const dw = S.records(cat.id).filter((r) => r.kind === "deworm")[0];
+  ok("体外驱虫 1 个月后", dw.next === "2026-11-01", dw.next);
+
+  S.addRecord({ kind: "deworm", route: "体内", drug: "拜宠清", date: "2026-08-01" }, cat.id);
+  const dw2 = S.records(cat.id).filter((r) => r.kind === "deworm" && r.route === "体内")[0];
+  ok("体内驱虫 3 个月后", dw2.next === "2026-11-01", dw2.next);
+
+  const due = S.dueList(cat.id);
+  ok("到期表里有 3 组", due.length === 3, "len=" + due.length);
+  ok("最急的排最前", due[0].days <= due[1].days, due.map((d) => d.days).join(","));
+  ok("带状态", ["over", "soon", "ok"].includes(due[0].status), due[0].status);
+
+  S.toggleReminder(due[0].key, cat.id);
+  ok("铃铛能点亮", S.reminders(cat.id).length === 1, "n=" + S.reminders(cat.id).length);
+  S.toggleReminder(due[0].key, cat.id);
+  ok("再点一次关掉", S.reminders(cat.id).length === 0);
+}
+
+console.log('— 健康档案：病史与花费 —');
+{
+  const pet = S.pets()[0];
+  S.addRecord({ kind: "visit", illness: "肠胃炎", date: "2026-11-18", cost: 280 }, pet.id);
+  S.addRecord({ kind: "med", illness: "肠胃炎", drug: "甲硝唑", days: 5, date: "2026-11-19", cost: 48 }, pet.id);
+  S.addRecord({ kind: "visit", illness: "皮肤病", date: "2026-09-01", cost: 120 }, pet.id);
+
+  const eps = S.episodes(pet.id);
+  ok("两次病", eps.length === 2, "len=" + eps.length);
+  const gi = eps.filter((e) => e.name === "肠胃炎")[0];
+  ok("同名的凑成一次", gi.items.length === 2, "n=" + gi.items.length);
+  ok("还没好", gi.open === true);
+  ok("这次花了 328", gi.cost === 328, "cost=" + gi.cost);
+
+  S.closeEpisode(pet.id, "肠胃炎");
+  const gi2 = S.episodes(pet.id).filter((e) => e.name === "肠胃炎")[0];
+  ok("标记已好之后 open=false", gi2.open === false);
+
+  S.reopenEpisode(pet.id, "肠胃炎");
+  ok("也能改回来", S.episodes(pet.id).filter((e) => e.name === "肠胃炎")[0].open === true);
+
+  const sum = S.costSum(pet.id, "2026-01-01");
+  ok("年度花费合计 448", sum === 448, "sum=" + sum);
+}
+
+printResult();
 }, 30);
 cloud.setEnv('');
 

@@ -1,0 +1,65 @@
+/* history.wxss — 病史 */
+.htop { padding: 8rpx 0 22rpx; }
+.htitle { font-size: 44rpx; letter-spacing: 2rpx; }
+.hsum { margin-top: 8rpx; font-size: 24rpx; color: var(--muted, #8C8074); }
+.hopen { color: var(--accent, #C2613F); }
+.hcost { color: var(--muted, #8C8074); }
+
+.hitem {
+  margin-bottom: 20rpx;
+  padding: 22rpx 22rpx 12rpx;
+  border-radius: 24rpx;
+  background: var(--paper-2, #FBF6EC);
+  border: 1rpx solid var(--line, rgba(58, 50, 44, .10));
+}
+.hhead { display: flex; align-items: center; justify-content: space-between; }
+.hname { font-size: 30rpx; color: var(--ink, #3A322C); }
+.hstate {
+  font-size: 20rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  color: var(--muted, #8C8074);
+  background: rgba(var(--sh, 58, 50, 44), .07);
+}
+.hstate.on {
+  color: var(--accent, #C2613F);
+  background: rgba(var(--accent-rgb, 194, 97, 63), .12);
+}
+.hmeta { margin-top: 8rpx; font-size: 22rpx; color: var(--muted, #9A8F84); }
+
+.hline {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx 0;
+  border-top: 1rpx dashed var(--line, rgba(58, 50, 44, .12));
+  margin-top: 12rpx;
+}
+.hline:first-of-type { margin-top: 16rpx; }
+.hi { font-size: 26rpx; }
+.ht { flex: 1; font-size: 26rpx; color: var(--ink, #3A322C); }
+.hd { font-size: 22rpx; color: var(--muted, #9A8F84); }
+
+.hact { display: flex; justify-content: flex-end; padding: 8rpx 0 10rpx; }
+.hbtn {
+  padding: 12rpx 24rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: var(--accent, #C2613F);
+  border: 1rpx solid rgba(var(--accent-rgb, 194, 97, 63), .35);
+}
+.hbtn.ghost { color: var(--muted, #8C8074); border-color: var(--line, rgba(58, 50, 44, .16)); }
+
+.hempty { padding: 80rpx 0 20rpx; text-align: center; }
+.etitle { font-size: 30rpx; color: var(--ink, #3A322C); }
+.etext { margin-top: 10rpx; font-size: 24rpx; color: var(--muted, #8C8074); }
+
+.addbtn {
+  margin: 30rpx 0 40rpx;
+  padding: 26rpx;
+  text-align: center;
+  border-radius: 999rpx;
+  background: var(--ink, #3A322C);
+  color: var(--paper, #F5EEE3);
+  font-size: 28rpx;
+}

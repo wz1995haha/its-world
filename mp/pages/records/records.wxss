@@ -1,0 +1,71 @@
+/* records.wxss — 全部记录 */
+.rtop { padding: 8rpx 0 20rpx; }
+.rtitle { font-size: 44rpx; letter-spacing: 2rpx; }
+.rsum {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--muted, #8C8074);
+}
+.rcost { color: var(--accent, #C2613F); }
+
+.fscroll { width: 100%; white-space: nowrap; }
+.fchips { display: inline-flex; gap: 14rpx; padding: 6rpx 2rpx 22rpx; }
+.fchip {
+  padding: 12rpx 26rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--line, rgba(58, 50, 44, .14));
+  font-size: 24rpx;
+  color: var(--muted, #6E635A);
+  background: var(--paper-2, #FBF6EC);
+}
+.fchip.on {
+  border-color: rgba(var(--accent-rgb, 194, 97, 63), .45);
+  background: rgba(var(--accent-rgb, 194, 97, 63), .10);
+  color: var(--accent, #C2613F);
+}
+
+.rlist { margin-top: 6rpx; }
+.rmonth {
+  padding: 26rpx 2rpx 12rpx;
+  font-size: 22rpx;
+  letter-spacing: 2rpx;
+  color: var(--muted, #9A8F84);
+}
+.rrow {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 22rpx 20rpx;
+  margin-bottom: 12rpx;
+  border-radius: 22rpx;
+  background: var(--paper-2, #FBF6EC);
+  border: 1rpx solid var(--line, rgba(58, 50, 44, .10));
+}
+.ric { font-size: 34rpx; width: 44rpx; text-align: center; }
+.rmain { flex: 1; min-width: 0; }
+.rt { font-size: 28rpx; color: var(--ink, #3A322C); }
+.rs {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--muted, #8C8074);
+}
+.rc {
+  font-size: 24rpx;
+  color: var(--accent, #C2613F);
+  font-variant-numeric: tabular-nums;
+}
+.arw { color: var(--muted, #B9AEA2); font-size: 28rpx; }
+
+.empty { padding: 90rpx 0 40rpx; text-align: center; }
+.etitle { font-size: 30rpx; color: var(--ink, #3A322C); }
+.etext { margin-top: 10rpx; font-size: 24rpx; color: var(--muted, #8C8074); }
+
+.addbtn {
+  margin: 30rpx 0 40rpx;
+  padding: 26rpx;
+  text-align: center;
+  border-radius: 999rpx;
+  background: var(--ink, #3A322C);
+  color: var(--paper, #F5EEE3);
+  font-size: 28rpx;
+}

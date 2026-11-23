@@ -1,0 +1,37 @@
+<!-- history.wxml — 病史 -->
+<view class="app" style="{{themeStyle}}">
+
+  <view class="htop">
+    <view class="htitle serif">病史</view>
+    <view class="hsum" wx:if="{{list.length}}">
+      {{petName}} · {{list.length}} 次<text wx:if="{{openCount}}" class="hopen"> · 还在 {{openCount}} 次</text><text wx:if="{{totalCost}}" class="hcost"> · ¥{{totalCost}}</text>
+    </view>
+    <view class="hsum" wx:else>没生过病，最省心</view>
+  </view>
+
+  <view class="hitem" wx:for="{{list}}" wx:key="name" wx:for-item="ep">
+    <view class="hhead">
+      <view class="hname">{{ep.name}}</view>
+      <view class="hstate {{ep.open ? 'on' : ''}}">{{ep.open ? '还没好' : '已好'}}</view>
+    </view>
+    <view class="hmeta">{{ep.start}} → {{ep.end}} · {{ep.span}} · {{ep.times}} 条<text wx:if="{{ep.cost}}"> · ¥{{ep.cost}}</text></view>
+
+    <view class="hline" wx:for="{{ep.items}}" wx:key="id" wx:for-item="it" data-id="{{it.id}}" bindtap="openOne">
+      <text class="hi">{{it.icon}}</text>
+      <text class="ht">{{it.title}}</text>
+      <text class="hd">{{it.day}}</text>
+    </view>
+
+    <view class="hact">
+      <view wx:if="{{ep.open}}" class="hbtn" data-name="{{ep.name}}" bindtap="closeOne">标记已好</view>
+      <view wx:else class="hbtn ghost" data-name="{{ep.name}}" bindtap="reopen">还没好，改回来</view>
+    </view>
+  </view>
+
+  <view class="hempty" wx:if="{{!list.length}}">
+    <view class="etitle">这里记「生过什么病」</view>
+    <view class="etext">看病、吃药会自动归到这里，同一种病会凑成一次。</view>
+  </view>
+
+  <view class="addbtn" bindtap="addVisit">＋ 记一次看病</view>
+</view>

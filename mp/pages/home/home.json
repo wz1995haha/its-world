@@ -1,0 +1,4 @@
+{
+  "usingComponents": { "face": "/components/face/face" },
+  "navigationBarTitleText": "该做什么"
+}

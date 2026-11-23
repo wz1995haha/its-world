@@ -1,0 +1,42 @@
+<!-- records.wxml — 全部记录 -->
+<view class="app" style="{{themeStyle}}">
+
+  <view class="rtop">
+    <view class="rtitle serif">全部记录</view>
+    <view class="rsum" wx:if="{{total}}">{{petName}} · {{total}} 条<text wx:if="{{totalCost}}" class="rcost"> · 一共 ¥{{totalCost}}</text></view>
+    <view class="rsum" wx:else>还没有记录</view>
+  </view>
+
+  <scroll-view class="fscroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+    <view class="fchips">
+      <view
+        class="fchip {{filter === item.id ? 'on' : ''}}"
+        wx:for="{{filters}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onFilter">{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <view class="rlist">
+    <block wx:for="{{list}}" wx:key="key">
+      <view wx:if="{{item.type === 'month'}}" class="rmonth">{{item.text}}</view>
+      <view wx:else class="rrow" data-id="{{item.id}}" bindtap="openOne">
+        <view class="ric">{{item.icon}}</view>
+        <view class="rmain">
+          <view class="rt">{{item.title}}</view>
+          <view class="rs">{{item.day}}<text wx:if="{{item.sub}}"> · {{item.sub}}</text><text wx:if="{{item.files}}"> · 附 {{item.files}} 个附件</text></view>
+        </view>
+        <view class="rc" wx:if="{{item.cost}}">¥{{item.cost}}</view>
+        <view class="arw">›</view>
+      </view>
+    </block>
+  </view>
+
+  <view class="empty" wx:if="{{!list.length}}">
+    <view class="etitle">这里还是空的</view>
+    <view class="etext">先记一次疫苗，或者记今天的体重。</view>
+  </view>
+
+  <view class="addbtn" bindtap="add">＋ 记一次</view>
+</view>

@@ -1,0 +1,99 @@
+/* record.wxss — 记一次 */
+.frow {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 26rpx 4rpx;
+  border-bottom: 1rpx solid rgba(var(--sh, 58, 50, 44), .08);
+}
+.frow .fl {
+  width: 150rpx;
+  flex: none;
+  font-size: 26rpx;
+  color: var(--muted, #8C8074);
+}
+.frow .fv {
+  flex: 1;
+  font-size: 28rpx;
+  text-align: right;
+  color: var(--ink, #3A322C);
+}
+.frow .fi {
+  flex: 1;
+  font-size: 28rpx;
+  text-align: right;
+  color: var(--ink, #3A322C);
+}
+.edit-next {
+  font-size: 24rpx;
+  color: var(--accent, #C2613F);
+  padding: 8rpx 0 8rpx 20rpx;
+}
+.next .fv { color: var(--accent, #C2613F); }
+
+.filebar { display: flex; gap: 16rpx; margin-top: 6rpx; }
+.fbtn {
+  padding: 16rpx 26rpx;
+  border-radius: 999rpx;
+  border: 1rpx dashed var(--line, rgba(58, 50, 44, .22));
+  font-size: 24rpx;
+  color: var(--muted, #6E635A);
+}
+
+.fstrip { display: flex; flex-wrap: wrap; gap: 16rpx; margin-top: 20rpx; }
+.fitem {
+  position: relative;
+  width: 170rpx;
+  height: 170rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+  background: var(--paper-3, #EFE6D8);
+}
+.fimg { width: 100%; height: 100%; }
+.fvideo { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.fplay {
+  position: absolute;
+  font-size: 34rpx;
+  color: #fff;
+  text-shadow: 0 2rpx 10rpx rgba(0, 0, 0, .6);
+}
+.ffile {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 10rpx;
+  box-sizing: border-box;
+}
+.ffile .fico { font-size: 40rpx; }
+.ffile .fname {
+  font-size: 20rpx;
+  color: var(--muted, #6E635A);
+  text-align: center;
+  overflow: hidden;
+  max-height: 52rpx;
+}
+.fdel {
+  position: absolute;
+  right: 6rpx;
+  top: 6rpx;
+  width: 36rpx;
+  height: 36rpx;
+  line-height: 34rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .45);
+  color: #fff;
+  font-size: 24rpx;
+}
+
+.delrow {
+  margin-top: 30rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--muted, #8C8074);
+  padding: 16rpx;
+}

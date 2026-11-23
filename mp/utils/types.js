@@ -42,5 +42,119 @@
     { id: '', label: '纯色' }, { id: 'patch', label: '色块' }, { id: 'mask', label: '眼罩' }
   ];
   PT.DOG_EARS = [{ id: 'point', label: '尖耳' }, { id: 'flop', label: '垂耳' }, { id: 'puff', label: '圆耳' }];
+
+/* ---------------- 健康档案：记录类型与周期规则 ----------------
+ * 这一层给「该做什么」用：每种记录有周期（月），记一次就能算出下次。
+ * 周期按物种分，加新物种（兔子、鹦鹉）只要往 PT.SPECIES 里加一条。
+ */
+
+PT.SPECIES = {
+  cat: { label: '猫', emoji: '🐱' },
+  dog: { label: '狗', emoji: '🐶' },
+  rabbit: { label: '兔子', emoji: '🐰' },
+  bird: { label: '鸟', emoji: '🦜' },
+  other: { label: '其他', emoji: '🐾' }
+};
+
+/* months = 默认周期（0 表示不按周期提醒） */
+PT.REC_KINDS = [
+  {
+    id: 'vaccine', label: '疫苗', icon: '💉', group: 'prevent',
+    names: ['狂犬疫苗', '联苗', '猫三联', '其他疫苗'],
+    cycle: { cat: 12, dog: 12 }
+  },
+  {
+    id: 'deworm', label: '驱虫', icon: '🐛', group: 'prevent',
+    routes: ['体内', '体外'],
+    cycleByRoute: { '体内': { cat: 3, dog: 3 }, '体外': { cat: 1, dog: 1 } }
+  },
+  { id: 'exam', label: '体检', icon: '🩺', group: 'prevent', cycle: { cat: 12, dog: 12 } },
+  { id: 'visit', label: '看病', icon: '🏥', group: 'care' },
+  { id: 'med', label: '用药', icon: '💊', group: 'care' },
+  { id: 'weight', label: '体重', icon: '⚖️', group: 'care', unit: 'kg' },
+  { id: 'surgery', label: '手术', icon: '🏥', group: 'care' },
+  { id: 'other', label: '其他', icon: '📌', group: 'care' }
+];
+
+PT.KIND = {};
+PT.REC_KINDS.forEach(function (k) { PT.KIND[k.id] = k; });
+
+/* 常用药，填表时不用打全名 */
+PT.DEWORM_DRUGS = ['拜宠清', '大宠爱', '福来恩', '海乐妙', '爱沃克', '尼可信', '其他'];
+
+/* ---------------- 日期小工具 ---------------- */
+PT.keyOf2 = function (s) {
+  var t = String(s || '').split('-');
+  var d = new Date(Number(t[0]), Number(t[1]) - 1, Number(t[2]));
+  var m = d.getMonth() + 1, day = d.getDate();
+  return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+};
+
+PT.addMonths = function (key, n) {
+  var t = String(key || '').split('-');
+  var d = new Date(Number(t[0]), Number(t[1]) - 1, Number(t[2]));
+  var day = d.getDate();
+  d.setMonth(d.getMonth() + Number(n || 0));
+  /* 1月31日 + 1 个月 → 2月28/29，不要跳到 3 月 */
+  if (d.getDate() < day) d.setDate(0);
+  /* 注意：不能用 toISOString()，那是 UTC，东八区会少一天 */
+  var m = d.getMonth() + 1, dd = d.getDate();
+  return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (dd < 10 ? '0' : '') + dd;
+};
+
+PT.daysUntil = function (key) {
+  if (!key) return null;
+  var a = PT.parseDate(PT.todayKey());
+  var b = PT.parseDate(key);
+  return Math.round((b - a) / 86400000);
+};
+
+/* 周期（月）：疫苗按名字，驱虫按体内/体外，其余按类型 */
+PT.cycleOf = function (species, rec) {
+  var sp = species === 'cat' ? 'cat' : (species === 'dog' ? 'dog' : 'other');
+  var k = PT.KIND[rec && rec.kind];
+  if (!k) return 0;
+  if (k.id === 'deworm') {
+    var r = rec.route === '体外' ? '体外' : '体内';
+    var m = (k.cycleByRoute[r] || {})[sp];
+    return m || (k.cycleByRoute[r] || {}).dog || 0;
+  }
+  if (k.id === 'vaccine') {
+    var base = k.cycle[sp] || 12;
+    /* 幼犬/幼猫首年联苗是 3 针，第二针间隔 1 个月：由 rec.shot 决定 */
+    if (rec.name && rec.name.indexOf('联苗') >= 0 && rec.shot === 1) return 1;
+    return base;
+  }
+  if (k.cycle) return k.cycle[sp] || k.cycle.dog || 0;
+  return 0;
+};
+
+/* 一条记录在列表里显示成什么 */
+PT.recTitle = function (rec) {
+  if (!rec) return '';
+  var k = PT.KIND[rec.kind] || { label: '记录', icon: '📌' };
+  if (rec.kind === 'vaccine') return (rec.name || '疫苗');
+  if (rec.kind === 'deworm') return (rec.route || '') + '驱虫' + (rec.drug ? ' · ' + rec.drug : '');
+  if (rec.kind === 'weight') return '体重 ' + (rec.num != null ? rec.num : '') + ' kg';
+  if (rec.kind === 'med') return (rec.drug || '用药') + (rec.days ? ' ' + rec.days + ' 天' : '');
+  if (rec.kind === 'visit') return (rec.illness || rec.diagnosis || '看病');
+  if (rec.title) return rec.title;
+  return k.label;
+};
+
+PT.recIcon = function (rec) {
+  var k = PT.KIND[rec && rec.kind];
+  return (k && k.icon) || '📌';
+};
+
+/* 状态：over 逾期 / soon 30 天内 / ok 还早 */
+PT.dueStatus = function (days) {
+  if (days == null) return 'none';
+  if (days < 0) return 'over';
+  if (days <= 30) return 'soon';
+  return 'ok';
+};
+
 })();
+
 module.exports = require('./pt-core.js');

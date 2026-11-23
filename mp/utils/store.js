@@ -271,6 +271,31 @@
     return (b && b[key]) || null;
   }
 
+  /* 整本日记（云端推送用） */
+  function daysOf(petId) {
+    var s = get();
+    return s.days[petId || activeId()] || {};
+  }
+
+  /* 云端下来的单条记录 upsert */
+  function importRecord(petId, rec) {
+    if (!rec || !rec.id) return null;
+    var list = recBucket(petId);
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === rec.id) {
+        if ((rec.updatedAt || 0) <= (list[i].updatedAt || 0)) return list[i];
+        Object.keys(rec).forEach(function (k) { list[i][k] = rec[k]; });
+        save();
+        return list[i];
+      }
+    }
+    var copy = {};
+    Object.keys(rec).forEach(function (k) { copy[k] = rec[k]; });
+    list.push(copy);
+    save();
+    return copy;
+  }
+
   function ensureDay(key, petId) {
     var b = bucket(petId || activeId());
     if (!b[key]) b[key] = { date: key, events: [], note: '', diary: null };
@@ -396,6 +421,194 @@
       if (d.diary && d.diary.used) out = out.concat(d.diary.used);
     }
     return out.slice(0, limit || 160);
+  }
+
+  /* ---------------- 健康档案（记录 / 到期 / 花费） ---------------- */
+
+  function recBucket(petId) {
+    var s = get();
+    if (!s.records) s.records = {};
+    var id = petId || activeId();
+    if (!s.records[id]) s.records[id] = [];
+    return s.records[id];
+  }
+
+  /* 按日期倒序；同一天按创建时间倒序 */
+  function records(petId) {
+    return recBucket(petId).slice().sort(function (a, b) {
+      if (a.date === b.date) return (b.createdAt || 0) - (a.createdAt || 0);
+      return a.date < b.date ? 1 : -1;
+    });
+  }
+
+  function recById(id, petId) {
+    var list = recBucket(petId);
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+
+  /* 记一次就自动算下次；rec.next 手动传了就以手动为准 */
+  function nextOf(rec, pet) {
+    if (!rec) return '';
+    if (rec.next) return rec.next;
+    var months = PT.cycleOf(pet && pet.species, rec);
+    if (!months) return '';
+    return PT.addMonths(rec.date, months);
+  }
+
+  function addRecord(rec, petId) {
+    var pet = petById(petId || activeId());
+    var list = recBucket(petId);
+    var r = {};
+    Object.keys(rec || {}).forEach(function (k) { r[k] = rec[k]; });
+    r.id = r.id || ('r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5));
+    r.date = r.date || PT.todayKey();
+    r.createdAt = Date.now();
+    if (!r.next && !r.noCycle) r.next = nextOf(r, pet);
+    list.push(r);
+    save();
+    return r;
+  }
+
+  function updateRecord(id, patch, petId) {
+    var list = recBucket(petId);
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) {
+        Object.keys(patch || {}).forEach(function (k) { list[i][k] = patch[k]; });
+        list[i].editedAt = Date.now();
+        save();
+        return list[i];
+      }
+    }
+    return null;
+  }
+
+  function removeRecord(id, petId) {
+    var s = get();
+    var pid = petId || activeId();
+    var list = recBucket(pid);
+    var before = list.length;
+    s.records[pid] = list.filter(function (x) { return x.id !== id; });
+    save();
+    return s.records[pid].length !== before;
+  }
+
+  /* 「该做什么」：按 疫苗名 / 体内外 / 体检 分组，每组取最近一次 */
+  var TRACKABLE = { vaccine: 1, deworm: 1, exam: 1 };
+
+  function trackKey(rec) {
+    if (rec.kind === 'vaccine') return 'vaccine:' + (rec.name || '疫苗');
+    if (rec.kind === 'deworm') return 'deworm:' + (rec.route || '体内');
+    if (rec.kind === 'exam') return 'exam';
+    return '';
+  }
+
+  function dueList(petId) {
+    var pet = petById(petId || activeId());
+    var list = records(petId);
+    var latest = {};
+    list.forEach(function (r) {
+      if (!TRACKABLE[r.kind]) return;
+      var k = trackKey(r);
+      if (!k) return;
+      if (!latest[k] || latest[k].date < r.date) latest[k] = r;
+    });
+
+    var out = [];
+    Object.keys(latest).forEach(function (k) {
+      var r = latest[k];
+      var next = r.next || nextOf(r, pet);
+      if (!next) return;
+      var days = PT.daysUntil(next);
+      out.push({
+        key: k,
+        kind: r.kind,
+        name: PT.recTitle(r),
+        icon: PT.recIcon(r),
+        last: r.date,
+        next: next,
+        days: days,
+        status: PT.dueStatus(days),
+        months: PT.cycleOf(pet && pet.species, r),
+        recId: r.id
+      });
+    });
+
+    out.sort(function (a, b) { return a.days - b.days; });
+    return out;
+  }
+
+  function costSum(petId, fromKey) {
+    return records(petId).reduce(function (sum, r) {
+      if (fromKey && r.date < fromKey) return sum;
+      var c = Number(r.cost || 0);
+      return sum + (isFinite(c) ? c : 0);
+    }, 0);
+  }
+
+  function reminders(petId) {
+    var s = get();
+    if (!s.reminders) s.reminders = {};
+    var id = petId || activeId();
+    return (s.reminders[id] || []).slice();
+  }
+
+  function toggleReminder(key, petId) {
+    var s = get();
+    if (!s.reminders) s.reminders = {};
+    var id = petId || activeId();
+    var list = s.reminders[id] || [];
+    var i = list.indexOf(key);
+    if (i >= 0) list.splice(i, 1); else list.push(key);
+    s.reminders[id] = list;
+    save();
+    return i < 0;
+  }
+
+  /* 生病事件：同一种病的看诊/用药串成一段 */
+  function episodes(petId) {
+    var list = records(petId).filter(function (r) { return r.kind === 'visit' || r.kind === 'med'; });
+    var map = {};
+    list.forEach(function (r) {
+      var name = r.illness || r.diagnosis || '看诊';
+      if (!map[name]) map[name] = { name: name, items: [], cost: 0, open: false, start: r.date, end: r.date };
+      var e = map[name];
+      e.items.push(r);
+      e.cost += Number(r.cost || 0) || 0;
+      if (r.date < e.start) e.start = r.date;
+      if (r.date > e.end) e.end = r.date;
+      if (!r.closed) e.open = true;
+      e.count = e.items.length;
+    });
+    return Object.keys(map).map(function (k) { return map[k]; })
+      .sort(function (a, b) { return a.end < b.end ? 1 : -1; });
+  }
+
+  /* 这次病好了：把同名的那几条 visit/med 标成 closed */
+  function closeEpisode(petId, name) {
+    var n = 0;
+    records(petId).forEach(function (r) {
+      if ((r.kind === 'visit' || r.kind === 'med') && (r.illness === name || r.diagnosis === name)) {
+        r.closed = true;
+        r.updatedAt = new Date().toISOString();
+        n++;
+      }
+    });
+    if (n) save();
+    return n;
+  }
+
+  function reopenEpisode(petId, name) {
+    var n = 0;
+    records(petId).forEach(function (r) {
+      if ((r.kind === 'visit' || r.kind === 'med') && (r.illness === name || r.diagnosis === name)) {
+        r.closed = false;
+        r.updatedAt = new Date().toISOString();
+        n++;
+      }
+    });
+    if (n) save();
+    return n;
   }
 
   function generateFor(petId, key, reroll) {
@@ -595,6 +808,11 @@
     pets: pets, active: active, setActive: setActive, addPet: addPet, updatePet: updatePet,
     removePet: removePet, petById: petById, setPet: setPet,
     day: day, ensureDay: ensureDay, importDay: importDay,
+    daysOf: daysOf, importRecord: importRecord,
+    records: records, recById: recById, addRecord: addRecord, updateRecord: updateRecord, removeRecord: removeRecord,
+    dueList: dueList, costSum: costSum, reminders: reminders, toggleReminder: toggleReminder, episodes: episodes,
+    closeEpisode: closeEpisode,
+    reopenEpisode: reopenEpisode,
     addEvent: addEvent, updateEvent: updateEvent, removeEvent: removeEvent, setNote: setNote,
     customTypes: customTypes, customType: customType, addCustomType: addCustomType, removeCustomType: removeCustomType,
     milestones: milestones, addMilestone: addMilestone, removeMilestone: removeMilestone,

@@ -89,6 +89,14 @@ function push(petId, cb) {
         var jobs = list.map(function (one) {
           return d.collection('days').doc(petId + '_' + one.key).set({ data: one });
         });
+        var recs = PT.STORE.records(petId) || [];
+        recs.forEach(function (r) {
+          var one = JSON.parse(JSON.stringify(r));
+          one._openid = uid;
+          one.petId = petId;
+          one.updatedAt = Date.now();
+          jobs.push(d.collection('records').doc(petId + '_' + one.id).set({ data: one }));
+        });
         return Promise.all(jobs);
       })
       .then(function () { if (cb) cb(true); })

@@ -1,0 +1,133 @@
+<!-- record.wxml — 记一次 -->
+<view class="app" style="{{themeStyle}}">
+
+  <view class="h1 serif" style="margin-bottom:26rpx">{{editing ? '改这条记录' : '记一次'}}</view>
+
+  <!-- 类型 -->
+  <view class="frow">
+    <text class="fl">类型</text>
+    <picker mode="selector" range="{{kinds}}" range-key="label" value="{{kindIndex}}" bindchange="onKind">
+      <view class="fv">{{kindLabel}} ›</view>
+    </picker>
+  </view>
+
+  <!-- 日期 -->
+  <view class="frow">
+    <text class="fl">日期</text>
+    <picker mode="date" value="{{date}}" bindchange="onDate">
+      <view class="fv">{{dateText}} ›</view>
+    </picker>
+  </view>
+
+  <!-- 疫苗 -->
+  <block wx:if="{{kind === 'vaccine'}}">
+    <view class="frow">
+      <text class="fl">疫苗</text>
+      <picker mode="selector" range="{{names}}" value="{{nameIndex}}" bindchange="onName">
+        <view class="fv">{{name}} ›</view>
+      </picker>
+    </view>
+    <view class="frow">
+      <text class="fl">第几针</text>
+      <input class="fi" type="number" value="{{shot}}" data-k="shot" bindinput="onShot" placeholder="选填" />
+    </view>
+  </block>
+
+  <!-- 驱虫 -->
+  <block wx:if="{{kind === 'deworm'}}">
+    <view class="frow">
+      <text class="fl">体内外</text>
+      <picker mode="selector" range="{{routes}}" value="{{routeIndex}}" bindchange="onRoute">
+        <view class="fv">{{route}} ›</view>
+      </picker>
+    </view>
+    <view class="frow">
+      <text class="fl">药</text>
+      <picker mode="selector" range="{{drugs}}" value="{{drugIndex}}" bindchange="onDrug">
+        <view class="fv">{{drugs[drugIndex]}} ›</view>
+      </picker>
+    </view>
+  </block>
+
+  <!-- 看病 -->
+  <block wx:if="{{kind === 'visit'}}">
+    <view class="frow">
+      <text class="fl">什么病</text>
+      <input class="fi" value="{{illness}}" data-k="illness" bindinput="onField" placeholder="比如 肠胃炎" />
+    </view>
+    <view class="frow">
+      <text class="fl">诊断</text>
+      <input class="fi" value="{{diagnosis}}" data-k="diagnosis" bindinput="onField" placeholder="医生怎么说" />
+    </view>
+  </block>
+
+  <!-- 用药 -->
+  <block wx:if="{{kind === 'med'}}">
+    <view class="frow">
+      <text class="fl">药名</text>
+      <input class="fi" value="{{drug}}" data-k="drug" bindinput="onField" placeholder="比如 甲硝唑" />
+    </view>
+    <view class="frow">
+      <text class="fl">吃几天</text>
+      <input class="fi" type="number" value="{{days}}" data-k="days" bindinput="onField" placeholder="填个数字" />
+    </view>
+    <view class="frow">
+      <text class="fl">针对</text>
+      <input class="fi" value="{{illness}}" data-k="illness" bindinput="onField" placeholder="比如 肠胃炎" />
+    </view>
+  </block>
+
+  <!-- 体重 -->
+  <block wx:if="{{kind === 'weight'}}">
+    <view class="frow">
+      <text class="fl">体重 kg</text>
+      <input class="fi" type="digit" value="{{num}}" data-k="num" bindinput="onField" placeholder="比如 4.4" />
+    </view>
+  </block>
+
+  <!-- 通用 -->
+  <view class="frow">
+    <text class="fl">医院</text>
+    <input class="fi" value="{{hospital}}" data-k="hospital" bindinput="onField" placeholder="选填" />
+  </view>
+  <view class="frow">
+    <text class="fl">花费 ¥</text>
+    <input class="fi" type="digit" value="{{cost}}" data-k="cost" bindinput="onField" placeholder="选填" />
+  </view>
+
+  <!-- 下次 -->
+  <view class="frow next">
+    <text class="fl">下次</text>
+    <view class="fv">{{nextText || '不设到期'}}</view>
+    <picker mode="date" value="{{next}}" bindchange="onField" data-k="next">
+      <view class="edit-next">改</view>
+    </picker>
+  </view>
+
+  <!-- 附件 -->
+  <view class="sec-title" style="margin-top:34rpx"><text>附件</text><text class="dim">照片 / 视频 / 文件</text></view>
+  <view class="filebar">
+    <view class="fbtn" bindtap="addPhoto">📷 照片</view>
+    <view class="fbtn" bindtap="addVideo">🎬 视频</view>
+    <view class="fbtn" bindtap="addFile">📄 文件</view>
+  </view>
+
+  <view class="fstrip" wx:if="{{files.length}}">
+    <view class="fitem" wx:for="{{files}}" wx:key="index" data-i="{{index}}" bindtap="previewFile">
+      <image wx:if="{{item.kind === 'photo'}}" class="fimg" src="{{item.fileID || item.path}}" mode="aspectFill" />
+      <view wx:elif="{{item.kind === 'video'}}" class="fvideo">
+        <image wx:if="{{item.fileID || item.path}}" class="fimg" src="{{item.fileID || item.path}}" mode="aspectFill" />
+        <text class="fplay">▶</text>
+      </view>
+      <view wx:else class="ffile"><text class="fico">📄</text><text class="fname">{{item.name || '文件'}}</text></view>
+      <text class="fdel" data-i="{{index}}" catchtap="delFile">×</text>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view class="sec-title" style="margin-top:34rpx"><text>备注</text></view>
+  <textarea class="note" placeholder="比如：打完有点蔫，第二天就好了" value="{{note}}" data-k="note" bindinput="onField" maxlength="200" auto-height />
+
+  <view class="btn primary" style="margin-top:36rpx" bindtap="save">{{editing ? '保存' : '记下来'}}</view>
+  <view wx:if="{{editing}}" class="delrow" bindtap="del">删掉这条记录</view>
+</view>
