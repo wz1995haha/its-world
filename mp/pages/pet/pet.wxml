@@ -84,7 +84,7 @@
       <view class="sub" style="margin-top:16rpx">数据只存在这台设备的微信里（现在还没接云同步）。换手机前记得导出。</view>
     </view>
 
-    <view class="sub" style="text-align:center;margin-top:30rpx">「它眼里的世界」· 一个只记事实、让它自己写的日记本</view>
+    <view class="sub" style="text-align:center;margin-top:30rpx">「爪记一生」· 疫苗、驱虫、看病、体重，一页记一辈子</view>
   </block>
 
   <block wx:else>

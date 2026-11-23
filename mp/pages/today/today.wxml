@@ -4,7 +4,7 @@
   <!-- 还没建宠物 -->
   <block wx:if="{{!hasPet}}">
     <view class="card" style="margin-top:60rpx">
-      <view class="h1 serif" style="margin-bottom:12rpx">它眼里的世界</view>
+      <view class="h1 serif" style="margin-bottom:12rpx">爪记一生</view>
       <view class="sub" style="margin-bottom:32rpx">你只记事实，它来写日记。\n日子久了，你就有它的一生。</view>
 
       <view class="field" style="margin-bottom:20rpx">
