@@ -72,3 +72,35 @@
   font-size: 24rpx; line-height: 54rpx; text-align: center;
   border: 3rpx solid var(--paper, #F5EEE3);
 }
+
+/* 它的空间入口 */
+.space {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  background: var(--paper-2);
+  border: 1rpx solid rgba(var(--accent-rgb), .28);
+  border-radius: 22rpx;
+  padding: 26rpx 24rpx;
+  margin: 6rpx 0 26rpx;
+}
+
+.space-l { flex: 1; min-width: 0; }
+
+.space-t {
+  font-size: 32rpx;
+  color: var(--ink);
+  margin-bottom: 6rpx;
+}
+
+.space-s {
+  font-size: 23rpx;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.space-r {
+  font-size: 24rpx;
+  color: var(--accent);
+  flex: none;
+}

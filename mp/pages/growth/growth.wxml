@@ -1,0 +1,71 @@
+<!-- growth.wxml — 它的空间 -->
+<view class="app" style="{{themeStyle}}">
+
+  <block wx:if="{{!hasPet}}">
+    <view style="height:{{padTop}}px"></view>
+    <view class="card" style="margin-top:40rpx;text-align:center">
+      <view class="h1 serif">还没有宠物</view>
+      <view class="sub" style="margin-top:12rpx">先去首页建一只，这里就是它的专属空间。</view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="ghead" style="padding-top:{{padTop}}px">
+      <view class="gface">
+        <face species="{{pet.species}}" mood="calm" breed-id="{{pet.breedId}}" photo="{{pet.photo}}" size="sm" />
+      </view>
+      <view class="gmeta">
+        <view class="gname serif">{{pet.name}} 的空间</view>
+        <view class="gsub">{{ageLine ? ageLine + ' · ' : ''}}{{total}} 条记录<text wx:if="{{files}}"> · {{files}} 个文件</text></view>
+      </view>
+    </view>
+
+    <view wx:if="{{!total}}" class="empty" style="margin-top:60rpx">
+      还没有记录。\n第一次回家、第一次洗澡、第一次学会坐下——都值得留一条。
+    </view>
+
+    <block wx:for="{{groups}}" wx:key="key">
+      <block wx:if="{{item.type === 'year'}}">
+        <view class="gyear">{{item.label}}</view>
+      </block>
+
+      <view wx:else class="gitem" data-id="{{item.id}}" bindtap="openOne">
+        <view class="gdot"></view>
+        <view class="gcard">
+          <view class="gtop">
+            <text class="gdate">{{item.date}}</text>
+            <text wx:if="{{item.tag}}" class="gtag">{{item.tag}}</text>
+            <text wx:if="{{item.age}}" class="gage">{{item.age}}</text>
+          </view>
+
+          <view wx:if="{{item.title}}" class="gtitle serif">{{item.title}}</view>
+          <view wx:if="{{item.text}}" class="gtext {{item.more ? 'clamp' : ''}}">{{item.text}}</view>
+
+          <view wx:if="{{item.photos.length}}" class="gshots">
+            <view
+              class="gshot"
+              wx:for="{{item.photos}}"
+              wx:for-item="f"
+              wx:key="path"
+              data-url="{{f.fileID || f.path}}"
+              catchtap="previewPhoto"
+            >
+              <image class="gimg" src="{{f.fileID || f.path}}" mode="aspectFill" />
+            </view>
+            <view wx:if="{{item.photoCount > 4}}" class="gmore">+{{item.photoCount - 4}}</view>
+          </view>
+
+          <view wx:if="{{item.video}}" class="gvideo" data-src="{{item.video.fileID || item.video.path}}" catchtap="playVideo">
+            <image wx:if="{{item.video.fileID || item.video.path}}" class="gimg" src="{{item.video.poster || item.video.fileID || item.video.path}}" mode="aspectFill" />
+            <view class="gplay">▶</view>
+            <text class="gdur">{{item.video.dur ? item.video.dur + ' 秒' : '视频'}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view style="height:180rpx"></view>
+
+    <view class="gadd" bindtap="add">＋ 记一条</view>
+  </block>
+</view>

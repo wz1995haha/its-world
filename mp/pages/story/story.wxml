@@ -1,0 +1,57 @@
+<!-- story.wxml — 写一条成长记录 -->
+<view class="app" style="{{themeStyle}}">
+  <view style="height:{{padTop}}px"></view>
+
+  <view class="h1 serif" style="margin-bottom:26rpx">{{editing ? '改这一条' : '记它的一段'}}</view>
+
+  <!-- 日期 + 标签 -->
+  <view class="frow">
+    <text class="fl">日子</text>
+    <picker mode="date" value="{{date}}" start="1900-01-01" end="2099-12-31" bindchange="onDate">
+      <view class="fv">{{dateText}} ›</view>
+    </picker>
+  </view>
+
+  <view class="tagrow">
+    <view
+      class="tg {{tag === item ? 'on' : ''}}"
+      wx:for="{{tags}}"
+      wx:key="*this"
+      data-tag="{{item}}"
+      bindtap="pickTag"
+    >{{item}}</view>
+  </view>
+
+  <view class="field" style="margin-bottom:20rpx">
+    <input placeholder="给它起个小标题（选填）" value="{{title}}" bindinput="onTitle" maxlength="24" />
+  </view>
+
+  <view class="field" style="padding:20rpx 24rpx">
+    <textarea
+      class="stext"
+      placeholder="那天发生了什么？它当时什么样？写下来。"
+      value="{{text}}"
+      bindinput="onText"
+      maxlength="1200"
+      auto-height
+    />
+  </view>
+
+  <!-- 附件 -->
+  <view class="sec-title"><text>照片 / 视频</text><text class="dim">{{files.length}} 个</text></view>
+  <view class="filebar">
+    <view class="fbtn" bindtap="addPhoto"><text class="fi">📷</text><text>照片</text></view>
+    <view class="fbtn" bindtap="addVideo"><text class="fi">🎬</text><text>视频</text></view>
+  </view>
+
+  <view wx:if="{{files.length}}" class="fstrip">
+    <view class="fitem" wx:for="{{files}}" wx:key="path" data-i="{{index}}">
+      <image class="fimg" src="{{item.fileID || item.path}}" mode="aspectFill" data-i="{{index}}" bindtap="previewFile" />
+      <text wx:if="{{item.kind === 'video'}}" class="fplay">▶</text>
+      <text class="fdel" data-i="{{index}}" catchtap="delFile">×</text>
+    </view>
+  </view>
+
+  <view class="btn primary" style="margin-top:36rpx" bindtap="save">{{editing ? '保存修改' : '记下来'}}</view>
+  <view wx:if="{{editing}}" class="delrow"><text class="del" bindtap="del">删掉这一条</text></view>
+</view>

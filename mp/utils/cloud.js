@@ -72,7 +72,7 @@ function pull(cb) {
 function pullNow(uid, cb) {
   {
     var d = db();
-    var out = { pets: [], days: [] };
+    var out = { pets: [], days: [], stories: [] };
     d.collection('pets').where({ _openid: uid }).limit(20).get()
       .then(function (r) {
         out.pets = (r && r.data) || [];
@@ -80,6 +80,11 @@ function pullNow(uid, cb) {
       })
       .then(function (r) {
         out.days = (r && r.data) || [];
+        return d.collection('stories').where({ _openid: uid }).limit(1000).get()
+          .catch(function () { return { data: [] }; });
+      })
+      .then(function (r) {
+        out.stories = (r && r.data) || [];
         cb(out);
       })
       .catch(function (e) {
@@ -126,6 +131,15 @@ function pushNow(uid, petId, cb) {
           one.petId = petId;
           one.updatedAt = Date.now();
           jobs.push(d.collection('records').doc(petId + '_' + one.id).set({ data: one }));
+        });
+        var stories = PT.STORE.stories(petId) || [];
+        stories.forEach(function (st) {
+          var one = JSON.parse(JSON.stringify(st));
+          one._openid = uid;
+          one.petId = petId;
+          one.updatedAt = Date.now();
+          jobs.push(d.collection('stories').doc(petId + '_' + one.id).set({ data: one })
+            .catch(function () {}));
         });
         return Promise.all(jobs);
       })

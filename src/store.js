@@ -372,7 +372,92 @@
   }
 
   /* 把一整天（云上下来的）整段写回本地，用于多设备同步 */
-  function importDay(petId, key, box) {
+  /* ---------------- 它的空间：成长记录（文字 + 照片 + 视频） ---------------- */
+
+function storyBucket(petId) {
+  var s = get();
+  if (!s.stories) s.stories = {};
+  var pid = petId || activeId();
+  if (!s.stories[pid]) s.stories[pid] = [];
+  return s.stories[pid];
+}
+
+function stories(petId) {
+  return storyBucket(petId).slice().sort(function (a, b) {
+    if (a.date === b.date) return (b.createdAt || '') < (a.createdAt || '') ? -1 : 1;
+    return a.date < b.date ? 1 : -1;
+  });
+}
+
+function storyById(id, petId) {
+  var hit = null;
+  storyBucket(petId).forEach(function (x) { if (x.id === id) hit = x; });
+  return hit;
+}
+
+function addStory(petId, story) {
+  var pid = petId || activeId();
+  var list = storyBucket(pid);
+  var now = new Date().toISOString();
+  var item = {
+    id: 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    date: story.date || todayKey(),
+    tag: story.tag || '日常',
+    title: String(story.title || '').slice(0, 24),
+    text: String(story.text || '').slice(0, 1200),
+    files: (story.files || []).slice(),
+    createdAt: now,
+    updatedAt: now
+  };
+  list.push(item);
+  save();
+  return item;
+}
+
+function updateStory(petId, id, patch) {
+  var item = storyById(id, petId);
+  if (!item) return null;
+  Object.keys(patch || {}).forEach(function (k) { if (k !== 'id') item[k] = patch[k]; });
+  item.updatedAt = new Date().toISOString();
+  save();
+  return item;
+}
+
+function removeStory(petId, id) {
+  var list = storyBucket(petId);
+  for (var i = list.length - 1; i >= 0; i--) if (list[i].id === id) list.splice(i, 1);
+  save();
+}
+
+function importStory(petId, item) {
+  if (!item || !item.id) return;
+  var list = storyBucket(petId);
+  var hit = null;
+  list.forEach(function (x) { if (x.id === item.id) hit = x; });
+  if (!hit) { list.push(item); save(); return; }
+  if ((item.updatedAt || '') >= (hit.updatedAt || '')) {
+    Object.keys(item).forEach(function (k) { hit[k] = item[k]; });
+    save();
+  }
+}
+
+function storyYearCount(petId) {
+  var n = {};
+  stories(petId).forEach(function (x) {
+    var y = String(x.date || '').slice(0, 4);
+    if (!y) return;
+    n[y] = (n[y] || 0) + 1;
+  });
+  return n;
+}
+
+function fileCount(storyList) {
+  var n = 0;
+  (storyList || []).forEach(function (x) { n += (x.files || []).length; });
+  return n;
+}
+
+function importDay(petId, key, box) {
     if (!petId || !key || !box) return null;
     var b = bucket(petId);
     var d = box;
@@ -812,6 +897,13 @@
     records: records, recById: recById, addRecord: addRecord, updateRecord: updateRecord, removeRecord: removeRecord,
     dueList: dueList, costSum: costSum, reminders: reminders, toggleReminder: toggleReminder, episodes: episodes,
     closeEpisode: closeEpisode,
+  stories: stories,
+  storyById: storyById,
+  addStory: addStory,
+  updateStory: updateStory,
+  removeStory: removeStory,
+  importStory: importStory,
+  storyYearCount: storyYearCount,
     reopenEpisode: reopenEpisode,
     addEvent: addEvent, updateEvent: updateEvent, removeEvent: removeEvent, setNote: setNote,
     customTypes: customTypes, customType: customType, addCustomType: addCustomType, removeCustomType: removeCustomType,

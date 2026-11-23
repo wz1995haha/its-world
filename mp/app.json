@@ -8,7 +8,9 @@
     "pages/archive/archive",
     "pages/today/today",
     "pages/diary/diary",
-    "pages/entry/entry"
+    "pages/entry/entry",
+    "pages/growth/growth",
+    "pages/story/story"
   ],
   "window": {
     "navigationBarTitleText": "爪记一生",

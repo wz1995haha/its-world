@@ -127,6 +127,7 @@ Page({
       chipHidden: ch.hidden,
       breeds: breeds,
       ob: { species: pet.species, breedIndex: bi, personIndex: pi },
+      storyCount: (S.stories(pet.id) || []).length,
       ageLine: ageOf(pet.birthday),
       birthAge: ageOf(pet.birthday),
       homeDays: pet.homeDate ? (PT.daysBetween(pet.homeDate, PT.todayKey()) + 1) : 0,
@@ -135,6 +136,10 @@ Page({
       lastIn: lastDewormText(pet, '体内'),
       lastOut: lastDewormText(pet, '体外')
     });
+  },
+
+  goSpace: function () {
+    wx.navigateTo({ url: '/pages/growth/growth' });
   },
 
   /* ---------- 头像 ---------- */

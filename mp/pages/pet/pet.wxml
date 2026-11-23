@@ -20,6 +20,14 @@
       <view class="st"><view class="sn serif">{{stats.diaryCount}}</view><view class="sl">日记篇数</view></view>
     </view>
 
+    <view class="space" bindtap="goSpace">
+      <view class="space-l">
+        <view class="space-t serif">它的空间</view>
+        <view class="space-s">从到家的第一天开始，照片、视频、第一次，都留在这儿</view>
+      </view>
+      <view class="space-r">{{storyCount}} 条 ›</view>
+    </view>
+
     <view class="sec-title"><text>资料</text><text class="link" bindtap="rename">改名</text></view>
     <view class="card">
       <view class="kv">

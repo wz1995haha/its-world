@@ -200,6 +200,40 @@ console.log('— 健康档案：病史与花费 —');
   ok("年度花费合计 448", sum === 448, "sum=" + sum);
 }
 
+/* ---------- 它的空间：成长记录 ---------- */
+console.log('— 它的空间 —');
+{
+  var pet = S.active();
+  var before = S.stories(pet.id).length;
+
+  var st1 = S.addStory(pet.id, { date: '2026-05-01', tag: '第一次', title: '第一次回家', text: '它在纸箱里睡着了。', files: [{ kind: 'photo', path: 'a.jpg' }] });
+  ok('能加一条成长记录', !!st1 && S.stories(pet.id).length === before + 1);
+  ok('标题和正文存下来了', st1.title === '第一次回家' && st1.text.indexOf('纸箱') >= 0);
+  ok('附件跟着记录走', st1.files.length === 1 && st1.files[0].kind === 'photo');
+
+  S.addStory(pet.id, { date: '2025-12-01', tag: '日常', title: '会坐了', text: '三天学会。' });
+  var list = S.stories(pet.id);
+  ok('按日期倒序', list[0].date >= list[list.length - 1].date);
+  ok('早的那条排在后面', list[list.length - 1].title === '会坐了', 'last=' + list[list.length - 1].title);
+
+  S.updateStory(pet.id, st1.id, { text: '改过的一句话。', tag: '生日' });
+  ok('能改一条', S.storyById(st1.id, pet.id).text.indexOf('改过') >= 0);
+  ok('改完日期不变', S.storyById(st1.id, pet.id).date === '2026-05-01');
+
+  var y = S.storyYearCount(pet.id);
+  ok('按年能数出来', y['2026'] >= 1 && y['2025'] >= 1);
+
+  /* 云端回来的（upsert：更新的覆盖，旧的忽略） */
+  S.importStory(pet.id, { id: st1.id, date: '2026-05-01', tag: 'x', title: '云端的', text: '云端', files: [], updatedAt: '2000-01-01T00:00:00.000Z' });
+  ok('旧版本不覆盖本地', S.storyById(st1.id, pet.id).title !== '云端的');
+  S.importStory(pet.id, { id: st1.id, date: '2026-05-01', tag: '生日', title: '云端新', text: '云端新', files: [], updatedAt: '2999-01-01T00:00:00.000Z' });
+  ok('新版本会覆盖', S.storyById(st1.id, pet.id).title === '云端新');
+
+  var n = S.stories(pet.id).length;
+  S.removeStory(pet.id, st1.id);
+  ok('能删掉一条', S.stories(pet.id).length === n - 1);
+  ok('删完查不到', !S.storyById(st1.id, pet.id));
+}
 printResult();
 }, 30);
 cloud.setEnv('');

@@ -105,6 +105,13 @@ Page({
           changed++;
         }
       });
+      (res.stories || []).forEach(function (rs) {
+        if (!rs || !rs.id || !rs.petId) return;
+        var one = {};
+        Object.keys(rs).forEach(function (k) { if (k.indexOf('_') !== 0) one[k] = rs[k]; });
+        S.importStory(one.petId, one);
+        changed++;
+      });
       (res.days || []).forEach(function (rd) {
         if (!rd || !rd.key || !rd.petId) return;
         var box = {};
