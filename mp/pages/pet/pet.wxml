@@ -35,14 +35,18 @@
       <picker mode="selector" range="{{['傲娇','黏人','高冷','贪吃','好奇']}}" value="{{ob.personIndex}}" bindchange="onPerson">
         <view class="kv"><text class="k">性格</text><text class="v">{{personLabel}} ›</text></view>
       </picker>
-      <view class="kv" bindtap="setBirthday">
-        <text class="k">生日</text>
-        <text class="v">{{pet.birthday || '填一下'}} ›</text>
-      </view>
-      <view class="kv" bindtap="setHome">
-        <text class="k">到家</text>
-        <text class="v">{{pet.homeDate || '填一下'}} ›</text>
-      </view>
+      <picker mode="date" value="{{pet.birthday}}" start="1900-01-01" end="2099-12-31" bindchange="onBirthday">
+        <view class="kv">
+          <text class="k">生日</text>
+          <text class="v">{{pet.birthday || '选日期'}} ›</text>
+        </view>
+      </picker>
+      <picker mode="date" value="{{pet.homeDate}}" start="1900-01-01" end="2099-12-31" bindchange="onHomeDate">
+        <view class="kv">
+          <text class="k">到家</text>
+          <text class="v">{{pet.homeDate || '选日期'}} ›</text>
+        </view>
+      </picker>
     </view>
 
     <view class="sec-title"><text>关于它</text><text class="dim">{{ageLine}}</text></view>

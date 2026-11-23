@@ -200,55 +200,14 @@ Page({
     this.refresh();
   },
 
-  setHome: function () {
-    var self = this;
-    var pet = this.data.pet;
-    wx.showActionSheet({
-      itemList: ['选一个日期', '清除'],
-      success: function (r) {
-        if (r.tapIndex === 1) {
-          S.updatePet(pet.id, { homeDate: '' });
-          self.refresh();
-          return;
-        }
-        wx.showModal({
-          title: '到家的日期',
-          editable: true,
-          placeholderText: '2024-05-18',
-          content: pet.homeDate || '',
-          success: function (m) {
-            if (!m.confirm) return;
-            var v = String(m.content || '').trim();
-            if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(v)) {
-              wx.showToast({ title: '写成 2024-05-18 这样', icon: 'none' });
-              return;
-            }
-            S.updatePet(pet.id, { homeDate: v });
-            self.refresh();
-          }
-        });
-      }
-    });
+  onBirthday: function (e) {
+    S.updatePet(this.data.pet.id, { birthday: e.detail.value });
+    this.refresh();
   },
 
-  setBirthday: function () {
-    var self = this;
-    wx.showModal({
-      title: '生日',
-      editable: true,
-      content: this.data.pet.birthday || PT.todayKey(),
-      placeholderText: 'YYYY-MM-DD',
-      success: function (r) {
-        if (!r.confirm) return;
-        var d = String(r.content || '').trim();
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) {
-          wx.showToast({ title: '写成 2023-05-18', icon: 'none' });
-          return;
-        }
-        S.updatePet(self.data.pet.id, { birthday: d });
-        self.refresh();
-      }
-    });
+  onHomeDate: function (e) {
+    S.updatePet(this.data.pet.id, { homeDate: e.detail.value });
+    this.refresh();
   },
 
   /* ---------- 按钮管理 ---------- */
