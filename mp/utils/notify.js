@@ -1,43 +1,34 @@
 /**
- * 订阅消息：个人主体只能用「一次性订阅」——用户每点一次授权，只能收到一条。
+ * 订阅消息（一次性订阅）：用户每授权一次，只能收到一条。
  *
- * 因此这里的策略是：
- *   1. 用户点「铃铛」或进「该做」页时，问一次授权；
- *   2. 授权成功就把「可用条数 +1」记到云端（subs 集合）；
- *   3. 云函数 notify 每天 9 点扫一遍，3 天内到期的发一条，并从可用条数里减 1。
+ * 已申请的三个模板（后台「基础功能 → 订阅消息」里能查到）：
+ *   due      宠物养护记录提醒  thing1 宠物名称 / thing2 养护类型 / time3 到期时间 / thing4 备注
+ *   check    宠物健康检查提醒  thing1 宠物名称 / time2 时间 / thing6 提醒事项
+ *   birthday 宠物生日通知      thing1 宠物昵称 / time2 日期 / thing3 温馨提示
  *
- * 模板 ID 需要你在后台「基础功能 → 订阅消息」里申请后填进 TPL。
- * 三个模板建议对应：疫苗到期 / 驱虫到期 / 复诊提醒。
- * 模板字段建议统一用：thing1（宠物名）、thing2（事项）、date3（日期）。
+ * 当前用前两个：养护类（疫苗/驱虫）走 due，就医类（复诊/体检/手术/用药）走 check。
  */
 
 const TPL = {
-  vaccine: '',   // 疫苗到期提醒
-  deworm: '',    // 驱虫到期提醒
-  visit: ''      // 复诊 / 体检提醒
+  due: 'palO4UOhhiIVBSuHDXu-k8wfSAm6u4uPaLZCoM4Rc',
+  check: 'm29plqvqbKEcsICnlwWV5orqLMhBnq1vg7mlAfwL8rk',
+  birthday: '8rqV8K_4EO4-cpZwuMeKvfUKmzy2Ft7LLp5q1oZmT-A'
 };
 
 /* 到期几天内提醒 */
 const AHEAD = 3;
 
-function ready(kind) {
-  const id = TPL[kind];
-  return !!(id && String(id).length > 10);
+function idOf(kind) {
+  if (kind === 'deworm' || kind === 'vaccine') return TPL.due;
+  if (kind === 'exam' || kind === 'visit' || kind === 'surgery' || kind === 'med') return TPL.check;
+  return TPL.due;
 }
 
-function anyReady() {
-  return ready('vaccine') || ready('deworm') || ready('visit');
+function ready() {
+  return Object.keys(TPL).some(function (k) { return TPL[k] && TPL[k].length > 20; });
 }
 
-/* 从 dueList 的一条里挑模板：deworm 走驱虫、exam/visit 走复诊、其余走疫苗 */
-function tplOf(item) {
-  const kind = (item && item.kind) || '';
-  if (kind === 'deworm') return TPL.deworm;
-  if (kind === 'exam' || kind === 'visit' || kind === 'surgery' || kind === 'med') return TPL.visit;
-  return TPL.vaccine;
-}
-
-/* 是否该提醒：days 为负数（已过期）也提醒，超过 AHEAD 天不提醒 */
+/* 是否该提醒：负数（过期）也提醒，超过 AHEAD 天不提醒 */
 function shouldPing(days) {
   if (days === null || days === undefined || days === '') return false;
   const n = Number(days);
@@ -45,45 +36,43 @@ function shouldPing(days) {
   return n <= AHEAD;
 }
 
-/* 申请一次订阅授权；成功回调传 true */
-function ask(kind, cb) {
+/* 一次把三个模板都问一遍（微信一次最多 3 个），用户勾几个就攒几条额度 */
+function ask(cb) {
   cb = cb || function () {};
-  const ids = [];
-  if (ready(kind)) ids.push(TPL[kind]);
-  else Object.keys(TPL).forEach(function (k) { if (ready(k)) ids.push(TPL[k]); });
-  if (!ids.length) { cb(false, '没配模板'); return; }
-  if (!wx.requestSubscribeMessage) { cb(false, '版本太低'); return; }
+  const ids = [TPL.due, TPL.check, TPL.birthday].filter(function (x) { return x; });
+  if (!ids.length) { cb(0, '没配模板'); return; }
+  if (!wx.requestSubscribeMessage) { cb(0, '版本太低'); return; }
   wx.requestSubscribeMessage({
     tmplIds: ids,
     success: function (res) {
-      const ok = ids.some(function (id) { return res[id] === 'accept'; });
-      cb(ok, ok ? '' : '没同意');
+      let n = 0;
+      ids.forEach(function (id) { if (res[id] === 'accept') n += 1; });
+      cb(n, n ? '' : '没同意');
     },
-    fail: function (e) { cb(false, (e && e.errMsg) || '失败'); }
+    fail: function (e) { cb(0, (e && e.errMsg) || '失败'); }
   });
 }
 
-/* 授权成功后：把可用条数 +1 记到云端 */
-function grant(kind, cb) {
+/* 授权成功后把可用条数记到云端 */
+function grant(n, cb) {
   const cloud = require('./cloud.js');
   if (!cloud.enabled()) { if (cb) cb(false); return; }
-  cloud.grantSub(1, function (ok) { if (cb) cb(ok); });
+  cloud.grantSub(n || 1, function (ok) { if (cb) cb(ok); });
 }
 
 /* 一步到位：问授权 → 记条数 */
-function askAndGrant(kind, cb) {
-  ask(kind, function (ok, why) {
-    if (!ok) { if (cb) cb(false, why); return; }
-    grant(kind, function () { if (cb) cb(true); });
+function askAndGrant(cb) {
+  ask(function (n, why) {
+    if (!n) { if (cb) cb(0, why); return; }
+    grant(n, function () { if (cb) cb(n); });
   });
 }
 
 module.exports = {
   TPL: TPL,
   AHEAD: AHEAD,
+  idOf: idOf,
   ready: ready,
-  anyReady: anyReady,
-  tplOf: tplOf,
   shouldPing: shouldPing,
   ask: ask,
   grant: grant,

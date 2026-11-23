@@ -57,6 +57,24 @@
       </view>
     </view>
 
+    <!-- 洗澡 / 美容 -->
+    <view class="sec-title"><text>洗澡 · 美容</text><text class="dim">按你的习惯来</text></view>
+    <view class="card">
+      <view class="vrow" wx:for="{{care}}" wx:key="kind">
+        <view class="vmain">
+          <view class="vname">
+            {{item.icon}} {{item.label}}
+            <text class="vtag {{item.st.cls}}">{{item.st.text}}</text>
+          </view>
+          <view class="vsub">
+            <block wx:if="{{item.has}}">上次 {{item.last}} · 下次 {{item.next}}</block>
+            <block wx:else>还没记过。洗澡一般一个月一次，美容看毛长。</block>
+          </view>
+        </view>
+        <view class="vact" data-kind="{{item.kind}}" catchtap="addCare">记一次</view>
+      </view>
+    </view>
+
     <!-- 病史 -->
     <view class="sec-title">
       <text>病史</text>

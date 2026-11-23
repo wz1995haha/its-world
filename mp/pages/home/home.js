@@ -180,7 +180,11 @@ Page({
     if (first) {
       var short = first.kind === 'deworm'
         ? (first.route === '体外' ? '体外驱虫' : '体内驱虫')
-        : (first.kind === 'vaccine' ? (first.name || '疫苗') : '体检');
+        : first.kind === 'vaccine' ? (first.name || '疫苗')
+        : first.kind === 'bath' ? '洗澡'
+        : first.kind === 'groom' ? '美容'
+        : first.kind === 'exam' ? '体检'
+        : (first.name || '这一项');
       var over = first.status === 'over';
       var lead = over
         ? (/疫苗/.test(short) ? '该打' + short + '了' : '该' + short + '了')
@@ -266,9 +270,9 @@ Page({
       return;
     }
     /* 打开提醒时，顺手申请一次订阅消息授权（一次性订阅：授权一次发一条） */
-    notify.askAndGrant('vaccine', function (ok, why) {
-      if (ok) {
-        wx.showToast({ title: '到期前微信会通知你', icon: 'none' });
+    notify.askAndGrant(function (n, why) {
+      if (n > 0) {
+        wx.showToast({ title: '已攒 ' + n + ' 次到期通知', icon: 'none' });
       } else if (why === '没配模板') {
         wx.showToast({ title: '已打开提醒（微信通知还没开通）', icon: 'none' });
       } else {

@@ -27,6 +27,7 @@ Page({
     ageLine: '',
     vaccines: [],
     deworm: [],
+    care: [],
     list: [],
     openCount: 0,
     totalCost: 0,
@@ -78,6 +79,22 @@ Page({
       };
     });
 
+    /* ---- 洗澡 / 美容：各一行，看上次和下次 ---- */
+    var care = ['bath', 'groom'].map(function (kind) {
+      var d = due.filter(function (x) { return x.kind === kind; })[0];
+      var K = PT.KIND[kind] || {};
+      if (!d) return { kind: kind, label: K.label || kind, icon: K.icon || '📌', has: false, st: { cls: 'none', text: '还没记过' } };
+      return {
+        kind: kind,
+        label: K.label || kind,
+        icon: K.icon || '📌',
+        has: true,
+        last: PT.fmtShort(d.last),
+        next: PT.fmtShort(d.next),
+        st: statusOf(d.days)
+      };
+    });
+
     /* ---- 病史 ---- */
     var cost = 0;
     var list = (S.episodes(pet.id) || []).map(function (e) {
@@ -113,6 +130,7 @@ Page({
       ageLine: pet.birthday ? '第 ' + (PT.daysBetween(pet.homeDate || pet.createdAt.slice(0, 10), PT.todayKey()) + 1) + ' 天' : '',
       vaccines: vaccines,
       deworm: deworm,
+      care: care,
       list: list,
       openCount: openCount,
       totalCost: Math.round(cost * 10) / 10,
@@ -136,6 +154,11 @@ Page({
   addVaccine: function (e) {
     var name = e.currentTarget.dataset.name || '';
     wx.navigateTo({ url: '/pages/record/record?kind=vaccine&name=' + name });
+  },
+
+  addCare: function (e) {
+    var kind = e.currentTarget.dataset.kind;
+    wx.navigateTo({ url: '/pages/record/record?kind=' + kind });
   },
 
   addDeworm: function (e) {

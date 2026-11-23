@@ -11,6 +11,8 @@ var FILTERS = [
   { id: 'visit', label: '看病' },
   { id: 'med', label: '用药' },
   { id: 'weight', label: '体重' },
+  { id: 'bath', label: '洗澡' },
+  { id: 'groom', label: '美容' },
   { id: 'exam', label: '体检' },
   { id: 'surgery', label: '手术' },
   { id: 'other', label: '其他' }

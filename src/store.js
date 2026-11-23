@@ -579,12 +579,14 @@ function importDay(petId, key, box) {
   }
 
   /* 「该做什么」：按 疫苗名 / 体内外 / 体检 分组，每组取最近一次 */
-  var TRACKABLE = { vaccine: 1, deworm: 1, exam: 1 };
+  var TRACKABLE = { vaccine: 1, deworm: 1, exam: 1, bath: 1, groom: 1 };
 
   function trackKey(rec) {
     if (rec.kind === 'vaccine') return 'vaccine:' + (rec.name || '疫苗');
     if (rec.kind === 'deworm') return 'deworm:' + (rec.route || '体内');
     if (rec.kind === 'exam') return 'exam';
+    if (rec.kind === 'bath') return 'bath';
+    if (rec.kind === 'groom') return 'groom';
     return '';
   }
 

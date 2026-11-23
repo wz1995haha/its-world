@@ -239,10 +239,13 @@ console.log('— 它的空间 —');
 console.log('— 订阅提醒 —');
 {
   const notify = require('../mp/utils/notify.js');
-  ok('模板占位是空的', notify.ready('vaccine') === false);
-  ok('驱虫走驱虫模板', notify.tplOf({ kind: 'deworm' }) === notify.TPL.deworm);
-  ok('复诊走复诊模板', notify.tplOf({ kind: 'visit' }) === notify.TPL.visit);
-  ok('疫苗走疫苗模板', notify.tplOf({ kind: 'vaccine' }) === notify.TPL.vaccine);
+  ok('模板 ID 都填了', notify.ready() === true);
+  ok('养殖类模板够长', notify.TPL.due.length > 20);
+  ok('检查类模板够长', notify.TPL.check.length > 20);
+  ok('驱虫走养护模板', notify.idOf('deworm') === notify.TPL.due);
+  ok('疫苗走养护模板', notify.idOf('vaccine') === notify.TPL.due);
+  ok('复诊走检查模板', notify.idOf('visit') === notify.TPL.check);
+  ok('体检走检查模板', notify.idOf('exam') === notify.TPL.check);
   ok('3 天内要提醒', notify.shouldPing(2) === true);
   ok('已过期也要提醒', notify.shouldPing(-4) === true);
   ok('还早就不提醒', notify.shouldPing(30) === false);

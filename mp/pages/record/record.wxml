@@ -51,6 +51,17 @@
   </block>
 
   <!-- 看病 -->
+  <block wx:if="{{kind === 'bath' || kind === 'groom'}}">
+    <view class="frow">
+      <view class="fl">项目</view>
+      <input class="fi" data-k="form.item" value="{{form.item}}" bindinput="onField" placeholder="{{kind === 'bath' ? '比如：洗澡、干洗、药浴' : '比如：剪毛、修甲、剃脚毛'}}" />
+    </view>
+    <view class="frow">
+      <view class="fl">在哪</view>
+      <input class="fi" data-k="form.place" value="{{form.place}}" bindinput="onField" placeholder="家里 / 店里（可不填）" />
+    </view>
+  </block>
+
   <block wx:if="{{kind === 'visit'}}">
     <view class="frow">
       <text class="fl">什么病</text>

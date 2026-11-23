@@ -40,6 +40,7 @@ Page({
     nextText: '',
     autoNext: true,
     files: [],
+    form: { item: '', place: '' },
     canSave: false
   },
 
@@ -286,6 +287,9 @@ Page({
     } else if (d.kind === 'deworm') {
       rec.route = d.route;
       rec.drug = d.drug || '';
+    } else if (d.kind === 'bath' || d.kind === 'groom') {
+      rec.item = String(d.form && d.form.item || '').trim();
+      rec.place = String(d.form && d.form.place || '').trim();
     } else if (d.kind === 'med') {
       rec.drug = String(d.drug || '').trim() || '用药';
       rec.days = Number(d.days || 0);

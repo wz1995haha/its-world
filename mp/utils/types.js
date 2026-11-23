@@ -68,6 +68,15 @@ PT.REC_KINDS = [
     routes: ['体内', '体外'],
     cycleByRoute: { '体内': { cat: 3, dog: 3 }, '体外': { cat: 1, dog: 1 } }
   },
+  {
+    id: 'bath', label: '洗澡', icon: '🛁', group: 'care',
+    /* 洗澡不算医疗，周期按习惯给个默认值，用户可以自己改下次日期 */
+    cycle: { cat: 2, dog: 1 }
+  },
+  {
+    id: 'groom', label: '美容', icon: '✂️', group: 'care',
+    cycle: { cat: 3, dog: 2 }
+  },
   { id: 'exam', label: '体检', icon: '🩺', group: 'prevent', cycle: { cat: 12, dog: 12 } },
   { id: 'visit', label: '看病', icon: '🏥', group: 'care' },
   { id: 'med', label: '用药', icon: '💊', group: 'care' },
@@ -135,6 +144,8 @@ PT.recTitle = function (rec) {
   var k = PT.KIND[rec.kind] || { label: '记录', icon: '📌' };
   if (rec.kind === 'vaccine') return (rec.name || '疫苗');
   if (rec.kind === 'deworm') return (rec.route || '') + '驱虫' + (rec.drug ? ' · ' + rec.drug : '');
+  if (rec.kind === 'bath') return rec.item ? '洗澡 · ' + rec.item : '洗澡';
+  if (rec.kind === 'groom') return rec.item ? '美容 · ' + rec.item : '美容';
   if (rec.kind === 'weight') return '体重 ' + (rec.num != null ? rec.num : '') + ' kg';
   if (rec.kind === 'med') return (rec.drug || '用药') + (rec.days ? ' ' + rec.days + ' 天' : '');
   if (rec.kind === 'visit') return (rec.illness || rec.diagnosis || '看病');
