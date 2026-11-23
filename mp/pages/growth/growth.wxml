@@ -21,7 +21,8 @@
     </view>
 
     <view wx:if="{{!total}}" class="empty" style="margin-top:60rpx">
-      还没有记录。\n第一次回家、第一次洗澡、第一次学会坐下——都值得留一条。
+      <view>还没有记录。</view>
+      <view style="margin-top:10rpx">第一次回家、第一次洗澡、第一次学会坐下——都值得留一条。</view>
     </view>
 
     <block wx:for="{{groups}}" wx:key="key">
