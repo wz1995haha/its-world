@@ -44,8 +44,8 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.5.5",
-  "appid": "touristappid",
-  "projectname": "pawseye-mp",
+  "appid": "wx1d66ab65ccf9345b",
+  "projectname": "爪记一生",
   "cloudfunctionRoot": "cloudfunctions/",
   "condition": {},
   "editorSetting": {
