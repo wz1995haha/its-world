@@ -263,6 +263,7 @@ Page({
     wx.showToast({ title: '开始记录', icon: 'none' });
     this.refresh();
     this.sync();
+    wx.switchTab({ url: '/pages/home/home' });
   },
 
   /* ---------------- 记一件事 ---------------- */

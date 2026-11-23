@@ -242,6 +242,10 @@ Page({
     });
   },
 
+  goCreate: function () {
+    wx.navigateTo({ url: '/pages/today/today?new=1' });
+  },
+
   demo: function () {
     S.seedDemo();
     this.refresh();

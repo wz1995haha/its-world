@@ -225,6 +225,6 @@ Page({
   goDiary: function () { wx.navigateTo({ url: '/pages/today/today' }); },
 
   start: function () {
-    wx.navigateTo({ url: '/pages/pet/pet' });
+    wx.navigateTo({ url: '/pages/today/today?new=1' });
   }
 });
