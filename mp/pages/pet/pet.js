@@ -122,7 +122,7 @@ Page({
       return;
     }
 
-    var breeds = PT.breedList(pet.species);
+    var breeds = PT.breedList(pet.species).concat([{ id: '__new__', label: '＋ 自己填一个品种' }]);
     var bi = 0;
     breeds.forEach(function (b, i) { if (b.id === pet.breedId) bi = i; });
     var pi = 0;
@@ -149,7 +149,7 @@ Page({
       petCount: S.pets().length,
       pets: S.pets().map(function (p) {
         var sub = (PT.breedLabel(p) || '') + (p.personality ? ' · ' + personLabelOf(p) : '');
-        return { id: p.id, name: p.name, species: p.species, breedId: p.breedId || '', sub: sub, on: p.id === pet.id };
+        return { id: p.id, name: p.name, species: p.species, breedId: p.breedId || '', photo: p.photo || '', sub: sub, on: p.id === pet.id };
       }),
       cloudOn: require('../../utils/cloud.js').enabled()
     });
@@ -225,10 +225,35 @@ Page({
   },
 
   onBreed: function (e) {
-    var b = this.data.breeds[Number(e.detail.value)];
+    var i = Number(e.detail.value);
+    var list = PT.breedList(this.data.pet.species);
+    if (i >= list.length) { this.askBreed(); return; }
+    var b = list[i];
     S.updatePet(this.data.pet.id, { breedId: b.id });
     this.refresh();
   },
+
+  /* 没有可选品种时，自己填一个 */
+  askBreed: function () {
+    var self = this;
+    var pet = this.data.pet;
+    wx.showModal({
+      title: '它的品种叫什么',
+      editable: true,
+      placeholderText: '比如：小土狗、田园猫、串串',
+      success: function (r) {
+        if (!r.confirm) return;
+        var label = String(r.content || '').trim();
+        if (!label) return;
+        var b = S.addBreed({ species: pet.species, label: label });
+        if (!b) { wx.showToast({ title: '这个名字已经有了', icon: 'none' }); return; }
+        S.updatePet(pet.id, { breedId: b.id });
+        self.refresh();
+        wx.showToast({ title: '加进来了', icon: 'none' });
+      }
+    });
+  },
+
 
   onPerson: function (e) {
     var p = PERSONALITIES[Number(e.detail.value)];

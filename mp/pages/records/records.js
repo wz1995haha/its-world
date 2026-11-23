@@ -23,6 +23,7 @@ Page({
     filters: FILTERS,
     filter: 'all',
     petName: '',
+    pets: [],
     list: [],
     month: '',
     total: 0,
@@ -39,6 +40,7 @@ Page({
     var pet = S.active();
     if (!pet) { this.setData({ list: [], total: 0, totalCost: 0, petName: '' }); return; }
 
+    var pets = S.pets().map(function (p) { return { id: p.id, name: p.name, on: p.id === pet.id }; });
     var all = S.records(pet.id);
     var f = this.data.filter;
     var rows = all.filter(function (r) { return f === 'all' || r.kind === f; });
@@ -69,6 +71,7 @@ Page({
 
     this.setData({
       petName: pet.name,
+      pets: pets,
       list: out,
       total: rows.length,
       totalCost: Math.round(cost * 10) / 10
@@ -81,6 +84,13 @@ Page({
 
   openOne: function (e) {
     wx.navigateTo({ url: '/pages/record/record?id=' + e.currentTarget.dataset.id });
+  },
+
+  switchPet: function (e) {
+    var id = e.currentTarget.dataset.id;
+    if (!id) return;
+    S.setActive(id);
+    this.refresh();
   },
 
   add: function () {

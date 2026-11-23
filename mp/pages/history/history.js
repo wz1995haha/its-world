@@ -23,6 +23,7 @@ Page({
     themeStyle: '',
     hasPet: false,
     petName: '',
+    pets: [],
     ageLine: '',
     vaccines: [],
     deworm: [],
@@ -106,6 +107,9 @@ Page({
     this.setData({
       hasPet: true,
       petName: pet.name,
+      pets: S.pets().map(function (p) {
+        return { id: p.id, name: p.name, on: p.id === pet.id };
+      }),
       ageLine: pet.birthday ? '第 ' + (PT.daysBetween(pet.homeDate || pet.createdAt.slice(0, 10), PT.todayKey()) + 1) + ' 天' : '',
       vaccines: vaccines,
       deworm: deworm,
@@ -119,6 +123,13 @@ Page({
         outLast: outs ? PT.fmtShort(outs.date) : '还没记'
       }
     });
+  },
+
+  switchPet: function (e) {
+    var id = e.currentTarget.dataset.id;
+    if (!id) return;
+    S.setActive(id);
+    this.refresh();
   },
 
   /* 点疫苗/驱虫那一行，直接去记一次 */

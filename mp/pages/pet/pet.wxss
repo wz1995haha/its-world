@@ -129,29 +129,47 @@
 }
 .avrow { margin-top: 12rpx; display: flex; gap: 20rpx; }
 
-/* ---- 它的空间（放大版） ---- */
+/* ---- 它的空间 ---- */
 .space {
-  margin-top: 28rpx;
-  padding: 26rpx 26rpx 20rpx;
+  margin-top: 26rpx;
+  padding: 26rpx 26rpx 22rpx;
   border-radius: 26rpx;
   background: var(--paper-2, #FBF6EC);
   border: 1rpx solid var(--line, rgba(58, 50, 44, .10));
 }
-.space-top { display: flex; align-items: baseline; justify-content: space-between; }
-.space-t { font-size: 34rpx; }
-.space-r { font-size: 22rpx; color: var(--accent, #C2613F); }
-.space-s { margin-top: 10rpx; font-size: 22rpx; color: var(--muted, #9A8F84); line-height: 1.55; }
 
-.sp-list { margin-top: 18rpx; border-top: 1rpx dashed var(--line, rgba(58, 50, 44, .12)); }
-.sp-item {
+.sp-head {
   display: flex;
   align-items: baseline;
-  gap: 14rpx;
-  padding: 14rpx 0;
-  border-bottom: 1rpx dashed var(--line, rgba(58, 50, 44, .10));
+  justify-content: space-between;
 }
-.sp-d { font-size: 21rpx; color: var(--muted, #9A8F84); flex: none; }
-.sp-t {
+.sp-title { font-size: 32rpx; color: var(--ink, #3A322C); }
+.sp-count { font-size: 22rpx; color: var(--accent, #C2613F); }
+
+.sp-sub {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--muted, #9A8F84);
+}
+
+.sp-body {
+  margin-top: 18rpx;
+  border-top: 1rpx solid var(--line, rgba(58, 50, 44, .08));
+}
+.sp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--line, rgba(58, 50, 44, .08));
+}
+.sp-date {
+  flex: none;
+  width: 120rpx;
+  font-size: 21rpx;
+  color: var(--muted, #9A8F84);
+}
+.sp-text {
   flex: 1;
   min-width: 0;
   font-size: 25rpx;
@@ -160,13 +178,21 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sp-empty { margin-top: 18rpx; font-size: 22rpx; color: var(--muted, #9A8F84); line-height: 1.6; }
-.sp-more {
-  margin-top: 18rpx;
-  padding-top: 16rpx;
-  border-top: 1rpx dashed var(--line, rgba(58, 50, 44, .12));
-  font-size: 23rpx;
+
+.sp-none {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: var(--muted, #9A8F84);
+  line-height: 1.6;
+}
+
+.sp-btn {
+  margin-top: 20rpx;
+  padding: 16rpx 0;
+  border-radius: 18rpx;
+  background: rgba(var(--accent-rgb, 194, 97, 63), .10);
   color: var(--accent, #C2613F);
+  font-size: 24rpx;
   text-align: center;
 }
 

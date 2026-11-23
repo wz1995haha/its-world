@@ -347,3 +347,24 @@ page {
   font-size: 30rpx;
   border-style: dashed;
 }
+
+/* ---- 档案 / 记录 页的宠物切换（小胶囊） ---- */
+.psw {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin-top: 16rpx;
+}
+.psw-i {
+  font-size: 23rpx;
+  padding: 8rpx 22rpx;
+  border-radius: 999rpx;
+  color: var(--muted, #8C8074);
+  background: rgba(var(--sh, 58, 50, 44), .06);
+  border: 1rpx solid transparent;
+}
+.psw-i.on {
+  color: var(--accent, #C2613F);
+  background: rgba(var(--accent-rgb, 194, 97, 63), .10);
+  border-color: rgba(var(--accent-rgb, 194, 97, 63), .28);
+}

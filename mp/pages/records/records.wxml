@@ -2,6 +2,9 @@
 <view class="app" style="{{themeStyle}}">
 
   <view class="rtop" style="padding-top:{{padTop}}px">
+  <view class="psw" wx:if="{{pets.length > 1}}">
+    <view class="psw-i {{item.on ? 'on' : ''}}" wx:for="{{pets}}" wx:key="id" data-id="{{item.id}}" bindtap="switchPet">{{item.name}}</view>
+  </view>
     <view class="rtitle serif">全部记录</view>
     <view class="rsum" wx:if="{{total}}">{{petName}} · {{total}} 条<text wx:if="{{totalCost}}" class="rcost"> · 一共 ¥{{totalCost}}</text></view>
     <view class="rsum" wx:else>还没有记录</view>

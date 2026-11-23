@@ -35,7 +35,7 @@
         data-id="{{item.id}}"
         bindtap="switchPet"
       >
-        <face species="{{item.species}}" mood="calm" breed-id="{{item.breedId}}" size="sm" />
+        <face species="{{item.species}}" mood="calm" breed-id="{{item.breedId}}" photo="{{item.photo}}" size="sm" />
         <text>{{item.name}}</text>
       </view>
       <view class="ps add" bindtap="newPet">＋</view>

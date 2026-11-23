@@ -140,7 +140,7 @@ Page({
         themeStyle: t.themeStyle,
         hasPet: false,
         pets: [],
-        breeds: PT.breedList(ob.species)
+        breeds: PT.breedList(ob.species).concat([{ id: '__new__', label: '＋ 自己填一个品种' }])
       });
       return;
     }
@@ -194,7 +194,7 @@ Page({
       themeStyle: t.themeStyle,
       hasPet: true,
       pets: pets.map(function (p) {
-        return { id: p.id, name: p.name, species: p.species, breedId: p.breedId || '', on: p.id === pet.id };
+        return { id: p.id, name: p.name, species: p.species, breedId: p.breedId || '', photo: p.photo || '', on: p.id === pet.id };
       }),
       pet: pet,
       face: { species: pet.species, mood: 'calm', breedId: pet.breedId || '' },
@@ -213,7 +213,7 @@ Page({
       'ob.name': '',
       'ob.species': 'cat',
       'ob.breedIndex': 0,
-      breeds: PT.breedList('cat')
+      breeds: PT.breedList('cat').concat([{ id: '__new__', label: '＋ 自己填一个品种' }])
     });
     wx.pageScrollTo({ scrollTop: 0, duration: 200 });
   },
@@ -259,11 +259,38 @@ Page({
 
   pickSpecies: function (e) {
     var sp = e.currentTarget.dataset.sp;
-    this.setData({ 'ob.species': sp, 'ob.breedIndex': 0, breeds: PT.breedList(sp) });
+    this.setData({
+      'ob.species': sp,
+      'ob.breedIndex': 0,
+      breeds: PT.breedList(sp).concat([{ id: '__new__', label: '＋ 自己填一个品种' }])
+    });
+  },
+
+  askBreed: function () {
+    var self = this;
+    var sp = this.data.ob.species;
+    wx.showModal({
+      title: '它的品种叫什么',
+      editable: true,
+      placeholderText: '比如：小土狗、田园猫、串串',
+      success: function (r) {
+        if (!r.confirm) return;
+        var label = String(r.content || '').trim();
+        if (!label) return;
+        var b = S.addBreed({ species: sp, label: label });
+        if (!b) { wx.showToast({ title: '这个名字已经有了', icon: 'none' }); return; }
+        var list = PT.breedList(sp);
+        var idx = -1;
+        list.forEach(function (x, i) { if (x.id === b.id) idx = i; });
+        self.setData({ 'ob.breedIndex': idx < 0 ? 0 : idx });
+      }
+    });
   },
 
   onBreed: function (e) {
-    this.setData({ 'ob.breedIndex': Number(e.detail.value) });
+    var i = Number(e.detail.value);
+    if (i >= PT.breedList(this.data.ob.species).length) { this.askBreed(); return; }
+    this.setData({ 'ob.breedIndex': i });
   },
 
   create: function () {

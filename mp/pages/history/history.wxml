@@ -4,6 +4,9 @@
   <view class="htop" style="padding-top:{{padTop}}px">
     <view class="htitle serif">档案</view>
     <view class="hsum" wx:if="{{hasPet}}">{{petName}}{{ageLine ? ' · ' + ageLine : ''}}</view>
+    <view class="psw" wx:if="{{pets.length > 1}}">
+      <view class="psw-i {{item.on ? 'on' : ''}}" wx:for="{{pets}}" wx:key="id" data-id="{{item.id}}" bindtap="switchPet">{{item.name}}</view>
+    </view>
   </view>
 
   <block wx:if="{{!hasPet}}">
