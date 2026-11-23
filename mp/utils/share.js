@@ -106,8 +106,8 @@ function draw(page, pet, cb) {
 
       /* 一行关键词 */
       ctx.fillStyle = '#C2613F';
-      ctx.font = '26px sans-serif';
-      ctx.fillText('疫苗 · 驱虫 · 看病 · 体重', 212, 206);
+      ctx.font = '22px sans-serif';
+      ctx.fillText('疫苗 · 驱虫 · 看病 · 体重', 211, 206);
 
       /* 陪伴天数 */
       const dtext = daysText(pet);
@@ -130,8 +130,8 @@ function draw(page, pet, cb) {
       ctx.fillText('爪记一生', 66, 333);
 
       ctx.fillStyle = '#8C8074';
-      ctx.font = '22px sans-serif';
-      ctx.fillText('疫苗、驱虫、看病，一页记一辈子', 190, 334);
+      ctx.font = '20px sans-serif';
+      ctx.fillText('疫苗、驱虫、看病，一页记一辈子', 186, 334);
 
       wx.canvasToTempFilePath({
         canvas: canvas,
