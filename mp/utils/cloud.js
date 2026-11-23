@@ -43,10 +43,34 @@ function login(cb) {
 
 function db() { return wx.cloud.database(); }
 
+/* 集合不存在时第一次读写会报 -502005，所以进来先调一次 init 云函数（幂等，只调一次） */
+var ensured = false;
+var ensureQueue = [];
+
+function ensureInit(cb) {
+  if (!init() || ensured) { cb(); return; }
+  ensureQueue.push(cb);
+  if (ensureQueue.length > 1) return;
+  wx.cloud.callFunction({ name: 'init' })
+    .then(function () { ensured = true; })
+    .catch(function (e) { console.warn('[cloud] init 云函数失败（集合可能还没建）', e); })
+    .then(function () {
+      var q = ensureQueue.slice();
+      ensureQueue.length = 0;
+      q.forEach(function (fn) { try { fn(); } catch (e) {} });
+    });
+}
+
 /* 拉这个人的全部宠物和日子 */
 function pull(cb) {
   login(function (uid) {
     if (!uid) { cb(null); return; }
+    ensureInit(function () { pullNow(uid, cb); });
+  });
+}
+
+function pullNow(uid, cb) {
+  {
     var d = db();
     var out = { pets: [], days: [] };
     d.collection('pets').where({ _openid: uid }).limit(20).get()
@@ -62,13 +86,19 @@ function pull(cb) {
         console.warn('[cloud] pull 失败', e);
         cb(null);
       });
-  });
+  }
 }
 
 /* 整只宠物（含它的日子）推上去：先简单打成一条 doc，量大了再拆 */
 function push(petId, cb) {
   login(function (uid) {
     if (!uid) { if (cb) cb(false); return; }
+    ensureInit(function () { pushNow(uid, petId, cb); });
+  });
+}
+
+function pushNow(uid, petId, cb) {
+  {
     var pet = PT.STORE.petById(petId);
     if (!pet) { if (cb) cb(false); return; }
     var d = db();
@@ -104,7 +134,7 @@ function push(petId, cb) {
         console.warn('[cloud] push 失败', e);
         if (cb) cb(false);
       });
-  });
+  }
 }
 
 /* ---------------- 云存储 ---------------- */

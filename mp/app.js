@@ -6,7 +6,7 @@
  */
 var PT = require('./utils/all.js');
 
-var ENV_ID = ''; /* ← 在这里填你的环境 ID */
+var ENV_ID = 'cloud1-d9ga710f3f3b36afc'; /* ← 云开发环境 ID */
 
 App({
   globalData: {
@@ -32,6 +32,10 @@ App({
         .then(function (r) {
           self.globalData.openid = (r && r.result && r.result.openid) || '';
           console.info('[mp] openid =', self.globalData.openid);
+          /* 第一次进来顺带把集合建好（重复调用无副作用） */
+          wx.cloud.callFunction({ name: 'init' })
+            .then(function (x) { console.info('[mp] init =', x && x.result); })
+            .catch(function (e) { console.warn('[mp] init 调用失败：', e && e.errMsg); });
         })
         .catch(function (e) {
           console.warn('[mp] login 云函数调用失败：', e && e.errMsg);
