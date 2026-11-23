@@ -47,6 +47,7 @@ Page({
     breeds: [],
     themeStyle: '',
     hasPet: false,
+    creating: false,
     pets: [],
     pet: null,
     face: { species: 'cat', mood: 'calm', breedId: '' },
@@ -72,6 +73,12 @@ Page({
   },
 
   onShow: function () {
+    var app = getApp();
+    if (app && app.globalData && app.globalData.wantNewPet) {
+      app.globalData.wantNewPet = false;
+      this.newPet();
+      return;
+    }
     this.refresh();
     if (cloud.enabled()) {
       var now = Date.now();
@@ -200,6 +207,22 @@ Page({
     });
   },
 
+  newPet: function () {
+    this.setData({
+      creating: true,
+      'ob.name': '',
+      'ob.species': 'cat',
+      'ob.breedIndex': 0,
+      breeds: PT.breedList('cat')
+    });
+    wx.pageScrollTo({ scrollTop: 0, duration: 200 });
+  },
+
+  cancelNew: function () {
+    this.setData({ creating: false });
+    this.refresh();
+  },
+
   switchPet: function (e) {
     S.setActive(e.currentTarget.dataset.id);
     this.refresh();
@@ -260,6 +283,7 @@ Page({
       createdAt: new Date().toISOString()
     });
     wx.showToast({ title: '建好了', icon: 'none' });
+    this.setData({ creating: false });
     this.refresh();
     cloud.push(pet.id);
   }

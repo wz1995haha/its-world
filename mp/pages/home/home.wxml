@@ -1,9 +1,9 @@
 <!-- home.wxml — 该做什么 -->
 <view class="app" style="{{themeStyle}}">
 
-  <block wx:if="{{!hasPet}}">
+  <block wx:if="{{!hasPet || creating}}">
     <view class="card" style="margin-top:32rpx">
-      <view class="h1 serif" style="margin-bottom:10rpx">先建一只</view>
+      <view class="h1 serif" style="margin-bottom:10rpx">{{hasPet ? '再添一只' : '先建一只'}}</view>
       <view class="sub" style="margin-bottom:28rpx">建好之后，疫苗、驱虫这些它会帮你记着日子。</view>
 
       <view class="field" style="margin-bottom:20rpx">
@@ -20,7 +20,8 @@
         <view class="field">{{breeds[ob.breedIndex].label}}</view>
       </picker>
 
-      <view class="btn primary" style="margin-top:36rpx" bindtap="create">开始记录</view>
+      <view class="btn primary" style="margin-top:36rpx" bindtap="create">{{hasPet ? '添上它' : '开始记录'}}</view>
+      <view wx:if="{{hasPet}}" class="btn ghost" style="margin-top:16rpx" bindtap="cancelNew">算了</view>
     </view>
   </block>
 
@@ -37,6 +38,7 @@
         <face species="{{item.species}}" mood="calm" breed-id="{{item.breedId}}" size="sm" />
         <text>{{item.name}}</text>
       </view>
+      <view class="ps add" bindtap="newPet">＋</view>
     </view>
 
     <view class="dateline">{{dateLine}}</view>

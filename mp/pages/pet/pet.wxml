@@ -22,6 +22,20 @@
       </view>
     </view>
 
+    <!-- 家里的几只 -->
+    <view class="sec-title"><text>家里的 {{petCount}} 只</text><text class="dim">点名字切换</text></view>
+    <view class="card">
+      <view class="prow {{item.on ? 'on' : ''}}" wx:for="{{pets}}" wx:key="id" data-id="{{item.id}}" bindtap="switchPet">
+        <face species="{{item.species}}" mood="calm" breed-id="{{item.breedId}}" size="sm" />
+        <view class="pinfo">
+          <view class="pname">{{item.name}}</view>
+          <view class="psub">{{item.sub}}</view>
+        </view>
+        <text wx:if="{{item.on}}" class="pon">现在看的是它</text>
+      </view>
+      <view class="prow add" bindtap="newPet">＋ 再添一只</view>
+    </view>
+
     <!-- 它的空间 -->
     <view class="space" bindtap="goSpace">
       <view class="space-top">

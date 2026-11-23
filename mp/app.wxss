@@ -338,3 +338,12 @@ page {
   color: #fff;
   font-size: 24rpx;
 }
+
+/* 首页切换条的「＋」 */
+.ps.add {
+  justify-content: center;
+  padding: 0 22rpx;
+  color: var(--accent, #C2613F);
+  font-size: 30rpx;
+  border-style: dashed;
+}

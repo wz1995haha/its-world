@@ -12,6 +12,12 @@ function cn(key) {
 }
 
 /* 陪伴天数：到家那天算第 1 天；没填到家就按建档那天算 */
+function personLabelOf(p) {
+  var hit = PERSONALITIES.filter(function (x) { return x.id === p.personality; })[0];
+  if (hit) return hit.label;
+  return String(p.personalityText || p.personality || '').slice(0, 4);
+}
+
 function homeDaysOf(pet) {
   var start = pet.homeDate || (pet.createdAt ? String(pet.createdAt).slice(0, 10) : PT.todayKey());
   var n = PT.daysBetween(start, PT.todayKey()) + 1;
@@ -109,7 +115,9 @@ Page({
         themeStyle: t.themeStyle,
         themeId: t.themeId,
         themes: themes,
-        hasPet: false
+        hasPet: false,
+        pets: [],
+        petCount: 0
       });
       return;
     }
@@ -138,8 +146,27 @@ Page({
       breeds: breeds,
       ob: { species: pet.species, breedIndex: bi, personIndex: pi },
       storyCount: (S.stories(pet.id) || []).length,
+      petCount: S.pets().length,
+      pets: S.pets().map(function (p) {
+        var sub = (PT.breedLabel(p) || '') + (p.personality ? ' · ' + personLabelOf(p) : '');
+        return { id: p.id, name: p.name, species: p.species, breedId: p.breedId || '', sub: sub, on: p.id === pet.id };
+      }),
       cloudOn: require('../../utils/cloud.js').enabled()
     });
+  },
+
+  switchPet: function (e) {
+    var id = e.currentTarget.dataset.id;
+    if (!id) return;
+    S.setActive(id);
+    this.refresh();
+    wx.showToast({ title: '换好了', icon: 'none' });
+  },
+
+  newPet: function () {
+    var app = getApp();
+    if (app && app.globalData) app.globalData.wantNewPet = true;
+    wx.switchTab({ url: '/pages/home/home' });
   },
 
   goSpace: function () {
