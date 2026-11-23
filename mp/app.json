@@ -27,7 +27,7 @@
     "list": [
       { "pagePath": "pages/home/home", "text": "该做" },
       { "pagePath": "pages/records/records", "text": "记录" },
-      { "pagePath": "pages/history/history", "text": "病史" },
+      { "pagePath": "pages/history/history", "text": "档案" },
       { "pagePath": "pages/pet/pet", "text": "它" }
     ]
   },

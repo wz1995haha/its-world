@@ -11,6 +11,13 @@ function cn(key) {
   return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
 }
 
+/* 陪伴天数：到家那天算第 1 天；没填到家就按建档那天算 */
+function homeDaysOf(pet) {
+  var start = pet.homeDate || (pet.createdAt ? String(pet.createdAt).slice(0, 10) : PT.todayKey());
+  var n = PT.daysBetween(start, PT.todayKey()) + 1;
+  return n > 0 ? n : 1;
+}
+
 function agoText(key) {
   if (!key) return '';
   var n = PT.daysBetween(key, PT.todayKey());
@@ -122,19 +129,16 @@ Page({
       face: { species: pet.species, mood: 'calm', breedId: pet.breedId || '' },
       breedLabel: PT.breedLabel(pet) || '',
       personLabel: PERSONALITIES[pi].label,
-      stats: S.stats(),
+      together: homeDaysOf(pet),
+      spaceRecent: (S.stories(pet.id) || []).slice(0, 2).map(function (x) {
+        return { id: x.id, date: PT.fmtShort(x.date), title: x.title || (x.text || '').slice(0, 14) || (x.tag || '一条记录') };
+      }),
       chipShown: ch.shown,
       chipHidden: ch.hidden,
       breeds: breeds,
       ob: { species: pet.species, breedIndex: bi, personIndex: pi },
       storyCount: (S.stories(pet.id) || []).length,
-      ageLine: ageOf(pet.birthday),
-      birthAge: ageOf(pet.birthday),
-      homeDays: pet.homeDate ? (PT.daysBetween(pet.homeDate, PT.todayKey()) + 1) : 0,
-      firstVaccine: firstVaccineText(pet),
-      vaccineCount: vaccineCountOf(pet),
-      lastIn: lastDewormText(pet, '体内'),
-      lastOut: lastDewormText(pet, '体外')
+      cloudOn: require('../../utils/cloud.js').enabled()
     });
   },
 

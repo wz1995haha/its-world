@@ -1,31 +1,44 @@
 <!-- pet.wxml -->
 <view class="app" style="{{themeStyle}}">
   <block wx:if="{{hasPet}}">
-    <view style="display:flex;justify-content:center;margin:20rpx 0 12rpx">
+    <!-- 头像 + 陪伴天数 -->
+    <view class="hero">
       <view class="avwrap" bindtap="choosePhoto">
         <face species="{{face.species}}" mood="{{face.mood}}" breed-id="{{face.breedId}}" photo="{{pet.photo}}" size="lg" />
         <view class="avadd">📷</view>
       </view>
-    </view>
-    <view class="avrow">
-      <text class="link" bindtap="choosePhoto">{{pet.photo ? '换一张照片' : '用它的照片做头像'}}</text>
-      <text wx:if="{{pet.photo}}" class="link dim" bindtap="clearPhoto">用回画的</text>
-    </view>
-    <view class="h1 serif" style="text-align:center">{{pet.name}}</view>
-    <view class="sub" style="text-align:center;margin-top:8rpx">{{breedLabel}} · {{personLabel}}</view>
-
-    <view class="card" style="display:flex;margin-top:28rpx">
-      <view class="st"><view class="sn serif">{{stats.together}}</view><view class="sl">陪伴天数</view></view>
-      <view class="st"><view class="sn serif">{{stats.recordedDays}}</view><view class="sl">记录天数</view></view>
-      <view class="st"><view class="sn serif">{{stats.diaryCount}}</view><view class="sl">日记篇数</view></view>
-    </view>
-
-    <view class="space" bindtap="goSpace">
-      <view class="space-l">
-        <view class="space-t serif">它的空间</view>
-        <view class="space-s">从到家的第一天开始，照片、视频、第一次，都留在这儿</view>
+      <view class="hero-main">
+        <view class="h1 serif">{{pet.name}}</view>
+        <view class="sub">{{breedLabel}} · {{personLabel}}</view>
+        <view class="days">
+          <text class="dl">陪伴</text>
+          <text class="dn serif">{{together}}</text>
+          <text class="dl">天</text>
+        </view>
+        <view class="avrow">
+          <text class="link" bindtap="choosePhoto">{{pet.photo ? '换一张照片' : '用它的照片'}}</text>
+          <text wx:if="{{pet.photo}}" class="link dim" bindtap="clearPhoto">用回画的</text>
+        </view>
       </view>
-      <view class="space-r">{{storyCount}} 条 ›</view>
+    </view>
+
+    <!-- 它的空间 -->
+    <view class="space" bindtap="goSpace">
+      <view class="space-top">
+        <view class="space-t serif">它的空间</view>
+        <view class="space-r">{{storyCount}} 条 ›</view>
+      </view>
+      <view class="space-s">从到家的第一天开始，照片、视频、第一次，都留在这儿</view>
+
+      <view wx:if="{{spaceRecent.length}}" class="sp-list">
+        <view class="sp-item" wx:for="{{spaceRecent}}" wx:key="id">
+          <text class="sp-d">{{item.date}}</text>
+          <text class="sp-t">{{item.title}}</text>
+        </view>
+      </view>
+      <view wx:else class="sp-empty">还没有记录。第一次回家、第一次洗澡、第一次学会坐下——都值得留一条。</view>
+
+      <view class="sp-more" catchtap="goSpace">进去看看 / 记一条 ›</view>
     </view>
 
     <view class="sec-title"><text>资料</text><text class="link" bindtap="rename">改名</text></view>
@@ -57,16 +70,6 @@
       </picker>
     </view>
 
-    <view class="sec-title"><text>关于它</text><text class="dim">{{ageLine}}</text></view>
-    <view class="card">
-      <view class="kv"><text class="k">出生</text><text class="v">{{pet.birthday ? (pet.birthday + ' · ' + birthAge) : '还没填'}}</text></view>
-      <view class="kv"><text class="k">来家里</text><text class="v">{{pet.homeDate ? (pet.homeDate + ' · 第 ' + homeDays + ' 天') : '还没填'}}</text></view>
-      <view class="kv"><text class="k">第一针疫苗</text><text class="v">{{firstVaccine}}</text></view>
-      <view class="kv"><text class="k">疫苗共</text><text class="v">{{vaccineCount ? (vaccineCount + ' 次') : '还没记'}}</text></view>
-      <view class="kv"><text class="k">上次体内驱虫</text><text class="v">{{lastIn}}</text></view>
-      <view class="kv"><text class="k">上次体外驱虫</text><text class="v">{{lastOut}}</text></view>
-    </view>
-
     <view class="sec-title"><text>切换主题</text><text class="dim">只换样子，不影响内容</text></view>
     <view class="themes">
       <view class="th {{item.on ? 'on' : ''}}" wx:for="{{themes}}" wx:key="id" data-id="{{item.id}}" bindtap="setTheme">
@@ -75,46 +78,21 @@
       </view>
     </view>
 
-    <view class="sec-title">
-      <text>「发生了什么」的按钮</text>
-      <text class="link" bindtap="toggleEdit">{{chipsEdit ? '完成' : '调整'}}</text>
-    </view>
-    <view class="card">
-      <view class="cr" wx:for="{{chipShown}}" wx:key="id">
-        <text class="ci">{{item.icon}}</text>
-        <text class="cl">{{item.label}}</text>
-        <text class="cm" data-id="{{item.id}}" data-dir="-1" bindtap="moveChip">↑</text>
-        <text class="cm" data-id="{{item.id}}" data-dir="1" bindtap="moveChip">↓</text>
-        <text class="cx" data-id="{{item.id}}" bindtap="hideChip">收起</text>
-        <text class="cd" wx:if="{{item.mine}}" data-id="{{item.id}}" bindtap="delType">删</text>
-      </view>
-      <view class="addrow" bindtap="addType">＋ 加一个按钮</view>
-      <block wx:if="{{chipHidden.length}}">
-        <view class="yl">收起来的</view>
-        <view class="chips" style="margin-top:12rpx">
-          <view class="chip" wx:for="{{chipHidden}}" wx:key="id" data-id="{{item.id}}" bindtap="showChip">
-            <text class="ci">{{item.icon}}</text>
-            <text class="ct">{{item.label}}</text>
-          </view>
-        </view>
-      </block>
-    </view>
-
-    <view class="sec-title"><text>数据</text></view>
+    <view class="sec-title"><text>数据</text><text class="dim">{{cloudOn ? '已接云端' : '只在本机'}}</text></view>
     <view class="card">
       <view class="btns">
         <view class="btn sm" bindtap="copyBackup">导出备份</view>
         <view class="btn sm" bindtap="demo">载入示例</view>
         <view class="btn sm" bindtap="resetAll">重新开始</view>
       </view>
-      <view class="sub" style="margin-top:16rpx">数据只存在这台设备的微信里（现在还没接云同步）。换手机前记得导出。</view>
+      <view class="sub" style="margin-top:16rpx">{{cloudOn ? '记录会同步到你的微信账号，换手机登同一个微信自动回来。' : '数据只存在这台设备的微信里。换手机前记得导出备份。'}}</view>
     </view>
 
     <view class="sub" style="text-align:center;margin-top:30rpx">「爪记一生」· 疫苗、驱虫、看病、体重，一页记一辈子</view>
   </block>
 
   <block wx:else>
-    <view class="empty" style="margin-top:80rpx">还没有宠物。\n建一只，这里就会出现它的档案。</view>
+    <view class="empty" style="margin-top:80rpx">还没有宠物。先去「该做」页建一只。</view>
     <view class="btn primary" style="margin-top:24rpx" bindtap="goCreate">去建一只</view>
     <view class="btn" style="margin-top:16rpx" bindtap="demo">先看看示例</view>
   </block>

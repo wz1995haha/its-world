@@ -1,37 +1,99 @@
-<!-- history.wxml — 病史 -->
+<!-- history.wxml — 档案：疫苗 / 驱虫 / 病史 -->
 <view class="app" style="{{themeStyle}}">
 
   <view class="htop" style="padding-top:{{padTop}}px">
-    <view class="htitle serif">病史</view>
-    <view class="hsum" wx:if="{{list.length}}">
-      {{petName}} · {{list.length}} 次<text wx:if="{{openCount}}" class="hopen"> · 还在 {{openCount}} 次</text><text wx:if="{{totalCost}}" class="hcost"> · ¥{{totalCost}}</text>
-    </view>
-    <view class="hsum" wx:else>没生过病，最省心</view>
+    <view class="htitle serif">档案</view>
+    <view class="hsum" wx:if="{{hasPet}}">{{petName}}{{ageLine ? ' · ' + ageLine : ''}}</view>
   </view>
 
-  <view class="hitem" wx:for="{{list}}" wx:key="name" wx:for-item="ep">
-    <view class="hhead">
-      <view class="hname">{{ep.name}}</view>
-      <view class="hstate {{ep.open ? 'on' : ''}}">{{ep.open ? '还没好' : '已好'}}</view>
+  <block wx:if="{{!hasPet}}">
+    <view class="hempty">
+      <view class="etitle">还没有宠物</view>
+      <view class="etext">先去「该做」页建一只，这里就会长成它的档案。</view>
     </view>
-    <view class="hmeta">{{ep.start}} → {{ep.end}} · {{ep.span}} · {{ep.times}} 条<text wx:if="{{ep.cost}}"> · ¥{{ep.cost}}</text></view>
+  </block>
 
-    <view class="hline" wx:for="{{ep.items}}" wx:key="id" wx:for-item="it" data-id="{{it.id}}" bindtap="openOne">
-      <text class="hi">{{it.icon}}</text>
-      <text class="ht">{{it.title}}</text>
-      <text class="hd">{{it.day}}</text>
+  <block wx:else>
+    <!-- 疫苗 -->
+    <view class="sec-title" style="margin-top:8rpx">
+      <text>疫苗</text>
+      <text class="dim">{{nowYear}} 年</text>
+    </view>
+    <view class="card">
+      <view class="vrow" wx:for="{{vaccines}}" wx:key="name">
+        <view class="vmain">
+          <view class="vname">
+            {{item.name}}
+            <text class="vtag {{item.done ? 'on' : 'off'}}">{{item.done ? '今年已打' : '今年还没打'}}</text>
+          </view>
+          <view class="vsub">
+            <text wx:if="{{item.doneText}}">上次 {{item.doneText}}</text>
+            <text wx:if="{{item.next}}"> · 下次 {{item.next}}</text>
+            <text wx:if="{{!item.doneText}}">一年一次，幼犬首年要连打几针</text>
+          </view>
+        </view>
+        <view class="vact" data-name="{{item.name}}" catchtap="addVaccine">记一次</view>
+      </view>
     </view>
 
-    <view class="hact">
-      <view wx:if="{{ep.open}}" class="hbtn" data-name="{{ep.name}}" bindtap="closeOne">标记已好</view>
-      <view wx:else class="hbtn ghost" data-name="{{ep.name}}" bindtap="reopen">还没好，改回来</view>
+    <!-- 驱虫 -->
+    <view class="sec-title"><text>驱虫</text><text class="dim">体内 / 体外分开算</text></view>
+    <view class="card">
+      <view class="vrow" wx:for="{{deworm}}" wx:key="route">
+        <view class="vmain">
+          <view class="vname">
+            {{item.route}}驱虫
+            <text class="vtag {{item.st.cls}}">{{item.st.text}}</text>
+          </view>
+          <view class="vsub">
+            <block wx:if="{{item.has}}">上次 {{item.last}} · 下次 {{item.next}}</block>
+            <block wx:else>还没记过。体外一般每月一次，体内三个月一次。</block>
+          </view>
+        </view>
+        <view class="vact" data-route="{{item.route}}" catchtap="addDeworm">记一次</view>
+      </view>
     </view>
-  </view>
 
-  <view class="hempty" wx:if="{{!list.length}}">
-    <view class="etitle">这里记「生过什么病」</view>
-    <view class="etext">看病、吃药会自动归到这里，同一种病会凑成一次。</view>
-  </view>
+    <!-- 病史 -->
+    <view class="sec-title">
+      <text>病史</text>
+      <text class="link" bindtap="goRecord">去记录 ›</text>
+    </view>
 
-  <view class="addbtn" bindtap="addVisit">＋ 记一次看病</view>
+    <view class="hitem" wx:for="{{list}}" wx:key="name" wx:for-item="ep">
+      <view class="hhead">
+        <view class="hname">{{ep.name}}</view>
+        <view class="hstate {{ep.open ? 'on' : ''}}">{{ep.open ? '还没好' : '已好'}}</view>
+      </view>
+      <view class="hmeta">{{ep.start}} → {{ep.end}} · {{ep.span}} · {{ep.times}} 条<text wx:if="{{ep.cost}}"> · ¥{{ep.cost}}</text></view>
+
+      <view class="hline" wx:for="{{ep.items}}" wx:key="id" wx:for-item="it" data-id="{{it.id}}" bindtap="openOne">
+        <text class="hi">{{it.icon}}</text>
+        <text class="ht">{{it.title}}</text>
+        <text class="hd">{{it.day}}</text>
+      </view>
+
+      <view class="hact">
+        <view wx:if="{{ep.open}}" class="hbtn" data-name="{{ep.name}}" bindtap="closeOne">标记已好</view>
+        <view wx:else class="hbtn ghost" data-name="{{ep.name}}" bindtap="reopen">还没好，改回来</view>
+      </view>
+    </view>
+
+    <view class="hempty" wx:if="{{!list.length}}">
+      <view class="etitle">还没生过病，最省心</view>
+      <view class="etext">看病、吃药的记录会自动归到这里，同一种病会凑成一次。</view>
+    </view>
+
+    <view class="addbtn" bindtap="addVisit">＋ 记一次看病</view>
+
+    <!-- 汇总 -->
+    <view class="sec-title" style="margin-top:36rpx"><text>汇总</text><text class="dim">从记录里自动算的</text></view>
+    <view class="card">
+      <view class="kv"><text class="k">第一针疫苗</text><text class="v">{{sum.first}}</text></view>
+      <view class="kv"><text class="k">疫苗一共</text><text class="v">{{sum.count ? sum.count + ' 次' : '还没记'}}</text></view>
+      <view class="kv"><text class="k">上次体内驱虫</text><text class="v">{{sum.inLast}}</text></view>
+      <view class="kv"><text class="k">上次体外驱虫</text><text class="v">{{sum.outLast}}</text></view>
+      <view class="kv"><text class="k">看病一共</text><text class="v">{{list.length ? list.length + ' 次' + (totalCost ? ' · ¥' + totalCost : '') : '没生过病'}}</text></view>
+    </view>
+  </block>
 </view>

@@ -63,3 +63,38 @@
   color: var(--paper, #F5EEE3);
   font-size: 28rpx;
 }
+
+/* ---- 疫苗 / 驱虫行 ---- */
+.vrow {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 0;
+  border-top: 1rpx dashed var(--line, rgba(58, 50, 44, .12));
+}
+.vrow:first-child { border-top: 0; padding-top: 6rpx; }
+.vmain { flex: 1; min-width: 0; }
+.vname { display: flex; align-items: center; gap: 12rpx; font-size: 28rpx; color: var(--ink, #3A322C); }
+.vtag {
+  font-size: 19rpx;
+  padding: 3rpx 12rpx;
+  border-radius: 999rpx;
+  background: rgba(var(--sh, 58, 50, 44), .07);
+  color: var(--muted, #8C8074);
+  flex: none;
+}
+.vtag.on { color: var(--accent, #C2613F); background: rgba(var(--accent-rgb, 194, 97, 63), .13); }
+.vtag.over { color: #B24C3C; background: rgba(178, 76, 60, .12); }
+.vtag.soon { color: #A9762F; background: rgba(169, 118, 47, .13); }
+.vtag.ok { color: var(--muted, #8C8074); }
+.vtag.none { color: var(--muted, #9A8F84); }
+.vsub { margin-top: 8rpx; font-size: 22rpx; color: var(--muted, #9A8F84); line-height: 1.5; }
+.vact {
+  flex: none;
+  font-size: 23rpx;
+  padding: 12rpx 22rpx;
+  border-radius: 999rpx;
+  color: var(--accent, #C2613F);
+  background: rgba(var(--accent-rgb, 194, 97, 63), .10);
+  border: 1rpx solid rgba(var(--accent-rgb, 194, 97, 63), .26);
+}

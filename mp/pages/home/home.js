@@ -51,19 +51,11 @@ Page({
     pet: null,
     face: { species: 'cat', mood: 'calm', breedId: '' },
     dateLine: '',
-    hasDiaryToday: false,
     headline: '',
     headlineSub: '',
     todos: [],
-    quick: [
-      { kind: 'vaccine', label: '疫苗', icon: '💉' },
-      { kind: 'deworm', label: '驱虫', icon: '🐛' },
-      { kind: 'visit', label: '看病', icon: '🏥' },
-      { kind: 'weight', label: '体重', icon: '⚖️' }
-    ],
     recent: [],
     costYear: 0,
-    diaryLine: '',
     cloudOn: false
   },
 
@@ -149,10 +141,11 @@ Page({
     var key = PT.todayKey();
     var due = S.dueList();
     var remind = S.reminders();
-    var todos = due.slice(0, 3).map(function (d) {
+    var todos = due.slice(0, 4).map(function (d) {
       return {
         key: d.key, kind: d.kind, icon: d.icon, name: d.name,
         last: cnDate(d.last), next: cnDate(d.next), days: d.days, status: d.status,
+        nextLine: PT.fmtShort(d.next),
         bell: remind.indexOf(d.key) >= 0,
         months: d.months,
         badge: d.status === 'over' ? ('晚了 ' + Math.abs(d.days) + ' 天')
@@ -204,8 +197,6 @@ Page({
       todos: todos,
       recent: recent,
       costYear: S.costSum(pet.id, key.slice(0, 4) + '-01-01'),
-      diaryLine: (d && d.diary && d.diary.body) ? String(d.diary.body).split('\n')[0] : '',
-      hasDiaryToday: !!(d && d.diary)
     });
   },
 
@@ -237,7 +228,6 @@ Page({
   goRecords: function () { wx.switchTab({ url: '/pages/records/records' }); },
   goHistory: function () { wx.switchTab({ url: '/pages/history/history' }); },
   goPet: function () { wx.switchTab({ url: '/pages/pet/pet' }); },
-  goDiary: function () { wx.navigateTo({ url: '/pages/today/today' }); },
 
   /* ---- 建档（就在首页做，不跳页，避免 navigateTo 的各种坑）---- */
   onName: function (e) {
