@@ -47,7 +47,7 @@ Page({
     var due = S.dueList(pet.id) || [];
 
     /* ---- 疫苗：这一年的「每年必打」打了没有 ---- */
-    var names = (PT.REC_KINDS.vaccine.names || []).slice();
+    var names = (PT.KIND.vaccine.names || []).slice();
     /* 狗：狂犬 + 联苗；猫：猫三联 + 狂犬 */
     var want = pet.species === 'cat' ? ['猫三联', '狂犬疫苗'] : ['狂犬疫苗', '联苗'];
     var vaccines = want.map(function (nm) {

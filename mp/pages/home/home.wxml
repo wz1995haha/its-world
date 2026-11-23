@@ -62,6 +62,16 @@
       <view wx:if="{{todos.length === 0}}" class="empty" style="margin-top:8rpx">还没有要到期的事。去「记录」页记一次疫苗或驱虫，这里就会开始倒计时。</view>
     </view>
 
+    <!-- 今年汇总 -->
+    <view wx:if="{{sumYear.deworm || sumYear.vaccine || costYear}}" class="sumrow">
+      <text class="sumlabel">这一年</text>
+      <text class="sumitem" wx:if="{{sumYear.deworm}}">驱虫 {{sumYear.deworm}} 次</text>
+      <text class="sumdot" wx:if="{{sumYear.deworm && sumYear.vaccine}}">·</text>
+      <text class="sumitem" wx:if="{{sumYear.vaccine}}">疫苗 {{sumYear.vaccine}} 针</text>
+      <text class="sumdot" wx:if="{{costYear && (sumYear.deworm || sumYear.vaccine)}}">·</text>
+      <text class="sumitem" wx:if="{{costYear}}">花了 ¥{{costYear}}</text>
+    </view>
+
     <!-- 最近 -->
     <view class="sec-title" style="margin-top:36rpx">
       <text>最近</text>

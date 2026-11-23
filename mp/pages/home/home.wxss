@@ -136,3 +136,28 @@
   font-size: 24rpx;
   text-align: center;
 }
+
+/* ---- 今年汇总 ---- */
+.sumrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10rpx;
+  margin: 8rpx 4rpx 0;
+  padding: 18rpx 22rpx;
+  border-radius: 18rpx;
+  background: rgba(var(--sh, 58, 50, 44), .05);
+}
+.sumlabel {
+  font-size: 21rpx;
+  color: var(--muted, #9A8F84);
+  margin-right: 6rpx;
+}
+.sumitem {
+  font-size: 23rpx;
+  color: var(--ink, #3A322C);
+}
+.sumdot {
+  font-size: 21rpx;
+  color: var(--muted, #9A8F84);
+}

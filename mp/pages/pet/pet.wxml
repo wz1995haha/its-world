@@ -22,72 +22,6 @@
       </view>
     </view>
 
-    <!-- 家里的几只 -->
-    <view class="sec-title"><text>家里有 {{petCount}} 只</text><text class="dim">点一下切过去</text></view>
-    <view class="card">
-      <view class="prow {{item.on ? 'on' : ''}}" wx:for="{{pets}}" wx:key="id" data-id="{{item.id}}" bindtap="switchPet">
-        <face species="{{item.species}}" mood="calm" breed-id="{{item.breedId}}" photo="{{item.photo}}" size="sm" />
-        <view class="pinfo">
-          <view class="pname">{{item.name}}</view>
-          <view class="psub">{{item.sub}}</view>
-        </view>
-        <text wx:if="{{item.on}}" class="pon">现在看的是它</text>
-      </view>
-      <view class="prow add" bindtap="newPet">＋ 再添一只</view>
-    </view>
-
-    <!-- 它的空间 -->
-    <view class="space" bindtap="goSpace">
-      <view class="sp-head">
-        <text class="sp-title serif">它的空间</text>
-        <text class="sp-count">{{storyCount}} 条 ›</text>
-      </view>
-      <view class="sp-sub">照片、视频、第一次，都留在这里</view>
-
-      <view wx:if="{{spaceRecent.length}}" class="sp-body">
-        <view class="sp-row" wx:for="{{spaceRecent}}" wx:key="id">
-          <text class="sp-date">{{item.date}}</text>
-          <text class="sp-text">{{item.title}}</text>
-        </view>
-      </view>
-      <view wx:else class="sp-none">还没有记录。从「第一次回家」开始写一条。</view>
-
-      <view class="sp-btn">进去看看</view>
-    </view>
-
-    <!-- 家里的几只 -->
-    <view class="sec-title"><text>家里的 {{petCount}} 只</text><text class="dim">点名字切换</text></view>
-    <view class="card">
-      <view class="prow {{item.on ? 'on' : ''}}" wx:for="{{pets}}" wx:key="id" data-id="{{item.id}}" bindtap="switchPet">
-        <face species="{{item.species}}" mood="calm" breed-id="{{item.breedId}}" photo="{{item.photo}}" size="sm" />
-        <view class="pinfo">
-          <view class="pname">{{item.name}}</view>
-          <view class="psub">{{item.sub}}</view>
-        </view>
-        <text wx:if="{{item.on}}" class="pon">现在看的是它</text>
-      </view>
-      <view class="prow add" bindtap="newPet">＋ 再添一只</view>
-    </view>
-
-    <!-- 它的空间 -->
-    <view class="space" bindtap="goSpace">
-      <view class="space-top">
-        <view class="space-t serif">它的空间</view>
-        <view class="space-r">{{storyCount}} 条 ›</view>
-      </view>
-      <view class="space-s">从到家的第一天开始，照片、视频、第一次，都留在这儿</view>
-
-      <view wx:if="{{spaceRecent.length}}" class="sp-list">
-        <view class="sp-item" wx:for="{{spaceRecent}}" wx:key="id">
-          <text class="sp-d">{{item.date}}</text>
-          <text class="sp-t">{{item.title}}</text>
-        </view>
-      </view>
-      <view wx:else class="sp-empty">还没有记录。第一次回家、第一次洗澡、第一次学会坐下——都值得留一条。</view>
-
-      <view class="sp-more" catchtap="goSpace">进去看看 / 记一条 ›</view>
-    </view>
-
     <view class="sec-title"><text>它的资料</text><text class="link" bindtap="rename">改名字</text></view>
     <view class="card">
       <view class="kv">
@@ -115,6 +49,38 @@
           <text class="v">{{pet.homeDate || '选日期'}} ›</text>
         </view>
       </picker>
+    </view>
+
+    <!-- 它的空间 -->
+    <view class="space" bindtap="goSpace">
+      <view class="sp-head">
+        <text class="sp-title serif">它的空间</text>
+        <text class="sp-count">{{storyCount}} 条 ›</text>
+      </view>
+      <view class="sp-sub">从到家的第一天开始，照片、视频、第一次，都留在这儿</view>
+
+      <view wx:if="{{spaceRecent.length}}" class="sp-body">
+        <view class="sp-row" wx:for="{{spaceRecent}}" wx:key="id">
+          <text class="sp-date">{{item.date}}</text>
+          <text class="sp-text">{{item.title}}</text>
+        </view>
+      </view>
+      <view wx:else class="sp-none">还没有记录。第一次回家、第一次洗澡、第一次学会坐下——都值得留一条。</view>
+
+      <view class="sp-btn" catchtap="goSpace">进去看看 / 记一条 ›</view>
+    </view>
+
+    <view class="sec-title"><text>家里有 {{petCount}} 只</text><text class="dim">点一下切过去</text></view>
+    <view class="card">
+      <view class="prow {{item.on ? 'on' : ''}}" wx:for="{{pets}}" wx:key="id" data-id="{{item.id}}" bindtap="switchPet">
+        <face species="{{item.species}}" mood="calm" breed-id="{{item.breedId}}" photo="{{item.photo}}" size="sm" />
+        <view class="pinfo">
+          <view class="pname">{{item.name}}</view>
+          <view class="psub">{{item.sub}}</view>
+        </view>
+        <text wx:if="{{item.on}}" class="pon">现在看的是它</text>
+      </view>
+      <view class="prow add" bindtap="newPet">＋ 再添一只</view>
     </view>
 
     <view class="sec-title"><text>换个主题</text><text class="dim">只换配色，不改内容</text></view>

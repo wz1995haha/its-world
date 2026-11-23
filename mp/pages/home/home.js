@@ -41,6 +41,17 @@ function cycleText(months) {
   return '每 ' + months + ' 个月';
 }
 
+function sumOf(pet, yr) {
+  var recs = S.records(pet.id) || [];
+  var n = 0, v = 0;
+  recs.forEach(function (r) {
+    if (String(r.date || '').slice(0, 4) !== yr) return;
+    if (r.kind === 'deworm') n++;
+    if (r.kind === 'vaccine') v++;
+  });
+  return { deworm: n, vaccine: v, year: yr };
+}
+
 Page({
   data: {
     ob: { name: '', species: 'cat', breedIndex: 0 },
@@ -204,6 +215,7 @@ Page({
       todos: todos,
       recent: recent,
       costYear: S.costSum(pet.id, key.slice(0, 4) + '-01-01'),
+      sumYear: sumOf(pet, key.slice(0, 4)),
     });
   },
 
