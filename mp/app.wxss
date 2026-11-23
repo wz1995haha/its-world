@@ -368,3 +368,12 @@ page {
   background: rgba(var(--accent-rgb, 194, 97, 63), .10);
   border-color: rgba(var(--accent-rgb, 194, 97, 63), .28);
 }
+
+/* 分享图用的离屏画布：不占布局、不显示 */
+.share-canvas {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 500px;
+  height: 400px;
+}

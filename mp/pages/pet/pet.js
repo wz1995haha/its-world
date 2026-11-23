@@ -82,6 +82,7 @@ function lastDewormText(pet, route) {
 }
 Page({
   data: {
+    shareImg: '',
     themeStyle: '',
     hasPet: false,
     pet: null,
@@ -153,6 +154,7 @@ Page({
       }),
       cloudOn: require('../../utils/cloud.js').enabled()
     });
+    share.prepare(this, pet);
   },
 
   switchPet: function (e) {

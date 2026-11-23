@@ -1,5 +1,6 @@
 <!-- home.wxml — 该做什么 -->
 <view class="app" style="{{themeStyle}}">
+  <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
 
   <block wx:if="{{!hasPet || creating}}">
     <view class="card" style="margin-top:32rpx">

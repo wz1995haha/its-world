@@ -141,6 +141,22 @@ function pushNow(uid, petId, cb) {
           jobs.push(d.collection('stories').doc(petId + '_' + one.id).set({ data: one })
             .catch(function () {}));
         });
+        /* 到期提醒：把「下次该做什么」同步一份到云端，供云函数每天扫 */
+        try {
+          var due = PT.STORE.dueList(petId) || [];
+          var items = due.map(function (x) {
+            return { key: x.key, kind: x.kind, title: x.title, next: x.next, days: x.days };
+          });
+          jobs.push(d.collection('reminders').doc(petId).set({
+            data: {
+              _openid: uid,
+              petId: petId,
+              petName: pet.name,
+              items: items,
+              updatedAt: Date.now()
+            }
+          }).catch(function () {}));
+        } catch (e) { console.warn('[cloud] reminders 失败', e); }
         return Promise.all(jobs);
       })
       .then(function () { if (cb) cb(true); })
@@ -149,6 +165,31 @@ function pushNow(uid, petId, cb) {
         if (cb) cb(false);
       });
   }
+}
+
+/* 订阅可用条数 +1（一次性订阅：授权一次只能发一条） */
+function grantSub(n, cb) {
+  if (!init()) { if (cb) cb(false); return; }
+  login(function (uid) {
+    if (!uid) { if (cb) cb(false); return; }
+    ensureInit(function () {
+      var d = db();
+      d.collection('subs').where({ _openid: uid }).get()
+        .then(function (res) {
+          var doc = res.data && res.data[0];
+          if (!doc) {
+            return d.collection('subs').add({
+              data: { _openid: uid, remain: n || 1, updatedAt: Date.now() }
+            });
+          }
+          return d.collection('subs').doc(doc._id).update({
+            data: { remain: (doc.remain || 0) + (n || 1), updatedAt: Date.now() }
+          });
+        })
+        .then(function () { if (cb) cb(true); })
+        .catch(function (e) { console.warn('[cloud] grantSub 失败', e); if (cb) cb(false); });
+    });
+  });
 }
 
 /* ---------------- 云存储 ---------------- */
@@ -181,6 +222,7 @@ function tempUrls(fileIds, cb) {
 }
 
 module.exports = {
+  grantSub: grantSub,
   setEnv: setEnv,
   enabled: enabled,
   init: init,

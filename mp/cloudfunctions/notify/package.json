@@ -1,0 +1,16 @@
+{
+  "name": "notify",
+  "version": "1.0.0",
+  "description": "每天扫到期项，发订阅消息",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "cloudfunctionConfig": {
+    "permissions": {
+      "openapi": [
+        "subscribeMessage.send"
+      ]
+    }
+  }
+}

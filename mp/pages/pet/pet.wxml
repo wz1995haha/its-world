@@ -1,5 +1,6 @@
 <!-- pet.wxml -->
 <view class="app" style="{{themeStyle}}">
+  <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
   <block wx:if="{{hasPet}}">
     <!-- 头像 + 陪伴天数 -->
     <view class="hero">

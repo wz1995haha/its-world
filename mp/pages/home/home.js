@@ -68,7 +68,8 @@ Page({
     todos: [],
     recent: [],
     costYear: 0,
-    cloudOn: false
+    cloudOn: false,
+    shareImg: ''
   },
 
   onLoad: function () {
@@ -217,6 +218,15 @@ Page({
       costYear: S.costSum(pet.id, key.slice(0, 4) + '-01-01'),
       sumYear: sumOf(pet, key.slice(0, 4)),
     });
+    share.prepare(this, pet);
+  },
+
+  onShareAppMessage: function () {
+    return share.message(this, this.data.pet);
+  },
+
+  onShareTimeline: function () {
+    return share.timeline(this, this.data.pet);
   },
 
   newPet: function () {
@@ -249,10 +259,21 @@ Page({
   toggleBell: function (e) {
     var key = e.currentTarget.dataset.key;
     var on = S.toggleReminder(key);
+    var self = this;
     this.refresh();
-    wx.showToast({
-      title: on ? '到期前会提醒你一次' : '不再提醒',
-      icon: 'none'
+    if (!on) {
+      wx.showToast({ title: '不再提醒', icon: 'none' });
+      return;
+    }
+    /* 打开提醒时，顺手申请一次订阅消息授权（一次性订阅：授权一次发一条） */
+    notify.askAndGrant('vaccine', function (ok, why) {
+      if (ok) {
+        wx.showToast({ title: '到期前微信会通知你', icon: 'none' });
+      } else if (why === '没配模板') {
+        wx.showToast({ title: '已打开提醒（微信通知还没开通）', icon: 'none' });
+      } else {
+        wx.showToast({ title: '已打开提醒（没授权微信通知）', icon: 'none' });
+      }
     });
   },
 

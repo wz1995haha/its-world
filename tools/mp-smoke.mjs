@@ -234,6 +234,29 @@ console.log('— 它的空间 —');
   ok('能删掉一条', S.stories(pet.id).length === n - 1);
   ok('删完查不到', !S.storyById(st1.id, pet.id));
 }
+
+/* ---------------- 订阅提醒 & 分享 ---------------- */
+console.log('— 订阅提醒 —');
+{
+  const notify = require('../mp/utils/notify.js');
+  ok('模板占位是空的', notify.ready('vaccine') === false);
+  ok('驱虫走驱虫模板', notify.tplOf({ kind: 'deworm' }) === notify.TPL.deworm);
+  ok('复诊走复诊模板', notify.tplOf({ kind: 'visit' }) === notify.TPL.visit);
+  ok('疫苗走疫苗模板', notify.tplOf({ kind: 'vaccine' }) === notify.TPL.vaccine);
+  ok('3 天内要提醒', notify.shouldPing(2) === true);
+  ok('已过期也要提醒', notify.shouldPing(-4) === true);
+  ok('还早就不提醒', notify.shouldPing(30) === false);
+  ok('没日期不提醒', notify.shouldPing(null) === false);
+}
+
+console.log('— 分享卡片 —');
+{
+  const share = require('../mp/utils/share.js');
+  ok('没照片用画的头像', share.facePath({ species: 'cat', breedId: 'orange' }) === '/assets/faces/cat-orange-calm.png');
+  ok('有照片用照片', share.facePath({ species: 'cat', photo: '/tmp/a.jpg' }) === '/tmp/a.jpg');
+  ok('没品种有兜底', share.facePath({ species: 'dog' }) === '/assets/faces/dog-tianyuan-calm.png');
+}
+
 printResult();
 }, 30);
 cloud.setEnv('');
