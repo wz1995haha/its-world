@@ -91,10 +91,17 @@ Page({
       this.newPet();
       return;
     }
+    /* 别处（记录页/档案页）刚改过数据：立刻刷新，并 20 秒内不要 pull，
+       否则云端旧数据会把刚记的盖掉 */
+    var dirty = app && app.globalData && app.globalData.dirtyAt;
+    if (dirty) {
+      this._skipPullUntil = Date.now() + 20000;
+      if (app.globalData) app.globalData.dirtyAt = 0;
+    }
     this.refresh();
     if (cloud.enabled()) {
       var now = Date.now();
-      if (!this._lastPull || now - this._lastPull > 60000) {
+      if ((!this._skipPullUntil || now > this._skipPullUntil) && (!this._lastPull || now - this._lastPull > 60000)) {
         this._lastPull = now;
         this.pull();
       }
@@ -160,7 +167,11 @@ Page({
     var key = PT.todayKey();
     var due = S.dueList();
     var remind = S.reminders();
-    var todos = due.slice(0, 4).map(function (d) {
+    /* 排序后：过期的、7 天内到期的全部显示；其余最多补 3 条，总共不超过 6 条 */
+    var urgent = due.filter(function (d) { return d.days <= 7; });
+    var later = due.filter(function (d) { return d.days > 7; }).slice(0, 3);
+    var shown = urgent.concat(later).slice(0, 6);
+    var todos = shown.map(function (d) {
       return {
         key: d.key, kind: d.kind, icon: d.icon, name: d.name,
         last: cnDate(d.last), next: cnDate(d.next), days: d.days, status: d.status,

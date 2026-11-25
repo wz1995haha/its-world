@@ -310,6 +310,9 @@ Page({
 
     if (saved) {
       var pet = S.active();
+      /* 告诉别的页面「数据变了」，它们 onShow 时会强制刷新 */
+      var app = getApp();
+      if (app && app.globalData) app.globalData.dirtyAt = Date.now();
       if (pet && cloud.enabled()) cloud.push(pet.id);
       wx.showToast({ title: d.editing ? '已更新' : '记下了', icon: 'none' });
       setTimeout(function () { wx.navigateBack(); }, 320);

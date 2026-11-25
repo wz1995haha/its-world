@@ -65,11 +65,17 @@ Page({
   },
 
   onShow: function () {
+    var app0 = getApp();
+    var dirty0 = app0 && app0.globalData && app0.globalData.dirtyAt;
+    if (dirty0) {
+      this._skipPullUntil = Date.now() + 20000;
+      app0.globalData.dirtyAt = 0;
+    }
     this.refresh();
     /* 一分钟最多拉一次：别的设备改了这边能看到 */
     if (cloud.enabled()) {
       var now = Date.now();
-      if (!this._lastPull || now - this._lastPull > 60000) {
+      if ((!this._skipPullUntil || now > this._skipPullUntil) && (!this._lastPull || now - this._lastPull > 60000)) {
         this._lastPull = now;
         this.pull();
       }

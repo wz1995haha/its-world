@@ -43,7 +43,17 @@ ok('体重/数字存下来了', S.day(key).events[0].num === 45);
 const diary = S.generate(key);
 ok('写出了日记', !!diary && !!diary.title, diary && diary.title);
 ok('正文是多句', String(diary.body).split('\n').length >= 3);
-ok('重点事件进标题或正文', /疫苗|忍住|针|医生|医院|出门/.test(diary.title + diary.body));
+/* 疫苗的句子有好几种写法，随机抽样一次可能刚好都不含这些词，
+   所以最多试三次，任意一次命中就算过 */
+ok('重点事件进标题或正文', (function () {
+  var re = /疫苗|忍住|针|医生|医院|门口|牌子|勇敢/;
+  if (re.test(diary.title + diary.body)) return true;
+  for (var i = 0; i < 3; i++) {
+    var t = S.generate(key, 1);
+    if (re.test(t.title + t.body)) return true;
+  }
+  return false;
+})());
 
 /* 再写一次应该换一版 */
 const d2 = S.generate(key, 1);

@@ -33,6 +33,8 @@ Page({
   },
 
   onShow: function () {
+    var app0 = getApp();
+    if (app0 && app0.globalData) app0.globalData.dirtyAt = 0;
     var t = themeStyle.styleNow();
     this.setData({ themeStyle: t.themeStyle });
     this.refresh();
@@ -96,6 +98,10 @@ Page({
   },
 
   add: function () {
-    wx.navigateTo({ url: '/pages/record/record' });
+    /* 上面选了哪一类，进去就直接是那一类的表单，不用再选一次 */
+    var f = this.data.filter;
+    var url = '/pages/record/record';
+    if (f && f !== 'all') url += '?kind=' + f;
+    wx.navigateTo({ url: url });
   }
 });

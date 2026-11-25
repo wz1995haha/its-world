@@ -28,6 +28,7 @@ Page({
     vaccines: [],
     deworm: [],
     care: [],
+    recent: [],
     list: [],
     openCount: 0,
     totalCost: 0,
@@ -35,6 +36,8 @@ Page({
   },
 
   onShow: function () {
+    var app0 = getApp();
+    if (app0 && app0.globalData) app0.globalData.dirtyAt = 0;
     var t = themeStyle.styleNow();
     this.setData({ themeStyle: t.themeStyle, padTop: nav.info().padTop });
     this.refresh();
@@ -95,6 +98,17 @@ Page({
       };
     });
 
+    /* ---- 最近记录：什么类型都列出来，避免「记了却看不到」 ---- */
+    var recent = recs.slice(0, 8).map(function (r) {
+      return {
+        id: r.id,
+        icon: PT.recIcon(r),
+        title: PT.recTitle(r),
+        day: PT.fmtShort(r.date),
+        cost: Number(r.cost) || 0
+      };
+    });
+
     /* ---- 病史 ---- */
     var cost = 0;
     var list = (S.episodes(pet.id) || []).map(function (e) {
@@ -131,6 +145,7 @@ Page({
       vaccines: vaccines,
       deworm: deworm,
       care: care,
+      recent: recent,
       list: list,
       openCount: openCount,
       totalCost: Math.round(cost * 10) / 10,

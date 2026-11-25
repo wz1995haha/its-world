@@ -75,6 +75,21 @@
       </view>
     </view>
 
+    <!-- 最近记录 -->
+    <view class="sec-title"><text>最近记录</text><text class="dim">什么类型都在这里</text></view>
+    <view class="card">
+      <view class="vrow" wx:for="{{recent}}" wx:key="id" data-id="{{item.id}}" bindtap="openOne">
+        <view class="vmain">
+          <view class="vname">{{item.icon}} {{item.title}}</view>
+          <view class="vsub">{{item.day}}<text wx:if="{{item.cost}}"> · ¥{{item.cost}}</text></view>
+        </view>
+        <view class="vact">改</view>
+      </view>
+      <view class="hempty" wx:if="{{!recent.length}}">
+        <view class="etext">还没有任何记录，去「记录」页记第一条吧。</view>
+      </view>
+    </view>
+
     <!-- 病史 -->
     <view class="sec-title">
       <text>病史</text>
